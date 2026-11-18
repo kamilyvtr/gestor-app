@@ -29,15 +29,22 @@
   //   3) valor guardado no localStorage (último ?api usado)
   //   4) padrão local
   function resolverBaseUrl() {
-    // 1) parâmetro ?api= na URL — prioridade máxima: é assim que o link gerado
-    //    pelo start_ngrok.ps1 atualiza o iPhone mesmo após visitas anteriores.
+    // 1) parâmetro ?api= na URL — prioridade máxima e persiste nesta sessão
+    //    do navegador (útil para testar o front local contra outra API).
     try {
       const params = new URLSearchParams(window.location.search);
       const daQuery = params.get('api');
       if (daQuery) {
+        try { sessionStorage.setItem('gestor-senai.api-override', daQuery); } catch (e) { /* ignora */ }
         try { localStorage.setItem('gestor-senai.api-base-url', daQuery); } catch (e) { /* ignora */ }
         return daQuery.replace(/\/+$/, '');
       }
+    } catch (erro) { /* ignora */ }
+
+    // 1.1) override manual salvo nesta sessão (sobrevive à troca de página).
+    try {
+      const override = sessionStorage.getItem('gestor-senai.api-override');
+      if (override) return String(override).replace(/\/+$/, '');
     } catch (erro) { /* ignora */ }
 
     // 2) env.js (gerado pelo start_ngrok.ps1).

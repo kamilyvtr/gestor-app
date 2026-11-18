@@ -40,7 +40,19 @@ python -m uvicorn app.main:app --host 0.0.0.0 --port 8000   # dentro de backend/
 python serve.py                                             # na raiz
 ```
 
-O front-end local lê a API de `env.js` (`API_BASE_URL`).
+**A URL da API é escolhida automaticamente pelo `env.js`:**
+
+| Onde a página está aberta | API usada |
+|---|---|
+| `localhost:8080` / `127.0.0.1:8080` | `http://localhost:8000` (local) |
+| Vercel (ou qualquer domínio público) | `https://gestor-app-to6m.onrender.com` |
+
+Para apontar o front para **outra** API sem editar arquivos, abra uma vez com
+`?api=`: `http://localhost:8080/?api=https://gestor-app-to6m.onrender.com`
+(o override vale para a sessão do navegador).
+
+> Ao abrir o site local pela primeira vez após uma atualização, recarregue a página
+> **duas vezes**: a primeira baixa o `sw.js` novo, a segunda já usa os arquivos novos.
 
 ## Deploy automático (fluxo de trabalho)
 
