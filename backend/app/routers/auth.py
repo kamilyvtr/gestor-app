@@ -46,9 +46,15 @@ def login(dados: LoginIn, response: Response, db: Session = Depends(get_db)) -> 
     )
 
 
-@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+@router.post(
+    "/logout",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_model=None,
+    summary="Encerra a sessão",
+)
 def logout(response: Response) -> None:
     response.delete_cookie(settings.cookie_name, path="/")
+    return None
 
 
 @router.get("/me", response_model=MeOut, summary="Usuário autenticado")
