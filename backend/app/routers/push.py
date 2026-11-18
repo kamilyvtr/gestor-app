@@ -51,7 +51,12 @@ def inscrever(
     )
 
 
-@router.delete("/cancelar", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/cancelar",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_model=None,
+    summary="Cancela a inscrição de Web Push",
+)
 def cancelar(
     endpoint: str = Query(min_length=10),
     aluno: Aluno = Depends(aluno_atual),
