@@ -5,6 +5,6 @@
   'use strict';
 
   window.GESTOR_ENV = Object.freeze({
-    API_BASE_URL: 'https://gestor-senai-api.onrender.com'
+    API_BASE_URL: 'https://gestor-app-to6m.onrender.com'
   });
 })();

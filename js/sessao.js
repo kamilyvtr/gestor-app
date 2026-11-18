@@ -64,6 +64,12 @@
   const CHAVE_USUARIO = 'gestor-senai.usuario';
   const PAGINA_LOGIN = 'login.html';
 
+  // O plano free do Render hiberna e pode levar ~50s para acordar.
+  // Por isso: aviso amigável na tela após 3s e timeout total de 60s.
+  const TIMEOUT_REQUISICAO_MS = 60000;
+  const AVISO_SERVIDOR_LENTO_MS = 3000;
+  const TIMEOUT_LOGOUT_MS = 5000;
+
   class ErroAPI extends Error {
     constructor(mensagem, status, detalhe) {
       super(mensagem);
@@ -166,6 +172,53 @@
     }
   }
 
+  /* ------------------------------------------------------------------------
+     Aviso "acordando o servidor" (Render free)
+     Aparece quando uma requisição demora mais de 3s e some sozinho no fim.
+     ---------------------------------------------------------------------- */
+  let avisoConexaoEl = null;
+  let avisosConexaoAtivos = 0;
+
+  function mostrarAvisoConexao() {
+    avisosConexaoAtivos += 1;
+    if (avisoConexaoEl || !document.body) return;
+
+    const el = document.createElement('div');
+    el.id = 'gestor-aviso-conexao';
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
+    el.textContent =
+      'Acordando o servidor... Isso pode levar até 1 minuto na primeira vez.';
+    Object.assign(el.style, {
+      position: 'fixed',
+      top: '12px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      zIndex: '9999',
+      maxWidth: 'calc(100vw - 24px)',
+      padding: '12px 18px',
+      borderRadius: '12px',
+      background: 'rgba(13, 47, 87, 0.96)',
+      color: '#ffffff',
+      font: '600 13px/1.4 "Segoe UI", system-ui, sans-serif',
+      textAlign: 'center',
+      boxShadow: '0 10px 30px rgba(13, 47, 87, 0.35)',
+      pointerEvents: 'none'
+    });
+
+    document.body.appendChild(el);
+    avisoConexaoEl = el;
+  }
+
+  function esconderAvisoConexao() {
+    avisosConexaoAtivos = Math.max(0, avisosConexaoAtivos - 1);
+    if (avisosConexaoAtivos > 0) return;
+    if (avisoConexaoEl && avisoConexaoEl.parentNode) {
+      avisoConexaoEl.parentNode.removeChild(avisoConexaoEl);
+    }
+    avisoConexaoEl = null;
+  }
+
   /**
    * Requisição autenticada.
    *
@@ -186,6 +239,20 @@
       body = JSON.stringify(corpo);
     }
 
+    const controlador = new AbortController();
+    let estourouTempo = false;
+    let avisoAtivo = false;
+
+    const timerTimeout = setTimeout(() => {
+      estourouTempo = true;
+      controlador.abort();
+    }, TIMEOUT_REQUISICAO_MS);
+
+    const timerAviso = setTimeout(() => {
+      avisoAtivo = true;
+      mostrarAvisoConexao();
+    }, AVISO_SERVIDOR_LENTO_MS);
+
     let resposta;
     try {
       resposta = await fetch(`${BASE_URL}${caminho}`, {
@@ -193,12 +260,23 @@
         headers: cabecalhos,
         body,
         credentials: 'include',
-        cache: 'no-store'
+        cache: 'no-store',
+        signal: controlador.signal
       });
     } catch (erro) {
+      if (estourouTempo) {
+        throw new ErroRede(
+          'O servidor demorou mais de 60 segundos para responder. ' +
+            'No plano gratuito do Render ele pode estar acordando — tente novamente em instantes.'
+        );
+      }
       throw new ErroRede(
         `Não foi possível conectar à API em ${BASE_URL}. Verifique se o servidor está no ar.`
       );
+    } finally {
+      clearTimeout(timerTimeout);
+      clearTimeout(timerAviso);
+      if (avisoAtivo) esconderAvisoConexao();
     }
 
     if (resposta.status === 401 || resposta.status === 403) {
@@ -229,6 +307,9 @@
   }
 
   async function sair() {
+    const controlador = new AbortController();
+    const timer = setTimeout(() => controlador.abort(), TIMEOUT_LOGOUT_MS);
+
     try {
       await fetch(`${BASE_URL}/auth/logout`, {
         method: 'POST',
@@ -237,10 +318,13 @@
           'Content-Type': 'application/json'
         },
         credentials: 'include',
-        cache: 'no-store'
+        cache: 'no-store',
+        signal: controlador.signal
       });
     } catch (erro) {
-      /* sem rede: encerra a sessão local mesmo assim */
+      /* sem rede (ou servidor lento): encerra a sessão local mesmo assim */
+    } finally {
+      clearTimeout(timer);
     }
 
     limparSessao();

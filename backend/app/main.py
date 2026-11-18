@@ -75,15 +75,12 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# CORS: liberado para todas as origens (facilita testes e a apresentação do TCC).
+# O front-end usa `credentials: 'include'`, e o Starlette espelha a origem exata
+# na resposta quando há credenciais (em vez de enviar "*"), então continua válido.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8080",
-        "http://127.0.0.1:8080",
-        "https://gestor-senai.vercel.app",
-        *settings.cors_origins,
-    ],
-    allow_origin_regex=r"^https://.*\.devtunnels\.ms$",
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
