@@ -75,12 +75,22 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS: liberado para todas as origens (facilita testes e a apresentação do TCC).
-# O front-end usa `credentials: 'include'`, e o Starlette espelha a origem exata
-# na resposta quando há credenciais (em vez de enviar "*"), então continua válido.
+# CORS: o front-end usa `credentials: 'include'`, então as origens precisam ser
+# explícitas (o navegador rejeita "*" em requisições com credenciais).
+origins = [
+    "https://gestor-app-backend-fpbt2hhvk-kamilyvtrs-projects.vercel.app",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:8000",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
+    # Cobre o domínio de produção e todos os previews futuros da Vercel.
+    allow_origin_regex=r"^https://.*\.vercel\.app$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
