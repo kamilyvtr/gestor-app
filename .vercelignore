@@ -1,0 +1,23 @@
+# Back-end Python (hospedado no Render, não na Vercel)
+backend/
+
+# Dependências e ferramentas de build (CSS já compilado em css/app.css)
+node_modules/
+src/
+package.json
+package-lock.json
+tailwind.config.js
+
+# Scripts e artefatos locais de desenvolvimento
+scripts/
+reports/
+01_Identidade_Visual/
+serve.py
+Ligar_Sistema.bat
+start_ngrok.ps1
+start_tunnel.ps1
+ngrok.yml
+tunnel-urls.txt
+*.log
+*.pdf
+GUIA_TESTE_IPHONE.md
