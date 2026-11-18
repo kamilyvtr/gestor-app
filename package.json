@@ -1,0 +1,16 @@
+{
+  "name": "gestor-senai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Gestor SENAI — PWA do aluno e painel da coordenação",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/input.css -o ./css/app.css --minify",
+    "watch:css": "tailwindcss -i ./src/input.css -o ./css/app.css --watch",
+    "lh": "node scripts/lighthouse.mjs"
+  },
+  "devDependencies": {
+    "lighthouse": "^12.8.2",
+    "puppeteer-core": "^24.10.2",
+    "tailwindcss": "^3.4.19"
+  }
+}

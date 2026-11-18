@@ -1,0 +1,396 @@
+@charset "UTF-8";
+
+/* ==========================================================================
+   Gestor SENAI — PWA do aluno
+   Estilos complementares ao Tailwind (CDN).
+   Nada aqui simula um aparelho: o layout ocupa a tela real do dispositivo.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+  --senai-dark: #003B5C;
+  --senai-orange: #F26522;
+  --senai-bg: #F5F7FA;
+  --senai-line: #E5EAF0;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+html {
+  font-size: clamp(14px, 1.6vw + 10px, 16px);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100dvh;
+  margin: 0;
+  background-color: var(--senai-bg);
+  overscroll-behavior-y: none;
+  text-rendering: optimizeLegibility;
+  /* Evita "pull to refresh" acidental dentro do app instalado. */
+  touch-action: manipulation;
+}
+
+body.sheet-open {
+  overflow: hidden;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+/* O atributo [hidden] precisa vencer os utilitários display:flex/grid do Tailwind. */
+[hidden] {
+  display: none !important;
+}
+
+::selection {
+  background: rgba(242, 101, 34, 0.2);
+  color: var(--senai-dark);
+}
+
+:focus-visible {
+  outline: 2px solid var(--senai-orange);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   Safe areas (notch / barra de gestos / cantos arredondados)
+   O sistema operacional desenha a status bar nativa; aqui só reservamos o
+   espaço necessário para o conteúdo não ficar embaixo dela.
+   -------------------------------------------------------------------------- */
+
+.app-header {
+  padding-top: calc(var(--safe-top) + 0.35rem);
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
+}
+
+.app-main {
+  /* espaço para a bottom nav fixa + safe area do iOS */
+  padding-bottom: calc(var(--safe-bottom) + 6.5rem);
+  padding-left: max(0px, var(--safe-left));
+  padding-right: max(0px, var(--safe-right));
+}
+
+.app-nav {
+  padding-bottom: calc(var(--safe-bottom) + 0.4rem);
+  padding-left: max(0.5rem, var(--safe-left));
+  padding-right: max(0.5rem, var(--safe-right));
+}
+
+.app-toast {
+  top: calc(var(--safe-top) + 6.75rem);
+}
+
+.sheet-panel {
+  padding-bottom: calc(var(--safe-bottom) + 1.75rem);
+}
+
+/* --------------------------------------------------------------------------
+   Estrutura de telas (SPA leve, com rolagem natural)
+   -------------------------------------------------------------------------- */
+
+.view {
+  display: none;
+}
+
+.view.is-active {
+  display: block;
+  animation: viewIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes viewIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+/* --------------------------------------------------------------------------
+   Alerta em tempo real
+   -------------------------------------------------------------------------- */
+
+@keyframes alertPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(242, 101, 34, 0.34), 0 14px 26px -22px rgba(242, 101, 34, 0.9);
+  }
+  55% {
+    box-shadow: 0 0 0 10px rgba(242, 101, 34, 0), 0 14px 26px -22px rgba(242, 101, 34, 0.35);
+  }
+}
+
+.alert-pulse {
+  animation: alertPulse 2.8s ease-in-out infinite;
+}
+
+@keyframes softBlink {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.8);
+  }
+}
+
+.live-dot {
+  animation: softBlink 1.9s ease-in-out infinite;
+}
+
+.alert-dismissing {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.99);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+
+/* --------------------------------------------------------------------------
+   Bottom navigation
+   -------------------------------------------------------------------------- */
+
+.nav-btn {
+  color: #64748b;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nav-btn .nav-icon-wrap {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.nav-btn .nav-indicator {
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.nav-btn.is-active {
+  color: var(--senai-orange);
+}
+
+.nav-btn.is-active .nav-icon-wrap {
+  background: rgba(242, 101, 34, 0.1);
+}
+
+.nav-btn.is-active .nav-indicator {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* O laranja puro não passa no contraste para texto pequeno: o rótulo ativo
+   usa o azul da marca, mantendo o ícone e o indicador laranja. */
+.nav-btn.is-active .nav-label {
+  color: var(--senai-dark);
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   Toast de notificação
+   -------------------------------------------------------------------------- */
+
+#toast {
+  opacity: 0;
+  transform: translateY(-16px);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+#toastBar {
+  width: 100%;
+}
+
+#toast.is-visible #toastBar {
+  animation: toastBar 6s linear forwards;
+}
+
+@keyframes toastBar {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Bottom sheet de detalhes
+   -------------------------------------------------------------------------- */
+
+#sheetOverlay {
+  pointer-events: none;
+}
+
+#sheetOverlay.is-open {
+  pointer-events: auto;
+}
+
+#sheetBackdrop {
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+#sheetOverlay.is-open #sheetBackdrop {
+  opacity: 1;
+}
+
+#sheetPanel {
+  transform: translateY(104%);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#sheetOverlay.is-open #sheetPanel {
+  transform: translateY(0);
+}
+
+/* --------------------------------------------------------------------------
+   Componentes
+   -------------------------------------------------------------------------- */
+
+.eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #5b6b7f;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.press {
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.press:active {
+  transform: scale(0.985);
+}
+
+.card-pattern {
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent 55%);
+  background-size: 18px 18px, 100% 100%;
+}
+
+.day-chip {
+  border: 1px solid var(--senai-line);
+  background: #fff;
+  color: #64748b;
+  transition: all 0.18s ease;
+}
+
+.day-chip:hover {
+  border-color: #cbd5e1;
+  color: var(--senai-dark);
+}
+
+.day-chip.is-active {
+  border-color: var(--senai-dark);
+  background: var(--senai-dark);
+  color: #fff;
+  box-shadow: 0 10px 20px -14px rgba(0, 59, 92, 0.8);
+}
+
+.day-chip.is-today:not(.is-active) {
+  border-color: rgba(242, 101, 34, 0.45);
+  color: var(--senai-dark);
+}
+
+.legal-link {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(100, 116, 139, 0.4);
+}
+
+/* --------------------------------------------------------------------------
+   Dashboard da coordenação — Clean UI (ERP)
+   Reforça os utilitários Tailwind usados em dashboard.html / dashboard.js.
+   -------------------------------------------------------------------------- */
+
+.schedule-block {
+  border-radius: 0.5rem;
+}
+
+.schedule-block.is-dimmed {
+  opacity: 0.12;
+  filter: grayscale(1);
+  pointer-events: none;
+}
+
+.schedule-block:not(.is-dimmed):hover {
+  transform: translateY(-1px);
+}
+
+.empty-slot {
+  color: #94a3b8;
+}
+
+.empty-slot .ph-plus {
+  opacity: 0.45;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.empty-slot:hover {
+  color: var(--senai-dark);
+}
+
+.empty-slot:hover .ph-plus {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* --------------------------------------------------------------------------
+   Acessibilidade / movimento reduzido
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  #toast,
+  #sheetPanel {
+    transform: none;
+  }
+}

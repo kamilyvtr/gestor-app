@@ -1,0 +1,12 @@
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+*.db
+*.log
+ngrok.yml
+tunnel-urls.txt
+.DS_Store
+backend/gestor_senai.db

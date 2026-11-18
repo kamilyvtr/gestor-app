@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#003B5C" />
+  <meta name="description" content="Gestor SENAI — painel da coordenação para alocação inteligente de laboratórios, salas e instrutores." />
+  <meta name="version" content="1.0.0" />
+
+  <!-- Identidade visual oficial -->
+  <link rel="icon" type="image/svg+xml" href="assets/gestor-senai-icon.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Gestor SENAI" />
+
+  <title>Gestor SENAI · Coordenação</title>
+
+  <link rel="preload" href="assets/fonts/poppins-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/fonts/poppins-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="css/app.css" />
+  <link rel="stylesheet" href="assets/icons/regular.css" />
+  <link rel="stylesheet" href="assets/icons/fill.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <style>
+    html { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
+    body { text-rendering: optimizeLegibility; }
+
+    .sidebar-field {
+      background-image: radial-gradient(rgba(255, 255, 255, .13) 1px, transparent 1px);
+      background-size: 20px 20px;
+      mask-image: linear-gradient(to bottom, black, transparent 85%);
+      -webkit-mask-image: linear-gradient(to bottom, black, transparent 85%);
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { scrollbar-width: none; }
+
+    #scheduleWrap::-webkit-scrollbar { height: 8px; }
+    #scheduleWrap::-webkit-scrollbar-track { background: #F5F7FA; }
+    #scheduleWrap::-webkit-scrollbar-thumb { background: #DCE4EB; border-radius: 99px; }
+    #scheduleWrap::-webkit-scrollbar-thumb:hover { background: #C7D2DC; }
+
+    .filter-chip { background: #FFFFFF; color: #64748B; border-color: #E5EAF0; }
+    .filter-chip:hover { border-color: #CBD5E1; color: #003B5C; }
+    .filter-chip.is-active { background: #003B5C; color: #FFFFFF; border-color: #003B5C; }
+
+    .schedule-block {
+      transition: opacity .25s ease, filter .25s ease, box-shadow .2s ease, transform .2s ease;
+    }
+    .schedule-block.is-dimmed { opacity: .14; filter: grayscale(1); pointer-events: none; }
+    .schedule-block:not(.is-dimmed):hover { transform: translateY(-1px); }
+
+    .empty-slot .ph-plus { opacity: 0; transform: scale(.8); transition: all .2s ease; }
+    .empty-slot:hover .ph-plus, .empty-slot:focus-visible .ph-plus { opacity: 1; transform: scale(1); }
+
+    .nav-link { color: rgba(255, 255, 255, .52); }
+    .nav-link:hover { color: #FFFFFF; background: rgba(255, 255, 255, .05); }
+    .nav-link.is-active { color: #FFFFFF; background: rgba(255, 255, 255, .10); font-weight: 600; border-radius: .5rem; }
+    .nav-link.is-active i { color: #F26522; }
+
+    #drawer { pointer-events: none; }
+    #drawer.is-open { pointer-events: auto; }
+    #drawerBackdrop { opacity: 0; transition: opacity .35s ease; }
+    #drawer.is-open #drawerBackdrop { opacity: 1; }
+    #drawerPanel { transform: translateX(102%); transition: transform .5s cubic-bezier(.22, 1, .36, 1); }
+    #drawer.is-open #drawerPanel { transform: translateX(0); }
+
+    .dash-toast {
+      transform: translateY(18px);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform .4s cubic-bezier(.22, 1, .36, 1), opacity .3s ease;
+    }
+    .dash-toast.is-visible { transform: translateY(0); opacity: 1; pointer-events: auto; }
+
+    .rule-toggle .rule-knob { transition: all .2s ease; }
+
+    :focus-visible { outline: 2px solid #F26522; outline-offset: 3px; }
+
+    section[id], main[id] { scroll-margin-top: 96px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-senai-bg font-sans text-senai-ink antialiased selection:bg-senai-orange/20 selection:text-senai-dark">
+
+  <div id="top" class="min-h-screen">
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 flex w-[272px] -translate-x-full flex-col overflow-hidden bg-senai-dark text-white transition-transform duration-300 ease-out lg:translate-x-0">
+      <div class="pointer-events-none absolute inset-0 sidebar-field opacity-50"></div>
+      <div class="pointer-events-none absolute -bottom-16 -right-16 opacity-[0.05]">
+        <img src="assets/gestor-senai-icone-negativo.svg" alt="" aria-hidden="true" class="h-56 w-56" data-brand="marca-fundo-sidebar" />
+      </div>
+      <div class="pointer-events-none absolute -left-20 top-16 h-48 w-48 rounded-full bg-senai-orange/10 blur-3xl"></div>
+
+      <div class="relative flex items-center justify-between px-6 pb-7 pt-7">
+        <a href="#top" class="flex items-center gap-3" aria-label="Gestor SENAI — início">
+          <img src="assets/gestor-senai-icone-negativo.svg" alt="" aria-hidden="true" class="h-10 w-10 shrink-0" data-brand="logo-sidebar" />
+          <div>
+            <p class="text-[15px] font-semibold leading-none tracking-tight">Gestor <span class="font-light text-white/75">SENAI</span></p>
+            <p class="mt-1.5 text-[7.5px] font-medium uppercase tracking-[.28em] text-white/35">Coordenação</p>
+          </div>
+        </a>
+        <button id="closeSidebar" aria-label="Fechar menu" class="grid h-8 w-8 place-items-center rounded-xl text-white/50 transition hover:bg-white/10 hover:text-white lg:hidden">
+          <i class="ph ph-x text-[16px]"></i>
+        </button>
+      </div>
+
+      <div class="relative mx-6 h-px bg-white/10"></div>
+
+      <nav class="relative flex-1 overflow-y-auto px-4 py-6 no-scrollbar" aria-label="Menu principal">
+        <p class="px-3 text-[8px] font-semibold uppercase tracking-[.22em] text-white/30">Operação</p>
+
+        <div class="mt-3 space-y-1">
+          <a href="#top" class="nav-link is-active relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition" data-nav-link>
+            <i class="ph ph-squares-four text-[17px]"></i>
+            Dashboard
+          </a>
+
+          <a href="#regras" class="nav-link relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition" data-nav-link>
+            <i class="ph ph-door text-[17px]"></i>
+            Salas
+          </a>
+
+          <a href="#grade" class="nav-link relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition" data-nav-link>
+            <i class="ph ph-table text-[17px]"></i>
+            Grade
+          </a>
+
+          <a href="#avisos" class="nav-link relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition" data-nav-link>
+            <i class="ph ph-megaphone text-[17px]"></i>
+            Avisos
+            <span id="sidebarNoticeCount" class="ml-auto rounded-xl bg-white px-1.5 py-0.5 text-[8px] font-semibold text-senai-dark">—</span>
+          </a>
+        </div>
+
+      </nav>
+
+      <div class="relative mx-3 mb-4 flex items-center gap-3 rounded-2xl p-3 transition hover:bg-white/5">
+        <div class="relative grid h-9 w-9 shrink-0 place-items-center rounded-full bg-senai-orange/15 text-[10px] font-semibold text-senai-orange ring-1 ring-inset ring-senai-orange/25">
+          <span id="sidebarInitials">—</span>
+          <span class="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-senai-dark bg-emerald-400"></span>
+        </div>
+        <div class="min-w-0 flex-1">
+          <p id="sidebarName" class="truncate text-[11px] font-medium text-white">Coordenação</p>
+          <p class="text-[8.5px] text-white/35">Coordenação acadêmica</p>
+        </div>
+        <button id="sidebarLogout" aria-label="Sair da conta" title="Sair" class="inline-flex items-center gap-2 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-lg px-4 py-2 mt-auto transition-colors">
+          <i class="ph ph-sign-out text-[15px]"></i>
+          <span class="text-sm font-medium">Sair</span>
+        </button>
+      </div>
+    </aside>
+
+    <div id="sidebarOverlay" class="fixed inset-0 z-40 hidden bg-senai-dark/50 backdrop-blur-sm lg:hidden"></div>
+
+    <!-- CONTEÚDO -->
+    <div class="flex min-h-screen flex-col lg:pl-[272px]">
+
+      <!-- HEADER -->
+      <header class="sticky top-0 z-30 border-b border-slate-200/70 bg-senai-bg/85 backdrop-blur-xl">
+        <div class="flex h-[74px] items-center gap-3 px-5 lg:px-10">
+          <button id="openSidebar" aria-label="Abrir menu" class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-senai-line bg-white text-senai-dark shadow-sm transition hover:border-senai-dark/20 lg:hidden">
+            <i class="ph ph-list text-[18px]"></i>
+          </button>
+
+          <div class="relative hidden w-full max-w-[350px] md:block">
+            <i class="ph ph-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[15px] text-slate-500"></i>
+            <input id="globalSearch" type="search" placeholder="Buscar sala, curso ou instrutor"
+              class="h-10 w-full rounded-xl border border-slate-200 bg-slate-100 pl-10 pr-4 text-[11.5px] font-medium text-senai-dark outline-none transition placeholder:font-normal placeholder:text-slate-500 focus:bg-white focus:border-slate-300 focus:ring-0" />
+          </div>
+
+          <div class="ml-auto flex items-center gap-2">
+            <div id="systemStatus" class="mr-2 hidden items-center gap-2 rounded-full border border-emerald-200/60 bg-emerald-50/70 px-3 py-1.5 xl:flex">
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+              <span class="text-[8.5px] font-semibold uppercase tracking-[.12em] text-emerald-700">Sistema online</span>
+            </div>
+
+            <button id="bellButton" aria-label="Ver notificações" class="relative grid h-10 w-10 place-items-center rounded-lg border border-slate-200 bg-white text-senai-dark transition hover:bg-slate-50">
+              <i class="ph ph-bell text-[18px]"></i>
+              <span id="headerBellDot" class="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-senai-orange ring-2 ring-white"></span>
+            </button>
+
+            <button id="logoutBtn" type="button" aria-label="Sair da conta" title="Sair"
+              class="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-senai-dark transition hover:bg-slate-50">
+              <i class="ph ph-sign-out text-[16px]"></i>
+              <span class="hidden text-[10px] font-semibold sm:inline">Sair</span>
+            </button>
+
+            <div class="mx-1 hidden h-7 w-px bg-slate-200 sm:block"></div>
+
+            <div class="flex items-center gap-3 rounded-lg bg-[#003B5C] p-2 pr-3 text-white">
+              <div class="relative grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15 text-[10px] font-semibold text-white">
+                <span id="headerInitials">—</span>
+              </div>
+              <div class="hidden text-left lg:block">
+                <p id="headerUserName" class="text-[11px] font-semibold leading-none text-white">Coordenação</p>
+                <p class="mt-1 text-[8.5px] text-white/60">Coordenação acadêmica</p>
+              </div>
+              <i class="ph ph-caret-down hidden text-[11px] text-white/60 sm:block"></i>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- MAIN -->
+      <main class="mx-auto w-full max-w-[1480px] flex-1 px-5 pb-12 pt-7 lg:px-10 lg:pt-9">
+        <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <div>
+            <div class="flex items-center gap-2.5">
+              <span class="h-px w-7 bg-senai-orange"></span>
+              <p class="text-[9px] font-semibold uppercase tracking-[.22em] text-[#B9470F]">Coordenação · <span id="weekEyebrow">Semana atual</span></p>
+            </div>
+            <h1 class="mt-3 text-[29px] font-semibold leading-none tracking-[-0.04em] text-senai-dark lg:text-[34px]">Grade de horários</h1>
+            <p class="mt-2.5 text-[11.5px] font-light text-slate-600">Alocação de laboratórios, salas e instrutores em tempo real.</p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <div class="hidden items-center gap-2 rounded-xl border border-senai-line bg-white px-3.5 py-2.5 text-[10px] font-medium text-slate-500 shadow-sm sm:flex">
+              <i class="ph ph-calendar-blank text-[14px] text-senai-dark"></i>
+              <span id="periodoLabel">—</span>
+            </div>
+            <button id="newAllocation" class="inline-flex items-center gap-2 rounded-lg bg-[#F26522] px-4 py-3 text-[11px] font-semibold text-white shadow-md transition-colors hover:bg-[#d85a1a]">
+              <i class="ph-bold ph-plus text-[15px]"></i>
+              Nova alocação
+            </button>
+          </div>
+        </div>
+
+        <!-- MÉTRICAS -->
+        <section class="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Indicadores do dia">
+          <!-- Ocupação -->
+          <article class="group relative overflow-hidden rounded-2xl border border-white bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-[9px] font-semibold uppercase tracking-[.16em] text-slate-500">Ocupação dos Labs</p>
+                <p class="mt-3 flex items-baseline gap-0.5 text-[33px] font-semibold leading-none tracking-[-0.05em] text-senai-dark">
+                  <span id="occupancyValue">—</span><span class="text-[15px] font-medium text-slate-500">%</span>
+                </p>
+              </div>
+              <div class="relative grid h-12 w-12 shrink-0 place-items-center">
+                <svg viewBox="0 0 44 44" class="h-12 w-12 -rotate-90" aria-hidden="true">
+                  <circle cx="22" cy="22" r="18" fill="none" stroke="#EEF3F7" stroke-width="4"/>
+                  <circle id="occupancyRing" cx="22" cy="22" r="18" fill="none" stroke="#003B5C" stroke-width="4" stroke-linecap="round" stroke-dasharray="113.1" stroke-dashoffset="113.1"/>
+                </svg>
+                <i class="ph ph-buildings absolute text-[14px] text-senai-dark"></i>
+              </div>
+            </div>
+
+            <div class="mt-4 flex items-center gap-2">
+              <span id="occupancyBadge" class="inline-flex items-center gap-1 rounded-xl bg-slate-100 px-1.5 py-0.5 text-[8.5px] font-semibold text-slate-500">
+                <i class="ph ph-arrows-clockwise text-[10px]"></i> Sincronizando
+              </span>
+              <span class="text-[9px] text-slate-500">indicador do dia</span>
+            </div>
+
+            <div class="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-100">
+              <div id="occupancyBar" class="h-full w-0 rounded-full bg-senai-dark transition-all duration-700"></div>
+            </div>
+            <div class="mt-2.5 flex items-center justify-between text-[8.5px] text-slate-500">
+              <span id="labsUsage">— labs em uso</span>
+              <span id="labsTotal">— no total</span>
+            </div>
+          </article>
+
+          <!-- Aulas hoje -->
+          <article class="group relative overflow-hidden rounded-2xl border border-white bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-[9px] font-semibold uppercase tracking-[.16em] text-slate-500">Aulas Hoje</p>
+                <p class="mt-3 flex items-baseline gap-0.5 text-[33px] font-semibold leading-none tracking-[-0.05em] text-senai-dark">
+                  <span id="lessonsToday">120</span>
+                </p>
+              </div>
+              <div class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-senai-mist text-senai-dark">
+                <i class="ph ph-calendar-check text-[20px]"></i>
+              </div>
+            </div>
+
+            <div class="mt-4 flex items-end justify-between gap-3">
+              <div class="flex h-7 items-end gap-1">
+                <span class="w-3 rounded-t-[3px] bg-slate-200" style="height:46%"></span>
+                <span class="w-3 rounded-t-[3px] bg-slate-200" style="height:70%"></span>
+                <span class="w-3 rounded-t-[3px] bg-senai-orange" style="height:100%"></span>
+                <span class="w-3 rounded-t-[3px] bg-slate-200" style="height:82%"></span>
+                <span class="w-3 rounded-t-[3px] bg-slate-200" style="height:58%"></span>
+              </div>
+              <p id="lessonsDetail" class="text-right text-[8.5px] leading-relaxed text-slate-500">Consultando<br/>a API…</p>
+            </div>
+
+            <div class="mt-3 flex items-center justify-between border-t border-slate-100 pt-2.5 text-[8.5px]">
+              <span id="lessonsUpdated" class="text-slate-500">Sincronizando</span>
+              <span id="lessonsTotal" class="font-medium text-senai-dark">—</span>
+            </div>
+          </article>
+
+          <!-- Conflitos -->
+          <article class="group relative overflow-hidden rounded-2xl border border-white bg-white p-5 shadow-sm transition-shadow hover:shadow-md sm:col-span-2 xl:col-span-1">
+            <div class="pointer-events-none absolute -right-6 -top-8 h-24 w-24 rounded-full bg-senai-orange/[0.07] blur-2xl"></div>
+
+            <div class="relative flex items-start justify-between gap-4">
+              <div>
+                <p class="text-[9px] font-semibold uppercase tracking-[.16em] text-slate-500">Conflitos</p>
+                <p class="mt-3 flex items-baseline gap-0.5 text-[33px] font-semibold leading-none tracking-[-0.05em] text-senai-orange">
+                  <span id="conflictsValue">—</span>
+                </p>
+              </div>
+              <div class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-senai-orange/10 text-senai-orange">
+                <i class="ph ph-warning-octagon text-[20px]"></i>
+              </div>
+            </div>
+
+            <div class="relative mt-4 flex items-center gap-2.5">
+              <span id="conflictBadge" class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-2 py-1 text-[8.5px] font-semibold uppercase tracking-[.08em] text-slate-500">
+                <span class="h-1 w-1 rounded-full bg-slate-400"></span>
+                Verificando
+              </span>
+              <span id="conflictDetail" class="text-[9px] text-slate-500">Consultando a grade…</span>
+            </div>
+
+            <button id="resolveConflictMetric" hidden class="relative mt-4 flex items-center gap-1.5 border-t border-slate-100 pt-3 text-[9.5px] font-semibold text-senai-dark transition hover:text-senai-orange">
+              Resolver conflito
+              <i class="ph ph-arrow-right text-[11px]"></i>
+            </button>
+          </article>
+        </section>
+
+        <!-- GRADE DE HORÁRIOS -->
+        <section id="grade" class="mt-6 overflow-hidden rounded-2xl border border-white bg-white shadow-sm hover:shadow-md transition-shadow">
+          <div class="flex flex-col gap-4 border-b border-slate-100 px-5 py-5 xl:flex-row xl:items-center xl:justify-between">
+            <div class="flex items-start gap-3">
+              <div class="hidden h-10 w-10 shrink-0 place-items-center rounded-xl bg-senai-mist text-senai-dark sm:grid">
+                <i class="ph ph-table text-[18px]"></i>
+              </div>
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h2 class="text-[14.5px] font-semibold tracking-tight text-senai-dark">Programação semanal</h2>
+                  <span id="weekBadge" class="rounded-xl bg-senai-mist px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-[.08em] text-slate-600">Semana atual</span>
+                </div>
+                <p class="mt-1 text-[9.5px] text-slate-500"><span id="periodoGrade">—</span> · <span id="allocationCount">carregando aulas</span></p>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <button id="prevWeekButton" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-[10.5px] font-semibold text-slate-700 transition hover:bg-slate-50">
+                <i class="ph ph-caret-left text-[12px]"></i>
+                Semana anterior
+              </button>
+              <button id="todayButton" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-[10.5px] font-semibold text-slate-700 transition hover:bg-slate-50">
+                <i class="ph ph-crosshair text-[12px]"></i>
+                Hoje
+              </button>
+              <button id="nextWeekButton" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-[10.5px] font-semibold text-slate-700 transition hover:bg-slate-50">
+                Próxima semana
+                <i class="ph ph-caret-right text-[12px]"></i>
+              </button>
+              <input id="weekDatePicker" type="date" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-[10.5px] font-semibold text-slate-700 transition hover:bg-slate-50" />
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-3 border-b border-slate-100 px-5 py-3.5 lg:flex-row lg:items-center lg:justify-between">
+            <div id="filterChips" class="no-scrollbar flex items-center gap-1.5 overflow-x-auto" aria-label="Filtros da grade">
+              <button class="filter-chip is-active shrink-0 rounded-xl border px-2.5 py-1.5 text-[9px] font-medium transition" data-filter="all">Todos</button>
+              <button class="filter-chip shrink-0 rounded-xl border px-2.5 py-1.5 text-[9px] font-medium transition" data-filter="lab">Laboratórios</button>
+              <button class="filter-chip shrink-0 rounded-xl border px-2.5 py-1.5 text-[9px] font-medium transition" data-filter="sala">Salas</button>
+              <button class="filter-chip shrink-0 rounded-xl border px-2.5 py-1.5 text-[9px] font-medium transition" data-filter="conflict">Conflitos</button>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-[8.5px] text-slate-500">
+              <span class="inline-flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-senai-dark"></span>Laboratório</span>
+              <span class="inline-flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-senai-orange"></span>Prática</span>
+              <span class="inline-flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>Sala</span>
+              <span class="inline-flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>Conflito</span>
+            </div>
+          </div>
+
+          <div id="scheduleWrap" class="overflow-x-auto">
+            <table id="gradeTable" class="w-full min-w-[910px] border-separate border-spacing-0">
+              <thead id="gradeHead"></thead>
+              <tbody id="gradeBody"></tbody>
+            </table>
+          </div>
+
+          <div class="flex flex-col gap-2 border-t border-slate-100 px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <p class="text-[8.5px] text-slate-500">Clique em um espaço vazio para alocar uma aula.</p>
+            <p class="flex items-center gap-1.5 text-[8.5px] text-slate-500">
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+              Sincronizado com a agenda dos alunos
+            </p>
+          </div>
+        </section>
+
+        <!-- PAINÉIS INFERIORES -->
+        <div class="mt-6 grid gap-5 xl:grid-cols-[1.6fr_1fr]">
+          <!-- Regras -->
+          <section id="regras" class="overflow-hidden rounded-2xl border border-white bg-white shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-5">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-[14px] font-semibold tracking-tight text-senai-dark">Regras de alocação</h2>
+                  <span id="activeRulesCount" class="inline-flex items-center gap-1 rounded-xl bg-emerald-50 px-1.5 py-0.5 text-[7.5px] font-semibold uppercase tracking-[.06em] text-emerald-700">
+                    <span class="h-1 w-1 rounded-full bg-emerald-500"></span>3 ativas
+                  </span>
+                </div>
+                <p class="mt-1 text-[9.5px] text-slate-500">Travas de infraestrutura e choque de horários aplicadas automaticamente.</p>
+              </div>
+              <div class="hidden h-9 w-9 shrink-0 place-items-center rounded-xl bg-senai-mist text-senai-dark sm:grid">
+                <i class="ph ph-shield-check text-[17px]"></i>
+              </div>
+            </div>
+
+            <div class="divide-y divide-slate-100 px-5">
+              <div class="flex items-center gap-3 py-4">
+                <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-senai-mist text-senai-dark">
+                  <i class="ph ph-cpu text-[16px]"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-[10.5px] font-semibold text-senai-dark">CLP exige laboratório com computadores</p>
+                  <p class="mt-0.5 text-[9px] leading-relaxed text-slate-500">Bloqueia aulas de CLP em salas sem infraestrutura de automação.</p>
+                </div>
+                <button class="rule-toggle relative h-5 w-9 shrink-0 rounded-full bg-senai-orange transition" data-rule="clp" aria-pressed="true" aria-label="Alternar regra de infraestrutura de CLP">
+                  <span class="rule-knob absolute right-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm"></span>
+                </button>
+              </div>
+
+              <div class="flex items-center gap-3 py-4">
+                <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-senai-orange/[0.08] text-senai-orange">
+                  <i class="ph ph-fire text-[16px]"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-[10.5px] font-semibold text-senai-dark">Soldagem exige bancada e exaustão</p>
+                  <p class="mt-0.5 text-[9px] leading-relaxed text-slate-500">Impede alocações de práticas de solda fora do Lab 02.</p>
+                </div>
+                <button class="rule-toggle relative h-5 w-9 shrink-0 rounded-full bg-senai-orange transition" data-rule="solda" aria-pressed="true" aria-label="Alternar regra de infraestrutura de soldagem">
+                  <span class="rule-knob absolute right-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm"></span>
+                </button>
+              </div>
+
+              <div class="flex items-center gap-3 py-4">
+                <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-senai-mist text-senai-dark">
+                  <i class="ph ph-user-focus text-[16px]"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-[10.5px] font-semibold text-senai-dark">Instrutor não pode estar em dois labs</p>
+                  <p class="mt-0.5 text-[9px] leading-relaxed text-slate-500">Valida a disponibilidade do professor no mesmo dia e horário.</p>
+                </div>
+                <button class="rule-toggle relative h-5 w-9 shrink-0 rounded-full bg-senai-orange transition" data-rule="professor" aria-pressed="true" aria-label="Alternar regra de disponibilidade do instrutor">
+                  <span class="rule-knob absolute right-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm"></span>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 bg-slate-50/50 px-5 py-3">
+              <p class="flex items-center gap-1.5 text-[8.5px] text-slate-500">
+                <i class="ph ph-lightning text-[11px] text-senai-orange"></i>
+                Validação em tempo real ativa
+              </p>
+              <button class="text-[8.5px] font-semibold text-senai-dark transition hover:text-senai-orange">Ver histórico de regras</button>
+            </div>
+          </section>
+
+          <!-- Avisos -->
+          <section id="avisos" class="overflow-hidden rounded-2xl border border-white bg-white shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-5">
+              <div>
+                <h2 class="text-[14px] font-semibold tracking-tight text-senai-dark">Avisos recentes</h2>
+                <p class="mt-1 text-[9.5px] text-slate-500">Comunicações enviadas aos alunos.</p>
+              </div>
+              <span class="grid h-8 w-8 place-items-center rounded-xl bg-senai-orange/10 text-senai-orange">
+                <i class="ph ph-megaphone text-[15px]"></i>
+              </span>
+            </div>
+
+            <div id="noticesList" class="divide-y divide-slate-100 px-5">
+              <div class="py-5 text-center text-[10px] text-slate-500">Carregando avisos da coordenação…</div>
+            </div>
+
+            <div class="border-t border-slate-100 px-5 py-3">
+              <button id="manageNotices" class="flex w-full items-center justify-between text-[8.5px] font-semibold text-senai-dark transition hover:text-senai-orange">
+                Gerenciar todos os avisos
+                <i class="ph ph-arrow-up-right text-[11px]"></i>
+              </button>
+            </div>
+          </section>
+        </div>
+
+        <footer class="mt-8 flex flex-col gap-2 border-t border-slate-200/70 pt-4 text-[8.5px] text-slate-600 sm:flex-row sm:items-center sm:justify-between">
+          <p class="flex items-center gap-1.5">
+            <img src="assets/gestor-senai-icon.svg" alt="" aria-hidden="true" class="h-4 w-4 rounded-[5px]" data-brand="marca-rodape-dashboard" />
+            Gestor SENAI · Coordenação acadêmica
+          </p>
+          <p id="footerStatus">Conectando à API do Gestor SENAI…</p>
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="dashToast" class="dash-toast fixed bottom-5 right-5 z-[110] w-[calc(100vw-2.5rem)] max-w-[360px]" role="status" aria-live="polite" inert>
+    <div class="flex items-start gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-lg">
+      <div id="dashToastIcon" class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-600">
+        <i id="dashToastIconGlyph" class="ph-fill ph-check-circle text-[18px]"></i>
+      </div>
+      <div class="min-w-0 flex-1 pt-0.5">
+        <p id="dashToastTitle" class="text-[10.5px] font-semibold text-senai-dark">Alocação concluída</p>
+        <p id="dashToastText" class="mt-1 text-[9.5px] leading-relaxed text-slate-500">A aula foi adicionada à grade com sucesso.</p>
+      </div>
+      <button id="closeDashToast" aria-label="Fechar aviso" class="grid h-6 w-6 shrink-0 place-items-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-senai-dark">
+        <i class="ph ph-x text-[11px]"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- DRAWER: NOVA ALOCAÇÃO -->
+  <div id="drawer" class="fixed inset-0 z-[90]" aria-hidden="true" inert>
+    <div id="drawerBackdrop" class="absolute inset-0 bg-senai-dark/45 backdrop-blur-[2px]" data-close-drawer></div>
+
+    <aside id="drawerPanel" class="absolute inset-y-0 right-0 flex w-full max-w-[440px] flex-col bg-white shadow-lg" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+      <div class="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="h-px w-5 bg-senai-orange"></span>
+            <p class="text-[8px] font-semibold uppercase tracking-[.2em] text-senai-orange">Planejamento</p>
+          </div>
+          <h2 id="drawerTitle" class="mt-2 text-[20px] font-semibold tracking-[-0.02em] text-senai-dark">Nova alocação</h2>
+          <p class="mt-1 text-[9.5px] text-slate-500">Valide a regra antes de confirmar.</p>
+        </div>
+        <button data-close-drawer aria-label="Fechar painel" class="grid h-9 w-9 place-items-center rounded-xl bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-senai-dark">
+          <i class="ph ph-x text-[14px]"></i>
+        </button>
+      </div>
+
+      <form id="allocationForm" class="flex-1 overflow-y-auto px-6 py-5">
+        <div class="flex gap-3 rounded-xl border border-senai-dark/10 bg-senai-mist p-3.5">
+          <i class="ph ph-shield-check mt-0.5 shrink-0 text-[17px] text-senai-dark"></i>
+          <div>
+            <p class="text-[9.5px] font-semibold text-senai-dark">Validação automática ativa</p>
+            <p class="mt-1 text-[8.5px] leading-relaxed text-slate-500">O sistema bloqueia choques de horário e laboratórios sem a infraestrutura exigida pelo curso.</p>
+          </div>
+        </div>
+
+        <label class="mt-5 block">
+          <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Disciplina</span>
+          <div class="relative mt-1.5">
+            <select id="fieldDiscipline" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5">
+              <option>Automação Industrial</option>
+              <option>CLP</option>
+              <option>Soldagem MIG</option>
+              <option>Segurança do Trabalho</option>
+              <option>Metrologia</option>
+              <option>Usinagem CNC</option>
+              <option>Manutenção Elétrica</option>
+            </select>
+            <i class="ph ph-caret-down pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] text-slate-500"></i>
+          </div>
+        </label>
+
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <label class="block">
+            <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Dia</span>
+            <div class="relative mt-1.5">
+              <select id="fieldDay" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5">
+                <option value="seg">Segunda · 11</option>
+                <option value="ter">Terça · 12</option>
+                <option value="qua">Quarta · 13</option>
+                <option value="qui">Quinta · 14</option>
+                <option value="sex">Sexta · 15</option>
+              </select>
+              <i class="ph ph-caret-down pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] text-slate-500"></i>
+            </div>
+          </label>
+
+          <label class="block">
+            <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Horário</span>
+            <div class="relative mt-1.5">
+              <select id="fieldTime" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5">
+                <option>08:00</option>
+                <option>10:00</option>
+                <option>14:00</option>
+                <option>16:00</option>
+              </select>
+              <i class="ph ph-caret-down pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] text-slate-500"></i>
+            </div>
+          </label>
+        </div>
+
+        <label class="mt-4 block">
+          <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Laboratório ou sala</span>
+          <div class="relative mt-1.5">
+            <select id="fieldRoom" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5">
+              <option value="Lab 01">Lab 01 — Metrologia</option>
+              <option value="Lab 02">Lab 02 — Soldagem</option>
+              <option value="Lab 03" selected>Lab 03 — Automação</option>
+              <option value="Lab 04">Lab 04 — Usinagem CNC</option>
+              <option value="Lab 05">Lab 05 — Automação avançada</option>
+              <option value="Sala 03">Sala 03 — Teoria</option>
+            </select>
+            <i class="ph ph-caret-down pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] text-slate-500"></i>
+          </div>
+        </label>
+
+        <label class="mt-4 block">
+          <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Instrutor</span>
+          <div class="relative mt-1.5">
+            <select id="fieldInstructor" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5">
+              <option>Rafael Lima</option>
+              <option>Carlos Menezes</option>
+              <option>Ana Paula</option>
+              <option>Helena Prado</option>
+              <option>Marcos Vieira</option>
+              <option>Diego Souza</option>
+            </select>
+            <i class="ph ph-caret-down pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] text-slate-500"></i>
+          </div>
+        </label>
+
+        <label class="mt-5 flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-senai-line p-3.5 transition hover:border-senai-dark/20">
+          <div class="flex items-center gap-2.5">
+            <span class="grid h-8 w-8 place-items-center rounded-xl bg-senai-orange/10 text-senai-orange">
+              <i class="ph ph-bell-ringing text-[14px]"></i>
+            </span>
+            <div>
+              <p class="text-[9.5px] font-semibold text-senai-dark">Notificar alunos</p>
+              <p class="mt-0.5 text-[8px] text-slate-500">Enviar push em tempo real para a turma.</p>
+            </div>
+          </div>
+          <input id="notifyStudents" type="checkbox" checked class="peer sr-only" />
+          <span class="relative h-5 w-9 shrink-0 rounded-full bg-slate-200 transition after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition peer-checked:bg-senai-orange peer-checked:after:translate-x-4"></span>
+        </label>
+
+        <div id="formFeedback" class="mt-4 hidden rounded-xl border p-3.5" role="alert"></div>
+
+        <p class="mt-3 text-center text-[8px] text-slate-500">A simulação não altera dados reais.</p>
+      </form>
+
+      <div class="border-t border-slate-100 bg-white px-6 py-4">
+        <button type="submit" form="allocationForm" class="w-full rounded-xl bg-[#F26522] py-3 font-bold text-white transition hover:bg-[#d85a1a]">Salvar</button>
+        <button type="button" data-close-drawer class="mt-2 w-full rounded-xl px-3 py-1.5 text-[9px] font-medium text-slate-500 transition hover:bg-slate-50 hover:text-senai-dark">Cancelar</button>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+
+    const normalize = (value) => (value || '')
+      .toString()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+
+    /* ---------- Sidebar ---------- */
+    const sidebar = $('#sidebar');
+    const sidebarOverlay = $('#sidebarOverlay');
+
+    function openSidebar() {
+      sidebar.classList.remove('-translate-x-full');
+      sidebarOverlay.classList.remove('hidden');
+    }
+
+    function closeSidebar() {
+      sidebar.classList.add('-translate-x-full');
+      sidebarOverlay.classList.add('hidden');
+    }
+
+    $('#openSidebar')?.addEventListener('click', openSidebar);
+    $('#closeSidebar')?.addEventListener('click', closeSidebar);
+    sidebarOverlay?.addEventListener('click', closeSidebar);
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1024) sidebarOverlay.classList.add('hidden');
+    });
+
+    $$('[data-nav-link]').forEach((link) => {
+      link.addEventListener('click', () => {
+        $$('[data-nav-link]').forEach((other) => other.classList.remove('is-active'));
+        link.classList.add('is-active');
+        if (window.innerWidth < 1024) closeSidebar();
+      });
+    });
+
+    /* ---------- Toast ---------- */
+    const dashToast = $('#dashToast');
+    let dashToastTimer;
+
+    const toastTones = {
+      success: { wrap: 'bg-emerald-50 text-emerald-600', icon: 'ph-check-circle' },
+      warning: { wrap: 'bg-senai-orange/10 text-senai-orange', icon: 'ph-warning-circle' },
+      info: { wrap: 'bg-senai-mist text-senai-dark', icon: 'ph-info' }
+    };
+
+    function showToast(tone, title, text) {
+      const config = toastTones[tone] || toastTones.info;
+      const iconWrap = $('#dashToastIcon');
+      const iconGlyph = $('#dashToastIconGlyph');
+
+      iconWrap.className = `grid h-9 w-9 shrink-0 place-items-center rounded-xl ${config.wrap}`;
+      iconGlyph.className = `ph-fill ${config.icon} text-[18px]`;
+      $('#dashToastTitle').textContent = title;
+      $('#dashToastText').textContent = text;
+
+      clearTimeout(dashToastTimer);
+      dashToast.inert = false;
+      dashToast.classList.add('is-visible');
+      dashToastTimer = setTimeout(() => dashToast.classList.remove('is-visible'), 5000);
+    }
+
+    function hideToast() {
+      clearTimeout(dashToastTimer);
+      dashToast.classList.remove('is-visible');
+      dashToast.inert = true;
+    }
+
+    $('#closeDashToast')?.addEventListener('click', hideToast);
+
+    /* ---------- Dados da grade ---------- */
+    const dayLabels = { seg: 'segunda-feira', ter: 'terça-feira', qua: 'quarta-feira', qui: 'quinta-feira', sex: 'sexta-feira' };
+
+    const allocations = {
+      'seg-08:00': { room: 'Lab 02', discipline: 'Soldagem MIG', instructor: 'Carlos Menezes' },
+      'seg-14:00': { room: 'Sala 03', discipline: 'Segurança do Trabalho', instructor: 'Ana Paula' },
+      'ter-08:00': { room: 'Lab 01', discipline: 'Metrologia', instructor: 'Helena Prado' },
+      'ter-10:00': { room: 'Lab 03', discipline: 'Automação Industrial', instructor: 'Rafael Lima' },
+      'ter-14:00': { room: 'Lab 04', discipline: 'Manutenção Elétrica', instructor: 'Diego Souza' },
+      'qua-08:00': { room: 'Lab 04', discipline: 'Usinagem CNC', instructor: 'Marcos Vieira' },
+      'qua-10:00': { room: 'Lab 02', discipline: 'Soldagem MIG', instructor: 'Carlos Menezes' },
+      'qua-14:00': { room: 'Lab 03', discipline: 'Automação Industrial × CLP', instructor: 'Rafael Lima' },
+      'qui-08:00': { room: 'Lab 03', discipline: 'Automação Industrial', instructor: 'Rafael Lima' },
+      'qui-10:00': { room: 'Lab 01', discipline: 'Metrologia', instructor: 'Helena Prado' },
+      'qui-14:00': { room: 'Sala 03', discipline: 'Segurança do Trabalho', instructor: 'Ana Paula' },
+      'qui-16:00': { room: 'Lab 05', discipline: 'CLP', instructor: 'Rafael Lima' },
+      'sex-10:00': { room: 'Lab 04', discipline: 'Usinagem CNC', instructor: 'Marcos Vieira' },
+      'sex-14:00': { room: 'Lab 02', discipline: 'Soldagem MIG', instructor: 'Carlos Menezes' }
+    };
+
+    const ruleState = { clp: true, solda: true, professor: true };
+    let lessonsToday = 120;
+
+    /* ---------- Drawer de alocação ---------- */
+    const drawer = $('#drawer');
+    const form = $('#allocationForm');
+    const feedback = $('#formFeedback');
+    const fieldDiscipline = $('#fieldDiscipline');
+    const fieldDay = $('#fieldDay');
+    const fieldTime = $('#fieldTime');
+    const fieldRoom = $('#fieldRoom');
+    const fieldInstructor = $('#fieldInstructor');
+
+    fieldDay?.addEventListener('change', () => { if (typeof atualizarSalasOcupadas === 'function') atualizarSalasOcupadas(); });
+    fieldTime?.addEventListener('change', () => { if (typeof atualizarSalasOcupadas === 'function') atualizarSalasOcupadas(); });
+
+    function setFeedback(kind, title, text) {
+      const styles = {
+        success: { box: 'border-emerald-200 bg-emerald-50', icon: 'ph-check-circle text-emerald-600', title: 'text-emerald-800', copy: 'text-emerald-700/80' },
+        error: { box: 'border-red-200 bg-red-50', icon: 'ph-x-circle text-red-500', title: 'text-red-800', copy: 'text-red-600/80' },
+        warning: { box: 'border-senai-orange/20 bg-senai-orange/[0.06]', icon: 'ph-warning-circle text-senai-orange', title: 'text-[#8A370D]', copy: 'text-[#8A370D]/70' }
+      };
+      const style = styles[kind] || styles.warning;
+
+      feedback.className = `mt-4 rounded-xl border p-3.5 ${style.box}`;
+      feedback.innerHTML = `
+        <div class="flex gap-2.5">
+          <i class="ph-fill ${style.icon} mt-0.5 shrink-0 text-[15px]"></i>
+          <div>
+            <p class="text-[9.5px] font-semibold ${style.title}"></p>
+            <p class="mt-1 text-[8.5px] leading-relaxed ${style.copy}"></p>
+          </div>
+        </div>`;
+      feedback.querySelector('p.font-semibold').textContent = title;
+      feedback.querySelectorAll('p')[1].textContent = text;
+    }
+
+    function clearFeedback() {
+      feedback.className = 'mt-4 hidden rounded-xl border p-3.5';
+      feedback.innerHTML = '';
+    }
+
+    function popularSalas() {
+      const salas = (window.GestorDashboard && window.GestorDashboard.salas) || [];
+      if (!salas.length) return;
+      const valorAtual = fieldRoom.value;
+      fieldRoom.innerHTML = salas.map((sala) => {
+        return `<option value="${escapar(sala.nome)}" data-sala-id="${sala.id}">${escapar(sala.nome)}</option>`;
+      }).join('');
+      if (valorAtual) fieldRoom.value = valorAtual;
+      atualizarSalasOcupadas();
+    }
+
+    function dataSelecionadaISO() {
+      const dia = fieldDay.value;
+      const inicio = window.GestorDashboard && window.GestorDashboard.semanaInicio;
+      if (!inicio) return null;
+      const mapa = { seg: 0, ter: 1, qua: 2, qui: 3, sex: 4 };
+      const offset = mapa[dia];
+      if (offset === undefined) return null;
+      const d = new Date(inicio);
+      d.setDate(d.getDate() + offset);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function atualizarSalasOcupadas() {
+      const aulas = (window.GestorDashboard && window.GestorDashboard.aulasSemana) || [];
+      const dataISO = dataSelecionadaISO();
+      const hora = fieldTime.value;
+      const ocupadas = new Set();
+      aulas.forEach((dia) => {
+        if (dia.data !== dataISO) return;
+        (dia.aulas || []).forEach((aula) => {
+          if (aula.inicio === hora) ocupadas.add(aula.sala);
+        });
+      });
+
+      Array.from(fieldRoom.options).forEach((opt) => {
+        const ocupada = ocupadas.has(opt.value);
+        opt.disabled = ocupada;
+        opt.textContent = ocupada ? `${opt.value} — ocupado` : opt.value;
+        if (ocupada) opt.classList.add('text-slate-400');
+        else opt.classList.remove('text-slate-400');
+      });
+
+      // Se a sala selecionada estiver ocupada, escolhe a primeira livre.
+      if (fieldRoom.options[fieldRoom.selectedIndex]?.disabled) {
+        const livre = Array.from(fieldRoom.options).find((o) => !o.disabled);
+        if (livre) fieldRoom.value = livre.value;
+      }
+    }
+
+    function openDrawer(preset = {}) {
+      drawer.inert = false;
+      drawer.classList.add('is-open');
+      drawer.setAttribute('aria-hidden', 'false');
+      clearFeedback();
+
+      popularSalas();
+
+      if (preset.day) fieldDay.value = preset.day;
+      if (preset.time) fieldTime.value = preset.time;
+      if (preset.room) fieldRoom.value = preset.room;
+      if (preset.discipline) fieldDiscipline.value = preset.discipline;
+
+      popularSalas();
+
+      if (preset.conflict) {
+        setFeedback(
+          'warning',
+          'Conflito ativo neste horário',
+          'O Lab 03 já está ocupado. Escolha outro laboratório ou outro horário para concluir a alocação.'
+        );
+      }
+
+      setTimeout(() => fieldDiscipline.focus(), 300);
+    }
+
+    function closeDrawer() {
+      drawer.classList.remove('is-open');
+      drawer.setAttribute('aria-hidden', 'true');
+      drawer.inert = true;
+    }
+
+    $('#newAllocation')?.addEventListener('click', () => openDrawer());
+    $$('[data-close-drawer]').forEach((element) => element.addEventListener('click', closeDrawer));
+
+    function openConflict() {
+      openDrawer({ day: 'qua', time: '14:00', room: 'Lab 03', conflict: true });
+    }
+
+    $('#resolveConflictMetric')?.addEventListener('click', openConflict);
+    $$('[data-resolve]').forEach((button) => button.addEventListener('click', openConflict));
+
+    /* ---------- Criação de bloco ---------- */
+    function buildBlock({ discipline, room, instructor, day, time }) {
+      const isLab = room.startsWith('Lab');
+      const isPractical = discipline === 'Soldagem MIG' || discipline === 'CLP';
+      const block = document.createElement('div');
+
+      block.className = 'schedule-block relative h-full rounded-lg border-l-4 p-2.5 ' + (
+        isPractical
+          ? 'border-orange-500 bg-orange-50'
+          : isLab
+            ? 'border-blue-500 bg-blue-50'
+            : 'border-slate-300 bg-slate-50'
+      );
+      block.dataset.type = isLab ? 'lab' : 'sala';
+      block.dataset.search = normalize(`${discipline} ${room} ${instructor} ${dayLabels[day]} ${day} ${time}`);
+
+      block.innerHTML = `
+        <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-wide ${isPractical ? 'bg-orange-100 text-orange-700' : isLab ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-600'}">[${isPractical ? 'PRÁTICA' : isLab ? 'LAB' : 'SALA'}]</span>
+        <div class="mt-2 flex items-start justify-between gap-1.5">
+          <p class="text-[11px] font-semibold leading-tight text-slate-800"></p>
+        </div>
+        <p class="mt-1.5 inline-flex items-center gap-1 rounded bg-white/80 px-1.5 py-0.5 text-[8px] font-medium text-slate-500">
+          <i class="ph ph-map-pin text-[8px]"></i><span class="room"></span>
+        </p>
+        <p class="instructor mt-1.5 truncate text-[8px] text-slate-500"></p>
+      `;
+
+      block.querySelector('p').textContent = discipline;
+      block.querySelector('.room').textContent = room;
+      block.querySelector('.instructor').textContent = instructor;
+
+      return block;
+    }
+
+    /* ---------- Validação e alocação ---------- */
+    form?.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const discipline = fieldDiscipline.value;
+      const room = fieldRoom.value;
+      const day = fieldDay.value;
+      const time = fieldTime.value;
+      const instructor = fieldInstructor.value;
+
+      const mapa = { seg: 0, ter: 1, qua: 2, qui: 3, sex: 4 };
+      const inicioSemana = window.GestorDashboard && window.GestorDashboard.semanaInicio;
+      let dataISO = null;
+      if (inicioSemana && mapa[day] !== undefined) {
+        const d = new Date(inicioSemana);
+        d.setDate(d.getDate() + mapa[day]);
+        dataISO = d.toISOString().slice(0, 10);
+      }
+      const key = `${dataISO || day}-${time}`;
+
+      let error = null;
+
+      if (ruleState.clp && discipline === 'CLP' && !['Lab 03', 'Lab 05'].includes(room)) {
+        error = {
+          title: 'Regra de infraestrutura',
+          text: 'Aulas de CLP exigem laboratório com computadores. Selecione o Lab 03 ou o Lab 05.'
+        };
+      } else if (ruleState.solda && discipline === 'Soldagem MIG' && room !== 'Lab 02') {
+        error = {
+          title: 'Regra de infraestrutura',
+          text: 'Soldagem MIG exige bancada e sistema de exaustão. Selecione o Lab 02.'
+        };
+      }
+
+      if (error) {
+        setFeedback('error', error.title, error.text);
+        showToast('warning', error.title, error.text);
+        return;
+      }
+
+      lessonsToday += 1;
+      $('#lessonsToday').textContent = lessonsToday;
+      $('#allocationCount').textContent = `${lessonsToday} aulas alocadas`;
+
+      const emptySlot = dataISO
+        ? document.querySelector(`.empty-slot[data-date="${dataISO}"][data-time="${time}"]`)
+        : document.querySelector(`.empty-slot[data-day="${day}"][data-time="${time}"]`);
+      if (emptySlot) {
+        const cell = emptySlot.parentElement;
+        emptySlot.remove();
+        // Re-renderização será feita pela API; aqui apenas feedback.
+      }
+
+      applyFilters();
+
+      const notify = $('#notifyStudents')?.checked;
+      const successText = `${discipline} · ${room} · ${dayLabels[day]} às ${time}. ${notify ? 'Alunos notificados via push.' : 'Alocação salva sem notificação.'}`;
+      setFeedback('success', 'Alocação validada', successText);
+      showToast('success', 'Alocação concluída', successText);
+
+      setTimeout(closeDrawer, 1200);
+    });
+
+    /* ---------- Regras ---------- */
+    $$('.rule-toggle').forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        const rule = toggle.dataset.rule;
+        const isOn = toggle.getAttribute('aria-pressed') !== 'true';
+        toggle.setAttribute('aria-pressed', String(isOn));
+        toggle.classList.toggle('bg-senai-orange', isOn);
+        toggle.classList.toggle('bg-slate-200', !isOn);
+
+        const knob = toggle.querySelector('.rule-knob');
+        knob.classList.toggle('right-0.5', isOn);
+        knob.classList.toggle('left-0.5', !isOn);
+
+        ruleState[rule] = isOn;
+
+        const activeCount = Object.values(ruleState).filter(Boolean).length;
+        const counter = $('#activeRulesCount');
+        if (counter) {
+          counter.innerHTML = `<span class="h-1 w-1 rounded-full bg-emerald-500"></span>${activeCount} ativas`;
+        }
+
+        showToast(
+          isOn ? 'success' : 'info',
+          isOn ? 'Regra reativada' : 'Regra pausada',
+          isOn ? 'A validação automática voltou a ser aplicada.' : 'A validação desta regra está suspensa no modo demonstração.'
+        );
+      });
+    });
+
+    /* ---------- Filtros e busca ---------- */
+    let activeFilter = 'all';
+
+    function applyFilters() {
+      const query = normalize($('#globalSearch')?.value || '');
+
+      $$('.schedule-block').forEach((block) => {
+        const matchesType = activeFilter === 'all' || block.dataset.type === activeFilter;
+        const matchesQuery = !query || normalize(block.dataset.search).includes(query);
+        block.classList.toggle('is-dimmed', !(matchesType && matchesQuery));
+      });
+    }
+
+    $$('[data-filter]').forEach((button) => {
+      button.addEventListener('click', () => {
+        $$('[data-filter]').forEach((other) => other.classList.remove('is-active'));
+        button.classList.add('is-active');
+        activeFilter = button.dataset.filter;
+        applyFilters();
+      });
+    });
+
+    $('#globalSearch')?.addEventListener('input', applyFilters);
+
+    /* ---------- Atalhos e ações ---------- */
+    document.addEventListener('keydown', (event) => {
+      const tag = document.activeElement?.tagName;
+      const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(tag);
+
+      if (event.key === '/' && !typing) {
+        event.preventDefault();
+        $('#globalSearch')?.focus();
+      }
+
+      if (event.key === 'Escape') {
+        closeDrawer();
+        closeSidebar();
+        if ($('#globalSearch')?.value) {
+          $('#globalSearch').value = '';
+          applyFilters();
+        }
+      }
+    });
+
+    $('#todayButton')?.addEventListener('click', () => {
+      $('#todayColumn')?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      showToast('info', 'Você está aqui', 'A quarta-feira, 13 de maio, está destacada na grade.');
+    });
+
+    $('#bellButton')?.addEventListener('click', () => {
+      $('#headerBellDot')?.classList.add('hidden');
+      const resumo = window.GestorPainel?.resumo;
+      if (resumo && resumo.conflitos > 0) {
+        showToast(
+          'warning',
+          `${resumo.conflitos} conflito${resumo.conflitos === 1 ? '' : 's'} pendente${resumo.conflitos === 1 ? '' : 's'}`,
+          'Abra a lista de conflitos para revisar a grade da semana.'
+        );
+      } else {
+        showToast('info', 'Nenhum conflito pendente', 'A grade está consistente neste momento.');
+      }
+    });
+
+    $('#manageNotices')?.addEventListener('click', () => {
+      const avisos = window.GestorPainel?.avisos || [];
+      showToast(
+        'info',
+        'Avisos recentes',
+        avisos.length
+          ? `${avisos.length} aviso${avisos.length === 1 ? '' : 's'} carregado${avisos.length === 1 ? '' : 's'} da API.`
+          : 'Nenhum aviso publicado até agora.'
+      );
+    });
+
+    /* Estado inicial */
+    applyFilters();
+  </script>
+
+  <script>
+    /* Identidade visual — confirma no console de onde cada arte oficial foi carregada. */
+    document.querySelectorAll('img[data-brand]').forEach((imagem) => {
+      const relatar = () => {
+        const caminho = imagem.currentSrc || imagem.src;
+        const ok = imagem.complete && imagem.naturalWidth > 0;
+        console[ok ? 'info' : 'error'](
+          `[Gestor SENAI] Marca "${imagem.dataset.brand}" → ${caminho}` +
+          (ok ? ` (${imagem.naturalWidth}×${imagem.naturalHeight}px)` : ' — não carregou')
+        );
+      };
+      if (imagem.complete) relatar();
+      else {
+        imagem.addEventListener('load', relatar, { once: true });
+        imagem.addEventListener('error', relatar, { once: true });
+      }
+    });
+
+    /* Service worker compartilhado com a PWA do aluno. */
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+      navigator.serviceWorker
+        .register('sw.js', { scope: './' })
+        .then((registro) => console.info('[Gestor SENAI] Service Worker (dashboard):', registro.scope))
+        .catch((erro) => console.warn('[Gestor SENAI] Service Worker não registrado no dashboard:', erro));
+    }
+  </script>
+  <script src="env.js" charset="UTF-8"></script>
+  <script src="js/sessao.js" charset="UTF-8"></script>
+  <script src="js/dashboard.js" charset="UTF-8"></script>
+</body>
+</html>

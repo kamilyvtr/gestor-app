@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#003B5C" />
+  <meta name="description" content="Gestor SENAI — a agenda do aluno, com mudanças de sala e avisos em tempo real." />
+  <meta name="color-scheme" content="light" />
+
+  <!-- PWA / instalação -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="application-name" content="Gestor SENAI" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Gestor SENAI" />
+  <meta name="format-detection" content="telephone=no" />
+
+  <!-- Identidade visual oficial -->
+  <link rel="icon" type="image/svg+xml" href="assets/gestor-senai-icon.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+
+  <title>Gestor SENAI · Minha agenda</title>
+
+  <link rel="preload" href="assets/fonts/poppins-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/fonts/poppins-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="css/app.css" />
+  <link rel="stylesheet" href="assets/icons/regular.css" />
+  <link rel="stylesheet" href="assets/icons/fill.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .bg-soft-orange {
+      background: linear-gradient(135deg, #FF8A4C 0%, #F26522 100%);
+    }
+    .app-main {
+      width: 100%;
+      box-sizing: border-box;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+    #alertBand {
+      width: 100%;
+      box-sizing: border-box;
+      margin-left: 0;
+      margin-right: 0;
+    }
+  </style>
+</head>
+
+<body class="min-h-[100dvh] bg-senai-bg font-sans text-senai-ink antialiased">
+
+  <a href="#conteudo" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-xl focus:bg-senai-dark focus:px-4 focus:py-2.5 focus:text-[12px] focus:font-semibold focus:text-white">
+    Pular para o conteúdo
+  </a>
+
+  <noscript>
+    <div class="mx-auto mt-4 w-[calc(100%_-_2rem)] max-w-md rounded-xl border border-senai-orange/30 bg-orange-50 p-3 text-[12px] text-senai-dark">
+      Ative o JavaScript para ver a agenda atualizada em tempo real.
+    </div>
+  </noscript>
+
+  <!-- ====================== CABEÇALHO FIXO ====================== -->
+  <header class="app-header sticky top-0 z-40 border-b border-slate-200/70 bg-senai-bg/90 backdrop-blur-xl">
+    <div class="mx-auto w-full max-w-3xl px-4 sm:px-6 lg:max-w-5xl">
+
+      <div class="flex items-center justify-between gap-3 py-2">
+        <a href="#inicio" class="-ml-1 flex shrink-0 items-center rounded-xl px-1 py-0.5" aria-label="Gestor SENAI — início">
+          <!-- Logo oficial: calendário de blocos arredondados com bloco laranja -->
+          <img
+            src="assets/gestor-senai-logo-escuro.svg"
+            alt="Gestor SENAI"
+            width="465"
+            height="96"
+            class="h-8 w-auto sm:h-9"
+            data-brand="logo-oficial-cabecalho"
+          />
+        </a>
+
+        <div class="flex items-center gap-2">
+          <span class="hidden items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[.12em] text-emerald-800 sm:inline-flex">
+            <span class="live-dot h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true"></span>
+            Ao vivo
+          </span>
+
+          <button
+            id="bellBtn"
+            type="button"
+            aria-label="Notificações"
+            class="relative grid size-11 place-items-center rounded-2xl border border-senai-line bg-white text-senai-dark shadow-sm transition hover:border-senai-orange/30 hover:bg-orange-50/40 active:scale-95"
+          >
+            <i class="ph ph-bell text-[20px]" aria-hidden="true"></i>
+            <span id="bellDot" class="absolute right-3 top-3 h-2 w-2 rounded-full bg-senai-orange ring-2 ring-white" aria-hidden="true"></span>
+          </button>
+
+          <!-- Mantido oculto: o handler continua em app.js; a ação "Sair" agora fica no Perfil. -->
+          <button id="btnSair" type="button" aria-label="Sair da conta" class="hidden">
+            <i class="ph ph-sign-out" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-end justify-between gap-4 pb-3 pt-1">
+        <div class="min-w-0">
+          <p id="dataHoje" class="text-[11px] font-medium uppercase tracking-[.16em] text-slate-600">—</p>
+          <h1 class="mt-1 text-[23px] font-semibold leading-none tracking-[-0.035em] text-senai-dark sm:text-[27px]">
+            Olá, <span id="saudacaoNome">João Vitor</span><span class="text-senai-orange">.</span>
+          </h1>
+        </div>
+        <p id="turnoAluno" class="mb-0.5 shrink-0 rounded-full bg-white px-2.5 py-1 text-[11px] font-medium uppercase tracking-[.1em] text-slate-600 ring-1 ring-senai-line">
+          Tarde
+        </p>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ====================== CONTEÚDO ROLÁVEL ====================== -->
+  <main id="conteudo" class="app-main mx-auto w-full max-w-3xl px-4 pt-4 pb-28 sm:px-6 sm:pt-5 lg:max-w-5xl" style="padding-bottom: calc(7rem + env(safe-area-inset-bottom));">
+
+    <!-- ====================== TELA: INÍCIO ====================== -->
+    <section id="inicio" class="view is-active space-y-4 sm:space-y-5" data-view="inicio" aria-label="Início">
+
+      <!-- Alerta em tempo real -->
+      <div id="alertBand" role="status" aria-live="polite" class="relative overflow-hidden rounded-2xl border border-white/20 bg-soft-orange p-5 text-white shadow-lg shadow-orange-500/20">
+
+        <div class="relative">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex min-w-0 items-center gap-2">
+                            <p id="alertTitulo" class="text-[11px] font-bold uppercase tracking-widest text-white/90">Aviso de última hora</p>
+            </div>
+            <span id="alertHora" class="shrink-0 whitespace-nowrap text-xs font-semibold text-white/80">agora</span>
+          </div>
+
+          <div class="mt-3 flex items-start gap-4">
+            <div class="grid size-10 shrink-0 place-items-center rounded-full bg-white/20 p-2 text-white" aria-hidden="true">
+              <i class="ph-fill ph-warning text-[19px]"></i>
+            </div>
+
+            <div class="min-w-0 flex-1">
+              <p id="alertTexto" class="line-clamp-2 text-sm font-medium leading-relaxed text-white sm:line-clamp-none">
+                A aula de CLP agora é no <span class="underline decoration-2 underline-offset-2">Lab 05</span>.
+              </p>
+              <button id="alertDetalhes" type="button" class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-white underline decoration-white/40 underline-offset-4 transition hover:decoration-white">
+                Ver detalhes da aula
+                <i class="ph ph-arrow-right text-[13px]" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <button id="dismissAlert" type="button" aria-label="Dispensar aviso" class="grid size-11 shrink-0 place-items-center rounded-full p-1 text-white/70 transition-colors hover:text-white">
+              <i class="ph ph-x text-[15px]" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid gap-4 sm:gap-5 lg:grid-cols-2 lg:items-start">
+
+        <!-- Próxima aula -->
+        <section aria-labelledby="nextClassTitle" class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 id="nextClassTitle" class="eyebrow">Próxima aula</h2>
+            <span class="flex items-center gap-1.5 text-[10px] font-medium text-slate-600">
+              <i class="ph ph-clock text-[13px]"></i>
+              Hoje
+            </span>
+          </div>
+
+          <button
+            id="nextClassCard"
+            type="button"
+            class="press group relative w-full overflow-hidden rounded-3xl bg-senai-dark p-5 text-left text-white shadow-lift hover:-translate-y-0.5"
+          >
+            <span class="card-pattern pointer-events-none absolute inset-0 opacity-60"></span>
+            <span class="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full bg-senai-orange/20 blur-2xl"></span>
+            <span class="pointer-events-none absolute -bottom-16 -left-12 h-40 w-40 rounded-full bg-white/[0.04]"></span>
+
+            <span class="relative flex items-start justify-between gap-3">
+              <!-- Arte oficial do calendário: mesmo arquivo maskable usado no app instalado -->
+              <span class="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-2xl bg-white ring-1 ring-inset ring-white/20">
+                <img
+                  src="assets/gestor-senai-icone-pwa-maskable.svg"
+                  alt=""
+                  width="512"
+                  height="512"
+                  class="h-full w-full object-cover"
+                  data-brand="icone-oficial-proxima-aula"
+                />
+              </span>
+              <span id="nextClassDuration" class="rounded-full border border-white/10 bg-white/[0.07] px-2.5 py-1 text-[9px] font-medium uppercase tracking-[.12em] text-white/85">
+                2 horas
+              </span>
+            </span>
+
+            <span class="relative mt-6 block">
+              <span class="flex items-center gap-2">
+                <span id="nextClassTime" class="tnum text-[10px] font-medium uppercase tracking-[.16em] text-white/75">14:00 — 16:00</span>
+                <span id="nextClassStatus" class="hidden rounded bg-senai-orange/20 px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-[.1em] text-orange-200">Sala alterada</span>
+              </span>
+              <span id="nextClassName" class="mt-1.5 block text-[22px] font-semibold leading-[1.15] tracking-[-0.02em]">Automação Industrial</span>
+              <span id="nextClassSubtitle" class="mt-1.5 block text-[10.5px] font-light text-white/75">CLP · Controlador Lógico Programável</span>
+            </span>
+
+            <span class="relative mt-5 flex items-center justify-between gap-3 border-t border-white/10 pt-4">
+              <span class="flex min-w-0 items-center gap-2.5">
+                <span id="nextClassTeacherInitials" class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-senai-orange/15 text-[10px] font-semibold text-senai-orange ring-1 ring-inset ring-senai-orange/25">
+                  RL
+                </span>
+                <span class="min-w-0">
+                  <span id="nextClassTeacherName" class="block truncate text-[11px] font-medium text-white">Rafael Lima</span>
+                  <span class="block text-[9px] text-white/70">Instrutor</span>
+                </span>
+              </span>
+
+              <span class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-white px-2.5 py-1.5 text-[10px] font-semibold text-senai-dark">
+                <span class="h-1.5 w-1.5 rounded-full bg-senai-orange"></span>
+                <span id="nextClassRoom">Lab 05</span>
+              </span>
+            </span>
+
+            <span class="pointer-events-none absolute bottom-4 right-4 hidden text-white/30 transition group-hover:translate-x-0.5 group-hover:text-white/60 sm:block">
+              <i class="ph ph-arrow-up-right text-[15px]"></i>
+            </span>
+          </button>
+        </section>
+
+        <div class="space-y-4 sm:space-y-5">
+          <!-- Resumo do dia -->
+          <section aria-labelledby="resumoTitle">
+            <div class="mb-3 flex items-center justify-between">
+              <h2 id="resumoTitle" class="eyebrow">Resumo de hoje</h2>
+              <span id="saudacaoTurno" class="text-[10px] text-slate-600">Turno da tarde</span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2.5">
+              <div class="rounded-xl border border-senai-line bg-white p-3 shadow-sm">
+                <p class="text-[19px] font-semibold leading-none tracking-[-0.03em] text-senai-dark"><span id="resumoAulas">4</span></p>
+                <p class="mt-1 text-[9px] font-medium uppercase tracking-[.1em] text-slate-500">aulas</p>
+              </div>
+              <div class="rounded-xl border border-senai-line bg-white p-3 shadow-sm">
+                <p class="text-[19px] font-semibold leading-none tracking-[-0.03em] text-senai-dark"><span id="resumoLabs">2</span></p>
+                <p class="mt-1 text-[9px] font-medium uppercase tracking-[.1em] text-slate-500">labs</p>
+              </div>
+              <div class="rounded-xl border border-senai-orange/25 bg-orange-50/70 p-3 shadow-sm">
+                <p class="text-[19px] font-semibold leading-none tracking-[-0.03em] text-senai-orange"><span id="resumoAlteracoes">1</span></p>
+                <p class="mt-1 text-[9px] font-medium uppercase tracking-[.1em] text-senai-orangeDeep">alteração</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Resto do dia -->
+          <section aria-labelledby="restOfDayTitle">
+            <div class="flex items-end justify-between">
+              <div>
+                <h2 id="restOfDayTitle" class="eyebrow">Resto do dia</h2>
+                <p id="restOfDayCount" class="mt-1 text-[11px] text-slate-600">Mais 3 aulas hoje</p>
+              </div>
+              <button type="button" data-view-target="agenda" class="group flex items-center gap-1 text-[10px] font-semibold text-senai-dark transition hover:text-senai-orange">
+                Ver agenda
+                <i class="ph ph-caret-right text-[11px] transition group-hover:translate-x-0.5"></i>
+              </button>
+            </div>
+
+            <div id="restOfDayList" class="mt-3 space-y-2.5"></div>
+          </section>
+        </div>
+      </div>
+
+      <footer class="flex items-center justify-between gap-3 pt-2 text-[9px] text-slate-600">
+        <p class="flex items-center gap-1.5">
+          <i class="ph ph-arrows-clockwise text-[11px]"></i>
+          <span id="syncStatus">Sincronizado agora</span>
+        </p>
+        <p class="font-medium uppercase tracking-[.14em] text-slate-600">Gestor SENAI</p>
+      </footer>
+    </section>
+
+    <!-- ====================== TELA: AGENDA ====================== -->
+    <section class="view space-y-5" data-view="agenda" aria-label="Agenda da semana">
+      <div class="flex items-end justify-between gap-3">
+        <div>
+          <p class="eyebrow">Minha semana</p>
+          <h2 class="mt-1 text-[24px] font-semibold leading-none tracking-[-0.03em] text-senai-dark">Agenda</h2>
+        </div>
+        <button id="btnHoje" type="button" class="flex items-center gap-1.5 rounded-full border border-senai-line bg-white px-3 py-1.5 text-[10px] font-semibold text-senai-dark shadow-sm transition hover:border-senai-dark/25 active:scale-95">
+          <i class="ph ph-calendar-dots text-[13px]"></i>
+          Hoje
+        </button>
+      </div>
+
+      <div id="agendaDayStrip" class="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0" role="tablist" aria-label="Dias da semana"></div>
+
+      <div>
+        <div class="flex items-center justify-between gap-3">
+          <h3 id="agendaDiaTitulo" class="text-[13px] font-semibold text-senai-dark">Hoje</h3>
+          <span id="agendaResumo" class="text-[10px] text-slate-600">4 aulas</span>
+        </div>
+        <div id="agendaList" class="mt-3 space-y-2.5"></div>
+      </div>
+
+      <p class="flex items-center gap-1.5 rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[9.5px] leading-relaxed text-slate-500">
+        <i class="ph ph-info text-[14px] text-senai-orange"></i>
+        A agenda é atualizada pela coordenação. Mudanças de sala chegam em tempo real.
+      </p>
+    </section>
+
+    <!-- ====================== TELA: AVISOS ====================== -->
+    <section class="view space-y-5" data-view="avisos" aria-label="Avisos e notificações">
+      <div class="flex items-end justify-between gap-3">
+        <div>
+          <p class="eyebrow">Comunicação</p>
+          <h2 class="mt-1 flex items-center gap-2 text-[24px] font-semibold leading-none tracking-[-0.03em] text-senai-dark">
+            Avisos
+            <span id="noticesCount" class="rounded-full bg-senai-orangeDeep px-2 py-0.5 text-[9px] font-semibold text-white">3</span>
+          </h2>
+        </div>
+        <button id="markAllRead" type="button" class="text-[10px] font-semibold text-senai-dark transition hover:text-senai-orange">
+          Marcar lidos
+        </button>
+      </div>
+
+      <div class="flex items-start gap-3 rounded-2xl border border-senai-orange/20 bg-orange-50/70 p-4">
+        <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-senai-orange/15 text-senai-orangeDeep">
+          <i class="ph-fill ph-bell-ringing text-[17px]"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="text-[11.5px] font-semibold text-senai-dark">Receba as mudanças de sala na hora</p>
+          <p class="mt-1 text-[10px] leading-relaxed text-slate-500">Ative as notificações para ser avisado mesmo com o app fechado.</p>
+          <button type="button" data-acao="ativar-notificacoes" class="mt-2.5 inline-flex items-center gap-1.5 rounded-xl bg-senai-dark px-3 py-2 text-[10px] font-semibold text-white transition hover:bg-[#044B70] active:scale-95">
+            <i class="ph ph-bell-plus text-[13px]"></i>
+            Ativar notificações
+          </button>
+        </div>
+      </div>
+
+      <div id="noticesList" class="space-y-2.5"></div>
+
+      <p class="flex items-center gap-1.5 px-1 text-[9px] text-slate-600">
+        <i class="ph ph-check-circle text-[12px]"></i>
+        <span id="noticesFooter">3 avisos não lidos</span>
+      </p>
+    </section>
+
+    <!-- ====================== TELA: PERFIL ====================== -->
+    <section class="view space-y-4 sm:space-y-5" data-view="perfil" aria-label="Perfil do aluno">
+      <div>
+        <p class="eyebrow">Minha conta</p>
+        <h2 class="mt-1 text-[24px] font-semibold leading-none tracking-[-0.03em] text-senai-dark">Perfil</h2>
+      </div>
+
+      <!-- Cartão do aluno -->
+      <div class="relative overflow-hidden rounded-3xl bg-senai-dark p-5 text-white shadow-lift">
+        <div class="card-pattern pointer-events-none absolute inset-0 opacity-60"></div>
+        <div class="pointer-events-none absolute -right-14 -top-16 h-44 w-44 rounded-full bg-senai-orange/20 blur-2xl"></div>
+
+        <div class="relative flex items-center gap-3.5">
+          <div id="perfilIniciais" class="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-senai-orange/15 text-[16px] font-semibold text-senai-orange ring-1 ring-inset ring-senai-orange/25">
+            JV
+          </div>
+          <div class="min-w-0">
+            <p id="perfilNome" class="truncate text-[16px] font-semibold leading-tight">João Vitor Almeida Santos</p>
+            <p id="perfilCurso" class="mt-1 truncate text-[10px] text-white/75">Técnico em Automação Industrial</p>
+          </div>
+        </div>
+
+        <div class="relative mt-4 grid grid-cols-2 gap-2.5 border-t border-white/10 pt-4">
+          <div>
+            <p class="text-[8px] font-medium uppercase tracking-[.14em] text-white/70">Matrícula</p>
+            <p id="perfilMatricula" class="tnum mt-1 text-[11px] font-medium text-white/85">2026.0417.8821</p>
+          </div>
+          <div>
+            <p class="text-[8px] font-medium uppercase tracking-[.14em] text-white/70">Unidade</p>
+            <p id="perfilUnidade" class="mt-1 truncate text-[11px] font-medium text-white/85">SENAI · Automação</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid gap-4 sm:gap-5 lg:grid-cols-2 lg:items-start">
+        <div class="space-y-4 sm:space-y-5">
+          <!-- Notificações -->
+          <section class="rounded-2xl border border-senai-line bg-white p-4 shadow-sm hover:shadow-md transition-shadow" aria-labelledby="notifTitle">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-2.5">
+                <div class="grid h-9 w-9 place-items-center rounded-xl bg-senai-orange/10 text-senai-orangeDeep">
+                  <i class="ph ph-bell-ringing text-[17px]"></i>
+                </div>
+                <div>
+                  <h3 id="notifTitle" class="text-[12px] font-semibold text-senai-dark">Notificações</h3>
+                  <p class="text-[9px] text-slate-500">Mudanças de sala e avisos</p>
+                </div>
+              </div>
+              <span id="notificationStatus" class="rounded-full bg-slate-100 px-2 py-1 text-[8.5px] font-semibold uppercase tracking-[.1em] text-slate-500">Verificando</span>
+            </div>
+
+            <p id="notificationHelp" class="mt-3 text-[10px] leading-relaxed text-slate-500">
+              Autorize o Gestor SENAI a enviar avisos. Você pode desativar quando quiser nos ajustes do aparelho.
+            </p>
+
+            <button
+              id="btnAtivarNotificacoes"
+              type="button"
+              class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-senai-dark px-4 py-3 text-[11px] font-semibold text-white transition hover:bg-[#044B70] active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+            >
+              <i class="ph ph-bell-plus text-[15px]"></i>
+              <span id="btnAtivarLabel">Ativar notificações</span>
+            </button>
+
+            <button id="btnTestNotification" type="button" hidden class="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-senai-line bg-white px-4 py-2.5 text-[10.5px] font-semibold text-senai-dark transition hover:border-senai-orange/30 hover:bg-orange-50/40">
+              <i class="ph ph-paper-plane-tilt text-[14px]"></i>
+              Enviar notificação de teste
+            </button>
+          </section>
+
+          <!-- Instalação do PWA -->
+          <section class="rounded-2xl border border-senai-line bg-white p-4 shadow-sm hover:shadow-md transition-shadow" aria-labelledby="installTitle">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-2.5">
+                <div class="grid h-9 w-9 place-items-center rounded-xl bg-senai-dark/5 text-senai-dark">
+                  <i class="ph ph-device-mobile text-[17px]"></i>
+                </div>
+                <div>
+                  <h3 id="installTitle" class="text-[12px] font-semibold text-senai-dark">Aplicativo</h3>
+                  <p class="text-[9px] text-slate-500">Instale na tela de início</p>
+                </div>
+              </div>
+              <span id="installStatus" class="rounded-full bg-slate-100 px-2 py-1 text-[8.5px] font-semibold uppercase tracking-[.1em] text-slate-500">Navegador</span>
+            </div>
+
+            <p id="installHelp" class="mt-3 text-[10px] leading-relaxed text-slate-500">
+              Instale o Gestor SENAI para abrir em tela cheia, sem a barra do navegador.
+            </p>
+
+            <button id="btnInstalarApp" type="button" class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-senai-dark/15 bg-senai-dark/[0.04] px-4 py-3 text-[11px] font-semibold text-senai-dark transition hover:bg-senai-dark/[0.08] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50">
+              <i class="ph ph-download-simple text-[15px]"></i>
+              <span id="btnInstalarLabel">Instalar aplicativo</span>
+            </button>
+          </section>
+        </div>
+
+        <div class="space-y-4 sm:space-y-5">
+          <!-- Preferências -->
+          <section class="overflow-hidden rounded-2xl border border-senai-line bg-white shadow-sm hover:shadow-md transition-shadow" aria-labelledby="prefsTitle">
+            <h3 id="prefsTitle" class="px-4 pb-1 pt-4 text-[12px] font-semibold text-senai-dark">Preferências</h3>
+
+            <button type="button" class="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-senai-mist/70">
+              <i class="ph ph-user-circle text-[18px] text-slate-500"></i>
+              <span class="flex-1 text-[11px] font-medium text-senai-ink">Meus dados</span>
+              <i class="ph ph-caret-right text-[12px] text-slate-300"></i>
+            </button>
+            <button type="button" class="flex w-full items-center gap-3 border-t border-slate-100 px-4 py-3 text-left transition hover:bg-senai-mist/70">
+              <i class="ph ph-check-square-offset text-[18px] text-slate-500"></i>
+              <span class="flex-1 text-[11px] font-medium text-senai-ink">Histórico de presença</span>
+              <i class="ph ph-caret-right text-[12px] text-slate-300"></i>
+            </button>
+            <button type="button" class="flex w-full items-center gap-3 border-t border-slate-100 px-4 py-3 text-left transition hover:bg-senai-mist/70">
+              <i class="ph ph-lifebuoy text-[18px] text-slate-500"></i>
+              <span class="flex-1 text-[11px] font-medium text-senai-ink">Suporte</span>
+              <i class="ph ph-caret-right text-[12px] text-slate-300"></i>
+            </button>
+          </section>
+
+          <!-- Sobre / status técnico -->
+          <section class="rounded-2xl border border-senai-line bg-white p-4 shadow-sm hover:shadow-md transition-shadow" aria-labelledby="aboutTitle">
+            <h3 id="aboutTitle" class="text-[12px] font-semibold text-senai-dark">Sobre o app</h3>
+
+            <div class="mt-3 space-y-2 text-[9.5px]">
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-slate-500">Versão</span>
+                <span class="tnum font-medium text-senai-dark">1.0.0</span>
+              </div>
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-slate-500">Ambiente</span>
+                <span id="backendStatus" class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2 py-0.5 font-semibold text-slate-500">
+                  <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                  Verificando
+                </span>
+              </div>
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-slate-500">Service Worker</span>
+                <span id="swStatus" class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2 py-0.5 font-semibold text-slate-500">
+                  <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                  Verificando
+                </span>
+              </div>
+            </div>
+
+            <p class="mt-3 border-t border-slate-100 pt-3 text-[9px] leading-relaxed text-slate-500">
+              Gestor SENAI · Agenda do aluno. Os dados ficam sincronizados com a coordenação acadêmica.
+            </p>
+
+            <button id="btnSairPerfil" type="button" class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-[10.5px] font-semibold text-slate-500 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600">
+              <i class="ph ph-sign-out text-[14px]"></i>
+              Sair da conta
+            </button>
+          </section>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ====================== NAVEGAÇÃO INFERIOR FIXA ====================== -->
+  <nav class="app-nav fixed inset-x-0 bottom-0 z-40 border-t border-senai-line/80 bg-white/95 backdrop-blur-xl" style="padding-bottom: env(safe-area-inset-bottom);" aria-label="Navegação principal">
+    <div class="mx-auto grid w-full max-w-3xl grid-cols-4 px-2 pt-2 sm:px-3 lg:max-w-5xl">
+
+      <button type="button" class="nav-btn is-active flex flex-col items-center gap-1 rounded-xl py-1.5 transition hover:text-senai-dark" data-view-target="inicio" aria-current="page">
+        <span class="nav-icon-wrap relative grid h-8 w-14 place-items-center rounded-xl">
+          <i class="ph ph-house text-[21px]"></i>
+          <span class="nav-indicator absolute -top-1 h-1 w-1 rounded-full bg-senai-orange"></span>
+        </span>
+        <span class="nav-label text-[9px] font-medium">Início</span>
+      </button>
+
+      <button type="button" class="nav-btn flex flex-col items-center gap-1 rounded-xl py-1.5 transition hover:text-senai-dark" data-view-target="agenda">
+        <span class="nav-icon-wrap relative grid h-8 w-14 place-items-center rounded-xl">
+          <i class="ph ph-calendar-blank text-[21px]"></i>
+          <span class="nav-indicator absolute -top-1 h-1 w-1 rounded-full bg-senai-orange"></span>
+        </span>
+        <span class="nav-label text-[9px] font-medium">Agenda</span>
+      </button>
+
+      <button type="button" class="nav-btn flex flex-col items-center gap-1 rounded-xl py-1.5 transition hover:text-senai-dark" data-view-target="avisos">
+        <span class="nav-icon-wrap relative grid h-8 w-14 place-items-center rounded-xl">
+          <i class="ph ph-bell text-[21px]"></i>
+          <span id="navNoticeDot" class="absolute right-3.5 top-0.5 h-1.5 w-1.5 rounded-full bg-senai-orange ring-2 ring-white"></span>
+          <span class="nav-indicator absolute -top-1 h-1 w-1 rounded-full bg-senai-orange"></span>
+        </span>
+        <span class="nav-label text-[9px] font-medium">Avisos</span>
+      </button>
+
+      <button type="button" class="nav-btn flex flex-col items-center gap-1 rounded-xl py-1.5 transition hover:text-senai-dark" data-view-target="perfil">
+        <span class="nav-icon-wrap relative grid h-8 w-14 place-items-center rounded-xl">
+          <i class="ph ph-user text-[21px]"></i>
+          <span class="nav-indicator absolute -top-1 h-1 w-1 rounded-full bg-senai-orange"></span>
+        </span>
+        <span class="nav-label text-[9px] font-medium">Perfil</span>
+      </button>
+
+    </div>
+  </nav>
+
+  <!-- ====================== CARREGAMENTO / ERRO DE CONEXÃO ====================== -->
+  <div id="apiOverlay" class="fixed inset-0 z-[95] grid place-items-center bg-senai-bg/90 px-6 backdrop-blur-sm" role="status" aria-live="polite">
+    <div class="w-full max-w-sm rounded-2xl border border-senai-line bg-white p-6 text-center shadow-sm hover:shadow-md transition-shadow">
+      <img src="assets/gestor-senai-icon.svg" alt="" aria-hidden="true" class="mx-auto h-11 w-11" />
+      <div id="apiOverlaySpinner" class="mx-auto mt-4 h-6 w-6 animate-spin rounded-full border-2 border-senai-line border-t-senai-orange"></div>
+      <p id="apiOverlayTitle" class="mt-4 text-[13px] font-semibold text-senai-dark">Carregando sua agenda…</p>
+      <p id="apiOverlayText" class="mt-1.5 text-[10px] leading-relaxed text-slate-500">Conectando à API do Gestor SENAI.</p>
+      <button id="apiRetry" type="button" hidden class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-senai-dark px-4 py-3 text-[11px] font-semibold text-white transition hover:bg-[#044B70] active:scale-[0.99]">
+        <i class="ph ph-arrows-clockwise text-[14px]"></i>
+        Tentar novamente
+      </button>
+      <button id="apiIrLogin" type="button" hidden class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-senai-line px-4 py-2.5 text-[10.5px] font-semibold text-slate-500 transition hover:border-senai-dark/20 hover:text-senai-dark">
+        <i class="ph ph-sign-in text-[14px]"></i>
+        Ir para o login
+      </button>
+    </div>
+  </div>
+
+  <!-- ====================== TOAST ====================== -->
+  <div id="toast" class="app-toast pointer-events-none fixed inset-x-0 z-[70] px-4" role="status" aria-live="polite" inert>
+    <div class="mx-auto w-full max-w-md overflow-hidden rounded-2xl border border-senai-line bg-white shadow-lg">
+      <div class="relative flex items-start gap-3 p-3.5">
+        <div id="toastIconWrap" class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-senai-orange/10 text-senai-orange">
+          <i id="toastIcon" class="ph-fill ph-bell-ringing text-[18px]"></i>
+        </div>
+        <div class="min-w-0 flex-1 pt-0.5">
+          <div class="flex items-center gap-2">
+            <p id="toastTitle" class="text-[9px] font-semibold uppercase tracking-[.16em] text-senai-orangeDeep">Nova notificação</p>
+            <span class="text-[9px] text-slate-500">agora</span>
+          </div>
+          <p id="toastText" class="mt-1 text-[11.5px] font-medium leading-snug text-senai-dark">
+            A aula de CLP agora é no Lab 05.
+          </p>
+        </div>
+        <button id="closeToast" type="button" aria-label="Fechar notificação" class="-mr-1 -mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-senai-dark">
+          <i class="ph ph-x text-[13px]"></i>
+        </button>
+      </div>
+      <div class="h-[3px] bg-slate-100">
+        <div id="toastBar" class="h-full bg-senai-orange"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== BOTTOM SHEET: DETALHES ====================== -->
+  <div id="sheetOverlay" class="fixed inset-0 z-[80] flex items-end justify-center" aria-hidden="true" inert>
+    <div id="sheetBackdrop" class="absolute inset-0 bg-senai-dark/50 backdrop-blur-[2px]" data-close-sheet></div>
+
+    <div id="sheetPanel" class="sheet-panel relative max-h-[88dvh] w-full max-w-lg overflow-y-auto rounded-t-[2rem] bg-white px-5 pt-3 shadow-lg" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+      <div class="mx-auto h-1 w-10 rounded-full bg-slate-200"></div>
+
+      <div class="mt-5 flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <p class="eyebrow text-senai-orangeDeep">Detalhes da aula</p>
+          <h2 id="sheetTitle" class="mt-1.5 text-[22px] font-semibold leading-tight tracking-[-0.02em] text-senai-dark">Automação Industrial</h2>
+          <p id="sheetSubtitle" class="mt-1 text-[11px] text-slate-500">CLP · Controlador Lógico Programável</p>
+        </div>
+        <button data-close-sheet type="button" aria-label="Fechar detalhes" class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-senai-dark">
+          <i class="ph ph-x text-[15px]"></i>
+        </button>
+      </div>
+
+      <div id="sheetRoomWarning" class="mt-4 flex gap-3 rounded-xl border border-senai-orange/20 bg-orange-50/70 p-3.5" hidden>
+        <i class="ph ph-arrow-bend-right-up mt-0.5 text-[17px] text-senai-orange"></i>
+        <div>
+          <p class="text-[10.5px] font-semibold text-senai-dark">Sala alterada pela coordenação</p>
+          <p class="mt-0.5 text-[10px] leading-relaxed text-slate-500">
+            Esta aula estava prevista para <span id="sheetOldRoom" class="font-medium text-senai-dark">Lab 04</span> e agora acontece no <span id="sheetNewRoom" class="font-medium text-senai-dark">Lab 05</span>.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-2.5">
+        <div class="rounded-xl bg-senai-mist p-3.5">
+          <p class="text-[8.5px] font-semibold uppercase tracking-[.14em] text-slate-600">Horário</p>
+          <p id="sheetTime" class="tnum mt-1 text-[13px] font-semibold text-senai-dark">14:00 — 16:00</p>
+        </div>
+        <div class="rounded-xl bg-senai-mist p-3.5">
+          <p class="text-[8.5px] font-semibold uppercase tracking-[.14em] text-slate-600">Sala / Laboratório</p>
+          <p id="sheetRoom" class="mt-1 text-[13px] font-semibold text-senai-dark">Lab 05</p>
+        </div>
+      </div>
+
+      <div class="mt-3 flex items-center gap-3 rounded-xl border border-senai-line p-3.5">
+        <div id="sheetTeacherInitials" class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-senai-orange/10 text-[11px] font-semibold text-senai-orangeDeep">RL</div>
+        <div class="min-w-0 flex-1">
+          <p id="sheetTeacherName" class="text-[12px] font-semibold text-senai-dark">Rafael Lima</p>
+          <p id="sheetTeacherRole" class="text-[9.5px] text-slate-500">Instrutor de Automação</p>
+        </div>
+        <i class="ph ph-chalkboard-teacher text-[18px] text-slate-300"></i>
+      </div>
+
+      <div class="mt-3 flex gap-3 rounded-xl border border-senai-line bg-slate-50/70 p-3.5">
+        <i class="ph ph-map-pin-line mt-0.5 text-[17px] text-senai-orange"></i>
+        <div>
+          <p class="text-[10.5px] font-semibold text-senai-dark">Como chegar</p>
+          <p id="sheetDirections" class="mt-0.5 text-[10px] leading-relaxed text-slate-500">
+            Bloco B, 2º andar. Ao subir a escada principal, siga à direita.
+          </p>
+        </div>
+      </div>
+
+      <button id="addToCalendar" type="button" class="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-senai-dark px-4 py-3.5 text-[12px] font-semibold text-white transition hover:bg-[#044B70] active:scale-[0.99]">
+        <i class="ph ph-calendar-plus text-[16px]"></i>
+        Adicionar ao meu calendário
+      </button>
+      <p class="mt-3 text-center text-[9px] text-slate-500">Chegue com 10 minutos de antecedência.</p>
+    </div>
+  </div>
+
+  <script src="env.js" charset="UTF-8"></script>
+  <script src="js/sessao.js" charset="UTF-8" defer></script>
+  <script src="js/app.js" charset="UTF-8" defer></script>
+</body>
+</html>

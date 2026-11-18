@@ -1,0 +1,15 @@
+{
+  "fase": "before",
+  "pagina": "index",
+  "url": "http://127.0.0.1:8080/index.html",
+  "data": "2026-11-17T02:28:30.139Z",
+  "performance": 26,
+  "accessibility": 100,
+  "bestPractices": 96,
+  "seo": 100,
+  "FCP": 3566.2245000000003,
+  "LCP": 4013.014500000001,
+  "CLS": 0.29300031881098726,
+  "TBT": 13157.2025,
+  "SI": 15920.12989702763
+}

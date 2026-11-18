@@ -1,0 +1,15 @@
+{
+  "fase": "before",
+  "pagina": "dashboard",
+  "url": "http://127.0.0.1:8080/dashboard.html",
+  "data": "2026-11-17T02:31:14.487Z",
+  "performance": 58,
+  "accessibility": 95,
+  "bestPractices": 96,
+  "seo": 100,
+  "FCP": 2984.6865395785735,
+  "LCP": 3463.042539578574,
+  "CLS": 0.001278601431333215,
+  "TBT": 2083.419099999999,
+  "SI": 3139.368818897742
+}

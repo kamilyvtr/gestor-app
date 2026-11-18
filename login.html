@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#003B5C" />
+  <meta name="description" content="Entre no Gestor SENAI com sua matrícula para acessar a agenda, os avisos e o painel da coordenação." />
+  <meta name="color-scheme" content="light" />
+  <meta name="robots" content="noindex" />
+
+  <link rel="icon" type="image/svg+xml" href="assets/gestor-senai-icon.svg" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+
+  <title>Entrar · Gestor SENAI</title>
+
+  <link rel="preload" href="assets/fonts/poppins-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/fonts/poppins-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="css/app.css" />
+  <link rel="stylesheet" href="assets/icons/regular.css" />
+  <link rel="stylesheet" href="assets/icons/fill.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <style>
+    /* Borda padrão: cinza claro. Foco suave em laranja SENAI. */
+    .login-field {
+      border-color: #cbd5e1;
+      background: #fff;
+    }
+    .login-field:focus-within {
+      border-color: #F26522;
+      box-shadow: 0 0 0 3px rgba(242, 101, 34, .18);
+      background: #fff;
+    }
+    .login-field:focus-within i {
+      color: #F26522;
+    }
+    .login-field.is-invalid {
+      border-color: #ef4444;
+      background: #fff7f3;
+    }
+    .login-field.is-invalid:focus-within {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, .18);
+    }
+    /* Remove autofill amarelado/laranja do Chrome. */
+    .login-field input:-webkit-autofill,
+    .login-field input:-webkit-autofill:hover,
+    .login-field input:-webkit-autofill:focus {
+      -webkit-text-fill-color: #003B5C;
+      -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+      box-shadow: 0 0 0 30px #ffffff inset !important;
+      transition: background-color 9999s ease-in-out 0s;
+    }
+    /* Evita borda/outline nativo ao carregar e no foco. */
+    .login-field input {
+      box-shadow: none;
+      outline: none;
+      border: none;
+      background-color: #fff;
+    }
+    .login-field input:focus {
+      box-shadow: none;
+      outline: none;
+      border: none;
+    }
+    .login-field input:invalid {
+      box-shadow: none;
+    }
+    .login-grid {
+      background-image:
+        radial-gradient(circle at 18% 22%, rgba(242, 101, 34, .22), transparent 42%),
+        radial-gradient(circle at 82% 0%, rgba(255, 255, 255, .10), transparent 38%),
+        linear-gradient(150deg, #003B5C 0%, #00293F 58%, #012334 100%);
+    }
+    .login-grid::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: radial-gradient(circle at 30% 30%, #000 0%, transparent 72%);
+      pointer-events: none;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .login-rise { animation: login-rise .5s cubic-bezier(.22, 1, .36, 1) both; }
+      @keyframes login-rise {
+        from { opacity: 0; transform: translateY(14px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    }
+  </style>
+
+  <script src="env.js"></script>
+  <script src="js/sessao.js" defer></script>
+  <script src="js/login.js" defer></script>
+</head>
+
+<body class="min-h-[100dvh] bg-senai-bg font-sans text-senai-ink antialiased">
+
+  <main class="grid min-h-[100dvh] lg:grid-cols-[1.02fr_1fr]">
+
+    <!-- ============ PAINEL DE MARCA ============ -->
+    <section class="login-grid relative hidden overflow-hidden p-10 text-white lg:flex lg:flex-col xl:p-14" aria-label="Gestor SENAI">
+      <div class="relative z-10 flex items-center gap-3">
+        <img src="assets/gestor-senai-icone-negativo.svg" alt="" aria-hidden="true" class="h-11 w-11" />
+        <div>
+          <p class="text-[17px] font-semibold leading-none tracking-tight">Gestor <span class="font-light text-white/70">SENAI</span></p>
+          <p class="mt-1.5 text-[8px] font-medium uppercase tracking-[.28em] text-white/40">Coordenação &amp; aluno</p>
+        </div>
+      </div>
+
+      <div class="relative z-10 my-auto max-w-[30rem] py-12">
+        <p class="text-[9px] font-semibold uppercase tracking-[.24em] text-senai-orange">Agenda acadêmica inteligente</p>
+        <h1 class="mt-4 text-[40px] font-semibold leading-[1.05] tracking-[-0.045em] xl:text-[46px]">
+          Sua rotina do SENAI,<br />
+          <span class="text-white/60">sincronizada em tempo real.</span>
+        </h1>
+        <p class="mt-5 max-w-[24rem] text-[12.5px] font-light leading-relaxed text-white/65">
+          Acompanhe aulas, mudanças de sala e comunicados da coordenação em um só lugar.
+        </p>
+
+        <ul class="mt-9 space-y-3.5">
+          <li class="flex items-start gap-3">
+            <span class="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white/[0.07] text-senai-orange ring-1 ring-inset ring-white/10">
+              <i class="ph ph-calendar-check text-[16px]"></i>
+            </span>
+            <div>
+              <p class="text-[11.5px] font-medium">Agenda sempre atualizada</p>
+              <p class="mt-0.5 text-[10px] leading-relaxed text-white/45">Aulas do dia, laboratórios e instrutores.</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white/[0.07] text-senai-orange ring-1 ring-inset ring-white/10">
+              <i class="ph ph-door-open text-[16px]"></i>
+            </span>
+            <div>
+              <p class="text-[11.5px] font-medium">Mudanças de sala na hora</p>
+              <p class="mt-0.5 text-[10px] leading-relaxed text-white/45">Avisos em tempo real e notificações no aparelho.</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white/[0.07] text-senai-orange ring-1 ring-inset ring-white/10">
+              <i class="ph ph-buildings text-[16px]"></i>
+            </span>
+            <div>
+              <p class="text-[11.5px] font-medium">Coordenação no controle</p>
+              <p class="mt-0.5 text-[10px] leading-relaxed text-white/45">Ocupação dos labs, conflitos e alocações.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="relative z-10 flex items-center justify-between border-t border-white/10 pt-4 text-[8.5px] text-white/35">
+        <span>SENAI · Automação Industrial</span>
+        <span class="flex items-center gap-1.5">
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+          Ambiente seguro
+        </span>
+      </div>
+    </section>
+
+    <!-- ============ FORMULÁRIO ============ -->
+    <section class="flex items-center justify-center px-5 py-10 sm:px-8" aria-labelledby="loginTitle">
+      <div class="login-rise w-full max-w-[26rem]">
+
+        <!-- Marca compacta (mobile) -->
+        <div class="mb-8 flex items-center justify-center gap-2.5 lg:hidden">
+          <img src="assets/gestor-senai-icon.svg" alt="" aria-hidden="true" class="h-10 w-10" />
+          <div>
+            <p class="text-[15px] font-semibold leading-none tracking-tight text-senai-dark">Gestor <span class="font-light text-slate-500">SENAI</span></p>
+            <p class="mt-1 text-[7.5px] font-medium uppercase tracking-[.24em] text-slate-500">Agenda acadêmica</p>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-white bg-white p-6 shadow-sm hover:shadow-md transition-shadow sm:p-8">
+          <p class="text-[9px] font-semibold uppercase tracking-[.2em] text-senai-orangeDeep">Acesso</p>
+          <h2 id="loginTitle" class="mt-2 text-[26px] font-semibold leading-none tracking-[-0.035em] text-senai-dark">Entrar</h2>
+          <p class="mt-2 text-[10.5px] leading-relaxed text-slate-500">
+            Use sua matrícula ou CPF e a senha cadastrada.
+          </p>
+
+          <!-- Feedback -->
+          <div id="loginFeedback" class="mt-5 hidden items-start gap-2.5 rounded-xl border p-3 text-[10px]" role="alert" aria-live="polite">
+            <i id="loginFeedbackIcon" class="ph ph-warning-circle mt-0.5 text-[15px]" aria-hidden="true"></i>
+            <p id="loginFeedbackText" class="leading-relaxed"></p>
+          </div>
+
+          <form id="loginForm" class="mt-5 space-y-4" novalidate>
+            <div>
+              <label for="matricula" class="mb-1.5 block text-[10px] font-semibold text-senai-dark">Matrícula/CPF</label>
+              <div class="login-field group flex items-center gap-2.5 rounded-xl border border-senai-line bg-white px-3.5 py-3 transition focus-within:border-[#F26522] focus-within:ring-2 focus-within:ring-[#F26522]/20 focus-within:outline-none">
+                <i class="ph ph-identification-card shrink-0 text-[17px] text-slate-400 transition group-focus-within:text-[#F26522]" aria-hidden="true"></i>
+                <input
+                  id="matricula"
+                  name="matricula"
+                  type="text"
+                  inputmode="text"
+                  autocomplete="username"
+                  autocapitalize="off"
+                  spellcheck="false"
+                  placeholder="Ex.: 202604178821"
+                  required
+                  minlength="3"
+                  class="w-full border-none bg-transparent text-[12px] font-medium text-senai-dark outline-none shadow-none focus:outline-none focus:ring-0 focus:border-none placeholder:font-normal placeholder:text-slate-400"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label for="senha" class="mb-1.5 block text-[10px] font-semibold text-senai-dark">Senha</label>
+              <div class="login-field group flex items-center gap-2.5 rounded-xl border border-senai-line bg-white px-3.5 py-3 transition focus-within:border-[#F26522] focus-within:ring-2 focus-within:ring-[#F26522]/20 focus-within:outline-none">
+                <i class="ph ph-lock-key shrink-0 text-[17px] text-slate-400 transition group-focus-within:text-[#F26522]" aria-hidden="true"></i>
+                <input
+                  id="senha"
+                  name="senha"
+                  type="password"
+                  autocomplete="current-password"
+                  placeholder="Digite sua senha"
+                  required
+                  minlength="4"
+                  class="w-full border-none bg-transparent text-[12px] font-medium text-senai-dark outline-none shadow-none focus:outline-none focus:ring-0 focus:border-none placeholder:font-normal placeholder:text-slate-400"
+                />
+                <button
+                  id="toggleSenha"
+                  type="button"
+                  aria-label="Mostrar senha"
+                  aria-pressed="false"
+                  class="grid h-7 w-7 shrink-0 place-items-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-senai-dark"
+                >
+                  <i id="toggleSenhaIcon" class="ph ph-eye text-[16px]"></i>
+                </button>
+              </div>
+            </div>
+
+            <button
+              id="btnEntrar"
+              type="submit"
+              class="group flex w-full items-center justify-center gap-2 rounded-xl bg-senai-dark px-4 py-3.5 text-[12px] font-semibold text-white shadow-[0_14px_28px_-16px_rgba(0,59,92,.8)] transition-transform hover:-translate-y-0.5 hover:shadow-lg active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              <span id="btnEntrarLabel">Entrar</span>
+              <i id="btnEntrarIcon" class="ph ph-arrow-right text-[15px] transition group-hover:translate-x-0.5"></i>
+              <i id="btnEntrarSpinner" class="ph ph-circle-notch hidden animate-spin text-[15px]" aria-hidden="true"></i>
+            </button>
+          </form>
+
+          <!-- Acesso de demonstração -->
+          <div class="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div class="flex items-center gap-2">
+              <i class="ph ph-flask text-[14px] text-senai-orangeDeep" aria-hidden="true"></i>
+              <p class="text-[8.5px] font-semibold uppercase tracking-[.14em] text-slate-600">Acesso de demonstração</p>
+            </div>
+            <p class="mt-1.5 text-[9px] leading-relaxed text-slate-500">
+              Senha para os dois perfis: <span class="font-semibold text-senai-dark">senai123</span>
+            </p>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <button type="button" data-demo="aluno" class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[#003B5C] hover:shadow-sm">
+                <i class="ph ph-student text-[14px]"></i>
+                Aluno
+              </button>
+              <button type="button" data-demo="coord" class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[#003B5C] hover:shadow-sm">
+                <i class="ph ph-chalkboard-teacher text-[14px]"></i>
+                Coordenação
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <p class="mt-6 text-center text-[9px] leading-relaxed text-slate-500">
+          Problemas para entrar? Procure a secretaria acadêmica.<br />
+          <span class="mt-1 inline-flex items-center gap-1.5 text-slate-400">
+            <i class="ph ph-lock-simple text-[11px]"></i>
+            Conexão segura com a API do Gestor SENAI
+          </span>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <noscript>
+    <div class="fixed inset-x-4 bottom-4 rounded-xl border border-senai-orange/30 bg-orange-50 p-3 text-[11px] text-senai-dark">
+      Ative o JavaScript para entrar no Gestor SENAI.
+    </div>
+  </noscript>
+</body>
+</html>
