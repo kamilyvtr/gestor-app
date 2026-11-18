@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pydantic import model_validator
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -44,6 +44,19 @@ class Settings(BaseSettings):
 
     # Dados de demonstração
     seed_on_startup: bool = True
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def _cors_origens_para_lista(cls, valor):
+        """Render pode enviar CORS_ORIGINS como string simples (ex: 'https://site.com').
+
+        Converte string separada por vírgula em lista; se já for lista, retorna como está.
+        """
+        if isinstance(valor, str):
+            return [origem.strip() for origem in valor.split(",") if origem.strip()]
+        if isinstance(valor, (list, tuple, set)):
+            return [str(origem).strip() for origem in valor if str(origem).strip()]
+        return valor
 
     # Web Push (VAPID)
     vapid_subject: str = "mailto:contato@gestorsenai.com.br"
