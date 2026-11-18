@@ -31,7 +31,7 @@ async def lifespan(_app: FastAPI):
         "Diagnóstico de configuração | JWT_SECRET configurada: %s",
         bool(settings.jwt_secret),
     )
-    logger.info("Diagnóstico de configuração | CORS_ORIGENS: %s", settings.cors_origins)
+    logger.info("Diagnóstico de configuração | CORS origens: %s", origins)
     logger.info(
         "Diagnóstico de configuração | AMBIENTE: %s",
         settings.ambiente,
@@ -84,6 +84,8 @@ origins = [
     "http://localhost:8000",
     "http://localhost:8080",
     "http://127.0.0.1:8080",
+    # Origens extras configuradas no .env / no painel do Render.
+    *settings.cors_origins,
 ]
 
 app.add_middleware(
