@@ -23,6 +23,20 @@ logger = logging.getLogger("gestor_senai")
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
+    logger.info(
+        "Diagnóstico de configuração | DATABASE_URL configurada: %s",
+        bool(settings.database_url),
+    )
+    logger.info(
+        "Diagnóstico de configuração | JWT_SECRET configurada: %s",
+        bool(settings.jwt_secret),
+    )
+    logger.info("Diagnóstico de configuração | CORS_ORIGENS: %s", settings.cors_origins)
+    logger.info(
+        "Diagnóstico de configuração | AMBIENTE: %s",
+        settings.ambiente,
+    )
+
     criar_banco()
 
     if settings.seed_on_startup:
