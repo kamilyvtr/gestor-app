@@ -10,7 +10,7 @@
      buscados na rede).
    ========================================================================== */
 
-const VERSAO = '5.6.0';
+const VERSAO = '5.7.0';
 const CACHE_SHELL = `gestor-senai-shell-v${VERSAO}`;
 const CACHE_EXTERNO = `gestor-senai-externo-v${VERSAO}`;
 const CACHES_ATUAIS = [CACHE_SHELL, CACHE_EXTERNO];

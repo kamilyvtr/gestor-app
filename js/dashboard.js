@@ -165,11 +165,11 @@
   function formatarPeriodo(inicio, fim) {
     const de = dataDeISO(inicio);
     const ate = dataDeISO(fim);
-    if (Number.isNaN(de.getTime()) || Number.isNaN(ate.getTime())) return `${inicio} - ${fim}`;
+    if (Number.isNaN(de.getTime()) || Number.isNaN(ate.getTime())) return `${inicio} a ${fim}`;
     if (de.getMonth() === ate.getMonth()) {
-      return `${de.getDate()} - ${ate.getDate()} de ${MESES_CURTOS[de.getMonth()]} de ${ate.getFullYear()}`;
+      return `${de.getDate()} a ${ate.getDate()} de ${MESES_CURTOS[de.getMonth()]} de ${ate.getFullYear()}`;
     }
-    return `${de.getDate()} de ${MESES_CURTOS[de.getMonth()]} - ${ate.getDate()} de ${MESES_CURTOS[ate.getMonth()]} de ${ate.getFullYear()}`;
+    return `${de.getDate()} de ${MESES_CURTOS[de.getMonth()]} a ${ate.getDate()} de ${MESES_CURTOS[ate.getMonth()]} de ${ate.getFullYear()}`;
   }
 
   function numeroDaSemana(data = new Date()) {
@@ -1818,10 +1818,10 @@
 
     if (!avisos.length) {
       lista.innerHTML = `
-        <div class="px-1 py-6 text-center">
-          <i class="ph ph-megaphone text-[22px] text-slate-300"></i>
-          <p class="mt-2 text-[10px] font-medium text-senai-dark">Nenhum aviso publicado</p>
-          <p class="mt-1 text-[9.5px] text-slate-500">Os comunicados enviados aos alunos aparecem aqui.</p>
+        <div class="px-1 py-7 text-center">
+          <i class="ph ph-megaphone text-[24px] text-slate-300"></i>
+          <p class="mt-2 text-[12px] font-semibold text-senai-dark">Nenhum aviso publicado</p>
+          <p class="secao-subtitulo mt-1">Os comunicados enviados aos alunos aparecem aqui.</p>
         </div>`;
       return;
     }
@@ -1829,14 +1829,14 @@
     lista.innerHTML = avisos.slice(0, 5).map((aviso) => {
       const cor = CORES_AVISO[aviso.tipo] || CORES_AVISO.sistema;
       return `
-        <button type="button" data-aviso-card="${escapar(aviso.id)}" class="group flex w-full items-start gap-3 py-3 text-left transition hover:bg-slate-50">
-          <span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full ${cor}"></span>
+        <button type="button" data-aviso-card="${escapar(aviso.id)}" class="aviso-item group">
+          <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${cor}"></span>
           <span class="min-w-0 flex-1">
-            <span class="block truncate text-[10px] font-semibold leading-snug text-senai-dark">${escapar(aviso.titulo)}</span>
-            <span class="mt-1 block text-[9.5px] leading-relaxed text-slate-500">${escapar(aviso.texto.length > 90 ? `${aviso.texto.slice(0, 87)}...` : aviso.texto)}</span>
-            <span class="mt-1 block text-[9px] text-slate-400">Para: ${escapar(aviso.destinatario)}</span>
+            <span class="aviso-titulo">${escapar(aviso.titulo)}</span>
+            <span class="aviso-texto">${escapar(aviso.texto.length > 90 ? `${aviso.texto.slice(0, 87)}...` : aviso.texto)}</span>
+            <span class="aviso-destino"><i class="ph ph-user text-[11px]"></i>Para: ${escapar(aviso.destinatario)}</span>
           </span>
-          <span class="shrink-0 text-[9px] text-slate-500">${escapar(tempoRelativo(aviso.quando))}</span>
+          <span class="aviso-hora">${escapar(tempoRelativo(aviso.quando))}</span>
         </button>`;
     }).join('');
   }

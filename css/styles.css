@@ -376,6 +376,153 @@ svg {
 }
 
 /* --------------------------------------------------------------------------
+   Painel da coordenação — legibilidade e hierarquia
+   Refinos sobre os utilitários já usados em dashboard.html / dashboard.js.
+   -------------------------------------------------------------------------- */
+
+/* Busca global: o campo precisa se destacar do cabeçalho claro. */
+.busca-campo {
+  height: 2.5rem;
+  border: 1px solid #94a3b8;
+  border-radius: 0.75rem;
+  background: #ffffff;
+  color: var(--senai-dark);
+  font-size: 12.5px;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.busca-campo::placeholder {
+  color: #64748b;
+  font-weight: 500;
+  opacity: 1;
+}
+
+.busca-campo:hover {
+  border-color: #64748b;
+}
+
+.busca-campo:focus {
+  outline: none;
+  border-color: var(--senai-orange);
+  box-shadow: 0 0 0 3px rgba(242, 101, 34, 0.18);
+}
+
+.busca-icone {
+  color: #334155;
+  font-size: 15px;
+}
+
+/* Textos de apoio das seções */
+.secao-subtitulo {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #475569;
+}
+
+/* Regras de alocação */
+.regra-nome {
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--senai-dark);
+}
+
+.regra-descricao {
+  margin-top: 3px;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: #475569;
+}
+
+.regra-selo {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.verificacao-automatica {
+  font-size: 11px;
+  color: #475569;
+}
+
+/* Avisos recentes */
+.aviso-item {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 0.25rem;
+  text-align: left;
+  transition: background-color 0.18s ease;
+}
+
+.aviso-item:hover {
+  background-color: #f8fafc;
+}
+
+.aviso-titulo {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--senai-dark);
+}
+
+.aviso-texto {
+  display: block;
+  margin-top: 3px;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: #475569;
+}
+
+.aviso-destino {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 6px;
+  padding: 2px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #f1f5f9;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.aviso-hora {
+  flex-shrink: 0;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
+}
+
+.aviso-gerenciar {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--senai-line);
+  border-radius: 0.75rem;
+  background: #f8fafc;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--senai-dark);
+  transition: border-color 0.18s ease, color 0.18s ease, background-color 0.18s ease;
+}
+
+.aviso-gerenciar:hover {
+  border-color: rgba(242, 101, 34, 0.45);
+  background-color: #fff7f2;
+  color: #b9470f;
+}
+
+/* --------------------------------------------------------------------------
    Acessibilidade / movimento reduzido
    -------------------------------------------------------------------------- */
 
