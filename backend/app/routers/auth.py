@@ -8,8 +8,8 @@ from ..config import settings
 from ..database import get_db
 from ..deps import usuario_atual
 from ..models import Aluno, Usuario
-from ..schemas import LoginIn, MeOut, TokenOut
-from ..security import criar_token, verificar_senha
+from ..schemas import AlterarSenhaIn, LoginIn, MeOut, TokenOut
+from ..security import criar_token, gerar_hash_senha, verificar_senha
 from ..serializers import perfil_de, usuario_para_out
 
 router = APIRouter(prefix="/auth", tags=["Autenticação"])
@@ -66,3 +66,29 @@ def me(
         usuario=usuario_para_out(usuario),
         perfil=perfil_de(aluno) if aluno else None,
     )
+
+
+@router.post(
+    "/senha",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_model=None,
+    summary="Alterar a própria senha",
+)
+def alterar_senha(
+    dados: AlterarSenhaIn,
+    usuario: Usuario = Depends(usuario_atual),
+    db: Session = Depends(get_db),
+) -> None:
+    if not verificar_senha(dados.senha_atual, usuario.senha_hash):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A senha atual não confere.",
+        )
+    if dados.senha_atual == dados.nova_senha:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A nova senha precisa ser diferente da atual.",
+        )
+    usuario.senha_hash = gerar_hash_senha(dados.nova_senha)
+    db.commit()
+    return None

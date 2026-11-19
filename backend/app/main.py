@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
 from .database import SessionLocal, criar_banco
 from .routers import aluno, auth, dashboard, eventos, push
-from .seed import semear
+from .seed import garantir_contas_grupo, semear
 from .services.broker import broker
 from .tempo import agora_utc
 
@@ -45,6 +45,13 @@ async def lifespan(_app: FastAPI):
                 logger.info(
                     "Seed de demonstração aplicado (aluno 202604178821 / coord01)."
                 )
+            extras = garantir_contas_grupo(db)
+            if extras["logins"]:
+                logger.info(
+                    "Contas do grupo criadas: %s", ", ".join(extras["logins"])
+                )
+            if extras["instrutor"]:
+                logger.info("Instrutor criado: %s", ", ".join(extras["instrutor"]))
 
     broker.vincular_loop(asyncio.get_running_loop())
 

@@ -29,6 +29,11 @@ class LoginIn(BaseModel):
     senha: str = Field(min_length=4, max_length=128)
 
 
+class AlterarSenhaIn(ModeloBase):
+    senha_atual: str = Field(min_length=4, max_length=128)
+    nova_senha: str = Field(min_length=8, max_length=128)
+
+
 class UsuarioOut(ModeloBase):
     id: int
     matricula: str
@@ -134,6 +139,11 @@ class InstrutorOut(ModeloBase):
     iniciais: str
 
 
+class InstrutorCreateIn(ModeloBase):
+    nome: str = Field(min_length=2, max_length=80)
+    iniciais: str = Field(min_length=1, max_length=4)
+
+
 class AlunoPainelOut(ModeloBase):
     id: int
     nome: str
@@ -144,6 +154,9 @@ class AlunoPainelOut(ModeloBase):
 
 class AulaPainelOut(AulaOut):
     aluno: str
+    aluno_id: int
+    sala_id: int
+    instrutor_id: int
 
 
 class AvisoPainelOut(ModeloBase):
@@ -176,6 +189,20 @@ class ConflitoOut(ModeloBase):
     aula_a: str
     aula_b: str
     detalhe: str
+
+
+class NotificacaoRefOut(ModeloBase):
+    tipo: str
+    id: str
+
+
+class NotificacaoOut(ModeloBase):
+    id: str
+    tipo: str
+    titulo: str
+    texto: str
+    quando: datetime
+    referencia: NotificacaoRefOut | None = None
 
 
 class ResumoOut(ModeloBase):
@@ -225,6 +252,12 @@ class AvisoCreateIn(ModeloBase):
     enviar_push: bool = True
 
 
+class AvisoAtualizarIn(ModeloBase):
+    titulo: str | None = Field(default=None, min_length=3, max_length=120)
+    texto: str | None = Field(default=None, min_length=3, max_length=2000)
+    tipo: str | None = Field(default=None, max_length=24)
+
+
 class AvisoCreateOut(ModeloBase):
     aviso: AvisoOut
     destinatarios: int
@@ -240,7 +273,21 @@ class NovaAulaIn(ModeloBase):
     titulo: str = Field(min_length=2, max_length=120)
     subtitulo: str = Field(default="", max_length=160)
     tipo: str = Field(default="teórica", max_length=20)
+    notificar: bool = False
     id: str | None = Field(default=None, max_length=64)
+
+
+class AulaAtualizarIn(ModeloBase):
+    aluno_id: int | None = None
+    sala_id: int | None = None
+    instrutor_id: int | None = None
+    data: date | None = None
+    inicio: time | None = None
+    fim: time | None = None
+    titulo: str | None = Field(default=None, min_length=2, max_length=120)
+    subtitulo: str | None = Field(default=None, max_length=160)
+    tipo: str | None = Field(default=None, max_length=20)
+    notificar: bool = False
 
 
 # --------------------------------------------------------------------------

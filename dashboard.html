@@ -69,6 +69,26 @@
     #drawerPanel { transform: translateX(102%); transition: transform .5s cubic-bezier(.22, 1, .36, 1); }
     #drawer.is-open #drawerPanel { transform: translateX(0); }
 
+    body.grade-expanded { overflow: hidden; }
+    #grade.is-expanded {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      margin: 0;
+      overflow-y: auto;
+      border-radius: 0;
+      background: #F5F7FA;
+      padding: 0 12px 20px;
+    }
+    #grade.is-expanded #gradeToolbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-radius: 0 0 16px 16px;
+      background: #FFFFFF;
+      box-shadow: 0 10px 24px -22px rgba(0, 59, 92, .5);
+    }
+
     .dash-toast {
       transform: translateY(18px);
       opacity: 0;
@@ -178,15 +198,12 @@
 
           <div class="relative hidden w-full max-w-[350px] md:block">
             <i class="ph ph-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[15px] text-slate-500"></i>
-            <input id="globalSearch" type="search" placeholder="Buscar sala, curso ou instrutor"
+            <input id="globalSearch" type="search" placeholder="Buscar sala, curso ou instrutor" autocomplete="off"
               class="h-10 w-full rounded-xl border border-slate-200 bg-slate-100 pl-10 pr-4 text-[11.5px] font-medium text-senai-dark outline-none transition placeholder:font-normal placeholder:text-slate-500 focus:bg-white focus:border-slate-300 focus:ring-0" />
+            <div id="searchResults" class="absolute left-0 right-0 top-[calc(100%+8px)] z-50 hidden max-h-[340px] overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg" role="listbox" aria-label="Resultados da busca"></div>
           </div>
 
           <div class="ml-auto flex items-center gap-2">
-            <div id="systemStatus" class="mr-2 hidden items-center gap-2 rounded-full border border-emerald-200/60 bg-emerald-50/70 px-3 py-1.5 xl:flex">
-              <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-              <span class="text-[8.5px] font-semibold uppercase tracking-[.12em] text-emerald-700">Sistema online</span>
-            </div>
 
             <div class="relative">
               <button id="bellButton" type="button" aria-label="Ver notificações" aria-haspopup="dialog" aria-expanded="false" class="relative grid h-10 w-10 place-items-center rounded-lg border border-slate-200 bg-white text-senai-dark transition hover:bg-slate-50">
@@ -200,9 +217,12 @@
                     <p class="text-[11px] font-semibold text-senai-dark">Notificações</p>
                     <p id="bellSubtitle" class="mt-0.5 text-[8.5px] text-slate-500">Avisos e alertas recentes</p>
                   </div>
-                  <button id="bellClose" type="button" aria-label="Fechar notificações" class="grid h-7 w-7 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-senai-dark">
-                    <i class="ph ph-x text-[11px]"></i>
-                  </button>
+                  <div class="flex items-center gap-1.5">
+                    <button id="bellMarkAll" type="button" class="rounded-lg px-2 py-1 text-[8px] font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-senai-dark">Marcar lidas</button>
+                    <button id="bellClose" type="button" aria-label="Fechar notificações" class="grid h-7 w-7 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-senai-dark">
+                      <i class="ph ph-x text-[11px]"></i>
+                    </button>
+                  </div>
                 </div>
 
                 <div id="bellList" class="max-h-[300px] overflow-y-auto px-4">
@@ -210,19 +230,11 @@
                 </div>
 
                 <button id="bellSeeAll" type="button" class="flex w-full items-center justify-between border-t border-slate-100 px-4 py-2.5 text-[8.5px] font-semibold text-senai-dark transition hover:text-senai-orange">
-                  Ver todos os avisos
+                  Abrir central de avisos
                   <i class="ph ph-arrow-up-right text-[11px]"></i>
                 </button>
               </div>
             </div>
-
-            <button id="logoutBtn" type="button" aria-label="Sair da conta" title="Sair"
-              class="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-senai-dark transition hover:bg-slate-50">
-              <i class="ph ph-sign-out text-[16px]"></i>
-              <span class="hidden text-[10px] font-semibold sm:inline">Sair</span>
-            </button>
-
-            <div class="mx-1 hidden h-7 w-px bg-slate-200 sm:block"></div>
 
             <div class="relative">
               <button id="profileButton" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Abrir menu do perfil" class="flex items-center gap-3 rounded-lg bg-[#003B5C] p-2 pr-3 text-white transition hover:bg-[#00496F]">
@@ -239,7 +251,7 @@
               <div id="profileMenu" class="absolute right-0 top-[calc(100%+10px)] z-50 hidden w-56 overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg" role="menu" aria-label="Menu do perfil">
                 <div class="border-b border-slate-100 px-3 py-2.5">
                   <p id="profileMenuName" class="truncate text-[10.5px] font-semibold text-senai-dark">Coordenação</p>
-                  <p class="mt-0.5 text-[8.5px] text-slate-500">Coordenação acadêmica</p>
+                  <p id="profileMenuRole" class="mt-0.5 text-[8.5px] text-slate-500">Coordenação acadêmica</p>
                 </div>
 
                 <button type="button" role="menuitem" data-profile-action="perfil" class="mt-1 flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[10.5px] font-medium text-slate-700 transition hover:bg-slate-50 hover:text-senai-dark">
@@ -290,7 +302,7 @@
         <!-- MÉTRICAS -->
         <section class="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Indicadores do dia">
           <!-- Ocupação -->
-          <article class="group relative overflow-hidden rounded-2xl border border-white bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+          <article id="cardOccupancy" data-dashboard-card="ocupacao" tabindex="0" aria-label="Ver ocupação dos laboratórios" class="group relative cursor-pointer overflow-hidden rounded-2xl border border-white bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
             <div class="flex items-start justify-between gap-4">
               <div>
                 <p class="text-[9px] font-semibold uppercase tracking-[.16em] text-slate-500">Ocupação dos Labs</p>
@@ -324,12 +336,12 @@
           </article>
 
           <!-- Aulas hoje -->
-          <article class="group relative overflow-hidden rounded-2xl border border-white bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+          <article id="cardLessons" data-dashboard-card="aulas" tabindex="0" aria-label="Ver as aulas de hoje" class="group relative cursor-pointer overflow-hidden rounded-2xl border border-white bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
             <div class="flex items-start justify-between gap-4">
               <div>
                 <p class="text-[9px] font-semibold uppercase tracking-[.16em] text-slate-500">Aulas Hoje</p>
                 <p class="mt-3 flex items-baseline gap-0.5 text-[33px] font-semibold leading-none tracking-[-0.05em] text-senai-dark">
-                  <span id="lessonsToday">120</span>
+                  <span id="lessonsToday">-</span>
                 </p>
               </div>
               <div class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-senai-mist text-senai-dark">
@@ -355,7 +367,7 @@
           </article>
 
           <!-- Conflitos -->
-          <article class="group relative overflow-hidden rounded-2xl border border-white bg-white p-5 shadow-sm transition-shadow hover:shadow-md sm:col-span-2 xl:col-span-1">
+          <article id="cardConflicts" data-dashboard-card="conflitos" tabindex="0" aria-label="Ver conflitos da semana" class="group relative cursor-pointer overflow-hidden rounded-2xl border border-white bg-white p-5 shadow-sm transition-shadow hover:shadow-md sm:col-span-2 xl:col-span-1">
             <div class="pointer-events-none absolute -right-6 -top-8 h-24 w-24 rounded-full bg-senai-orange/[0.07] blur-2xl"></div>
 
             <div class="relative flex items-start justify-between gap-4">
@@ -387,14 +399,14 @@
 
         <!-- GRADE DE HORÁRIOS -->
         <section id="grade" class="mt-6 overflow-hidden rounded-2xl border border-white bg-white shadow-sm hover:shadow-md transition-shadow">
-          <div class="flex flex-col gap-4 border-b border-slate-100 px-5 py-5 xl:flex-row xl:items-center xl:justify-between">
+          <div id="gradeToolbar" class="flex flex-col gap-4 border-b border-slate-100 px-5 py-5 xl:flex-row xl:items-center xl:justify-between">
             <div class="flex items-start gap-3">
               <div class="hidden h-10 w-10 shrink-0 place-items-center rounded-xl bg-senai-mist text-senai-dark sm:grid">
                 <i class="ph ph-table text-[18px]"></i>
               </div>
               <div>
                 <div class="flex flex-wrap items-center gap-2">
-                  <h2 class="text-[14.5px] font-semibold tracking-tight text-senai-dark">Programação semanal</h2>
+                  <h2 id="gradeTitle" class="text-[14.5px] font-semibold tracking-tight text-senai-dark">Programação semanal</h2>
                   <span id="weekBadge" class="rounded-xl bg-senai-mist px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-[.08em] text-slate-600">Semana atual</span>
                 </div>
                 <p class="mt-1 text-[9.5px] text-slate-500"><span id="periodoGrade">-</span> · <span id="allocationCount">carregando aulas</span></p>
@@ -402,19 +414,26 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-              <button id="prevWeekButton" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-[10.5px] font-semibold text-slate-700 transition hover:bg-slate-50">
+              <div class="inline-flex rounded-lg border border-slate-300 bg-white p-0.5" role="group" aria-label="Modo de visualização">
+                <button id="viewWeekButton" type="button" aria-pressed="true" class="rounded-md px-3 py-1.5 text-[10px] font-semibold text-senai-dark transition bg-senai-mist">Semana</button>
+                <button id="viewDayButton" type="button" aria-pressed="false" class="rounded-md px-3 py-1.5 text-[10px] font-semibold text-slate-500 transition hover:text-senai-dark">Dia</button>
+              </div>
+              <button id="prevPeriodButton" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-[10.5px] font-semibold text-slate-700 transition hover:bg-slate-50">
                 <i class="ph ph-caret-left text-[12px]"></i>
-                Semana anterior
+                <span id="prevPeriodLabel">Semana anterior</span>
               </button>
-              <button id="todayButton" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-[10.5px] font-semibold text-slate-700 transition hover:bg-slate-50">
+              <button id="todayButton" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-[10.5px] font-semibold text-slate-700 transition hover:bg-slate-50">
                 <i class="ph ph-crosshair text-[12px]"></i>
                 Hoje
               </button>
-              <button id="nextWeekButton" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-[10.5px] font-semibold text-slate-700 transition hover:bg-slate-50">
-                Próxima semana
+              <button id="nextPeriodButton" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-[10.5px] font-semibold text-slate-700 transition hover:bg-slate-50">
+                <span id="nextPeriodLabel">Próxima semana</span>
                 <i class="ph ph-caret-right text-[12px]"></i>
               </button>
-              <input id="weekDatePicker" type="date" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-[10.5px] font-semibold text-slate-700 transition hover:bg-slate-50" />
+              <input id="weekDatePicker" type="date" aria-label="Escolher data" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-[10.5px] font-semibold text-slate-700 transition hover:bg-slate-50" />
+              <button id="expandGradeButton" type="button" aria-label="Expandir grade" title="Expandir grade" class="grid h-[34px] w-[34px] place-items-center rounded-lg border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-50 hover:text-senai-dark">
+                <i class="ph ph-arrows-out text-[13px]"></i>
+              </button>
             </div>
           </div>
 
@@ -424,6 +443,7 @@
               <button class="filter-chip shrink-0 rounded-xl border px-2.5 py-1.5 text-[9px] font-medium transition" data-filter="lab" aria-pressed="false">Laboratórios</button>
               <button class="filter-chip shrink-0 rounded-xl border px-2.5 py-1.5 text-[9px] font-medium transition" data-filter="sala" aria-pressed="false">Salas</button>
               <button class="filter-chip shrink-0 rounded-xl border px-2.5 py-1.5 text-[9px] font-medium transition" data-filter="conflict" aria-pressed="false">Conflitos</button>
+              <span id="filterResultCount" class="ml-2 shrink-0 text-[8.5px] text-slate-500"></span>
             </div>
 
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-[8.5px] text-slate-500">
@@ -586,10 +606,10 @@
         <div>
           <div class="flex items-center gap-2">
             <span class="h-px w-5 bg-senai-orange"></span>
-            <p class="text-[8px] font-semibold uppercase tracking-[.2em] text-senai-orange">Planejamento</p>
+            <p id="drawerEyebrow" class="text-[8px] font-semibold uppercase tracking-[.2em] text-senai-orange">Planejamento</p>
           </div>
           <h2 id="drawerTitle" class="mt-2 text-[20px] font-semibold tracking-[-0.02em] text-senai-dark">Nova alocação</h2>
-          <p class="mt-1 text-[9.5px] text-slate-500">Valide a regra antes de confirmar.</p>
+          <p id="drawerSubtitle" class="mt-1 text-[9.5px] text-slate-500">Preencha os dados e confirme a alocação.</p>
         </div>
         <button data-close-drawer aria-label="Fechar painel" class="grid h-9 w-9 place-items-center rounded-xl bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-senai-dark">
           <i class="ph ph-x text-[14px]"></i>
@@ -601,66 +621,84 @@
           <i class="ph ph-shield-check mt-0.5 shrink-0 text-[17px] text-senai-dark"></i>
           <div>
             <p class="text-[9.5px] font-semibold text-senai-dark">Validação automática ativa</p>
-            <p class="mt-1 text-[8.5px] leading-relaxed text-slate-500">O sistema bloqueia choques de horário e laboratórios sem a infraestrutura exigida pelo curso.</p>
+            <p class="mt-1 text-[8.5px] leading-relaxed text-slate-500">O sistema bloqueia choques de sala, instrutor e laboratórios sem a infraestrutura exigida.</p>
           </div>
         </div>
 
         <label class="mt-5 block">
-          <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Disciplina</span>
+          <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Aluno / turma</span>
           <div class="relative mt-1.5">
-            <select id="fieldDiscipline" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5">
-              <option>Automação Industrial</option>
-              <option>CLP</option>
-              <option>Soldagem MIG</option>
-              <option>Segurança do Trabalho</option>
-              <option>Metrologia</option>
-              <option>Usinagem CNC</option>
-              <option>Manutenção Elétrica</option>
+            <select id="fieldStudent" required class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5">
+              <option value="">Carregando alunos...</option>
             </select>
             <i class="ph ph-caret-down pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] text-slate-500"></i>
           </div>
         </label>
 
+        <label class="mt-4 block">
+          <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Disciplina / atividade</span>
+          <div class="relative mt-1.5">
+            <input id="fieldDiscipline" list="disciplineOptions" required maxlength="120" placeholder="Ex.: Automação Industrial"
+              class="w-full rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition placeholder:font-normal placeholder:text-slate-400 focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5" />
+            <datalist id="disciplineOptions">
+              <option value="Automação Industrial"></option>
+              <option value="CLP"></option>
+              <option value="Soldagem MIG"></option>
+              <option value="Segurança do Trabalho"></option>
+              <option value="Metrologia"></option>
+              <option value="Usinagem CNC"></option>
+              <option value="Manutenção Elétrica"></option>
+            </datalist>
+          </div>
+        </label>
+
         <div class="mt-2.5 grid grid-cols-2 gap-3">
-          <label class="block">
+          <label class="col-span-2 block sm:col-span-1">
             <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Dia</span>
             <div class="relative mt-1.5">
               <select id="fieldDay" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5">
-                <option value="seg">Segunda · 11</option>
-                <option value="ter">Terça · 12</option>
-                <option value="qua">Quarta · 13</option>
-                <option value="qui">Quinta · 14</option>
-                <option value="sex">Sexta · 15</option>
+                <option value="seg">Segunda</option>
+                <option value="ter">Terça</option>
+                <option value="qua">Quarta</option>
+                <option value="qui">Quinta</option>
+                <option value="sex">Sexta</option>
+              </select>
+              <i class="ph ph-caret-down pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] text-slate-500"></i>
+            </div>
+          </label>
+
+          <label class="col-span-2 block sm:col-span-1">
+            <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Tipo</span>
+            <div class="relative mt-1.5">
+              <select id="fieldType" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5">
+                <option value="prática">Prática</option>
+                <option value="teórica">Teórica</option>
               </select>
               <i class="ph ph-caret-down pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] text-slate-500"></i>
             </div>
           </label>
 
           <label class="block">
-            <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Horário</span>
+            <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Início</span>
             <div class="relative mt-1.5">
-              <select id="fieldTime" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5">
-                <option>08:00</option>
-                <option>10:00</option>
-                <option>14:00</option>
-                <option>16:00</option>
-              </select>
+              <select id="fieldStart" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5"></select>
+              <i class="ph ph-caret-down pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] text-slate-500"></i>
+            </div>
+          </label>
+
+          <label class="block">
+            <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Término</span>
+            <div class="relative mt-1.5">
+              <select id="fieldEnd" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5"></select>
               <i class="ph ph-caret-down pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] text-slate-500"></i>
             </div>
           </label>
         </div>
 
-        <label class="mt-4 block">
+        <label class="mt-3 block">
           <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Laboratório ou sala</span>
           <div class="relative mt-1.5">
-            <select id="fieldRoom" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5">
-              <option value="Lab 01">Lab 01 - Metrologia</option>
-              <option value="Lab 02">Lab 02 - Soldagem</option>
-              <option value="Lab 03" selected>Lab 03 - Automação</option>
-              <option value="Lab 04">Lab 04 - Usinagem CNC</option>
-              <option value="Lab 05">Lab 05 - Automação avançada</option>
-              <option value="Sala 03">Sala 03 - Teoria</option>
-            </select>
+            <select id="fieldRoom" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5"></select>
             <i class="ph ph-caret-down pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] text-slate-500"></i>
           </div>
           <p id="roomConflictWarning" class="mt-2 hidden text-[9px] font-semibold text-red-600" role="alert">
@@ -671,29 +709,44 @@
           </p>
         </label>
 
-        <label class="mt-4 block">
-          <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Instrutor</span>
+        <div class="mt-3">
+          <div class="flex items-end justify-between gap-2">
+            <label for="fieldInstructor" class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Instrutor</label>
+            <button id="newInstructorToggle" type="button" class="inline-flex items-center gap-1 text-[8.5px] font-semibold text-senai-orange transition hover:text-[#B9470F]">
+              <i class="ph ph-plus-circle text-[11px]"></i>
+              Novo instrutor
+            </button>
+          </div>
           <div class="relative mt-1.5">
-            <select id="fieldInstructor" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5">
-              <option>Rafael Lima</option>
-              <option>Carlos Menezes</option>
-              <option>Ana Paula</option>
-              <option>Helena Prado</option>
-              <option>Marcos Vieira</option>
-              <option>Diego Souza</option>
-            </select>
+            <select id="fieldInstructor" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5"></select>
             <i class="ph ph-caret-down pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] text-slate-500"></i>
           </div>
+
+          <div id="newInstructorForm" class="mt-2 hidden rounded-xl border border-senai-line bg-slate-50 p-3">
+            <div class="grid grid-cols-[1fr_80px] gap-2">
+              <input id="newInstructorName" type="text" maxlength="80" placeholder="Nome do instrutor" class="rounded-lg border border-senai-line bg-white px-3 py-2 text-[10.5px] text-senai-dark outline-none focus:border-senai-dark/30" />
+              <input id="newInstructorInitials" type="text" maxlength="4" placeholder="Iniciais" class="rounded-lg border border-senai-line bg-white px-3 py-2 text-[10.5px] uppercase text-senai-dark outline-none focus:border-senai-dark/30" />
+            </div>
+            <div class="mt-2 flex items-center gap-2">
+              <button id="saveInstructor" type="button" class="rounded-lg bg-senai-dark px-3 py-1.5 text-[9px] font-semibold text-white transition hover:bg-[#00496F]">Cadastrar</button>
+              <button id="cancelInstructor" type="button" class="rounded-lg px-2 py-1.5 text-[9px] font-medium text-slate-500 transition hover:text-senai-dark">Cancelar</button>
+            </div>
+          </div>
+        </div>
+
+        <label class="mt-4 block">
+          <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Observações</span>
+          <textarea id="fieldNotes" rows="2" maxlength="160" placeholder="Opcional: materiais, turma ou orientação" class="mt-1.5 w-full resize-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition placeholder:font-normal placeholder:text-slate-400 focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5"></textarea>
         </label>
 
-        <label class="mt-5 flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-senai-line p-3.5 transition hover:border-senai-dark/20">
+        <label class="mt-4 flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-senai-line p-3.5 transition hover:border-senai-dark/20">
           <div class="flex items-center gap-2.5">
             <span class="grid h-8 w-8 place-items-center rounded-xl bg-senai-orange/10 text-senai-orange">
               <i class="ph ph-bell-ringing text-[14px]"></i>
             </span>
             <div>
-              <p class="text-[9.5px] font-semibold text-senai-dark">Notificar alunos</p>
-              <p class="mt-0.5 text-[7.5px] text-slate-400">Enviar push em tempo real para a turma.</p>
+              <p class="text-[9.5px] font-semibold text-senai-dark">Notificar aluno</p>
+              <p class="mt-0.5 text-[7.5px] text-slate-400">Enviar push e registrar aviso na agenda do aluno.</p>
             </div>
           </div>
           <input id="notifyStudents" type="checkbox" checked class="peer sr-only" />
@@ -701,578 +754,118 @@
         </label>
 
         <div id="formFeedback" class="mt-4 hidden rounded-xl border p-3.5" role="alert"></div>
-
-        <p class="mt-3 text-center text-[8px] text-slate-500">A simulação não altera dados reais.</p>
       </form>
 
       <div class="border-t border-slate-100 bg-white px-6 py-4">
-        <button type="submit" form="allocationForm" class="w-full rounded-xl bg-[#F26522] py-3 font-bold text-white transition hover:bg-[#d85a1a]">Salvar</button>
+        <button id="saveAllocation" type="submit" form="allocationForm" class="w-full rounded-xl bg-[#F26522] py-3 font-bold text-white transition hover:bg-[#d85a1a]">Salvar alocação</button>
+        <button id="deleteAllocation" type="button" class="mt-2 hidden w-full rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-[10px] font-semibold text-rose-600 transition hover:border-rose-300 hover:bg-rose-100">Excluir alocação</button>
         <button type="button" data-close-drawer class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-[10px] font-semibold text-slate-600 transition hover:border-slate-400 hover:bg-slate-50 hover:text-senai-dark">Cancelar</button>
       </div>
     </aside>
   </div>
 
-  <script>
-    const $ = (selector, root = document) => root.querySelector(selector);
-    const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
-
-    const normalize = (value) => (value || '')
-      .toString()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .trim();
-
-    const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;'
-    }[char]));
-
-    /* ---------- Sidebar ---------- */
-    const sidebar = $('#sidebar');
-    const sidebarOverlay = $('#sidebarOverlay');
-
-    function openSidebar() {
-      sidebar.classList.remove('-translate-x-full');
-      sidebarOverlay.classList.remove('hidden');
-    }
-
-    function closeSidebar() {
-      sidebar.classList.add('-translate-x-full');
-      sidebarOverlay.classList.add('hidden');
-    }
-
-    $('#openSidebar')?.addEventListener('click', openSidebar);
-    $('#closeSidebar')?.addEventListener('click', closeSidebar);
-    sidebarOverlay?.addEventListener('click', closeSidebar);
-    window.addEventListener('resize', () => {
-      if (window.innerWidth >= 1024) sidebarOverlay.classList.add('hidden');
-    });
-
-    $$('[data-nav-link]').forEach((link) => {
-      link.addEventListener('click', () => {
-        $$('[data-nav-link]').forEach((other) => other.classList.remove('is-active'));
-        link.classList.add('is-active');
-        if (window.innerWidth < 1024) closeSidebar();
-      });
-    });
-
-    /* ---------- Toast ---------- */
-    const dashToast = $('#dashToast');
-    let dashToastTimer;
-
-    const toastTones = {
-      success: { wrap: 'bg-emerald-50 text-emerald-600', icon: 'ph-check-circle' },
-      warning: { wrap: 'bg-senai-orange/10 text-senai-orange', icon: 'ph-warning-circle' },
-      info: { wrap: 'bg-senai-mist text-senai-dark', icon: 'ph-info' }
-    };
-
-    function showToast(tone, title, text) {
-      const config = toastTones[tone] || toastTones.info;
-      const iconWrap = $('#dashToastIcon');
-      const iconGlyph = $('#dashToastIconGlyph');
-
-      iconWrap.className = `grid h-9 w-9 shrink-0 place-items-center rounded-xl ${config.wrap}`;
-      iconGlyph.className = `ph-fill ${config.icon} text-[18px]`;
-      $('#dashToastTitle').textContent = title;
-      $('#dashToastText').textContent = text;
-
-      clearTimeout(dashToastTimer);
-      dashToast.inert = false;
-      dashToast.classList.add('is-visible');
-      dashToastTimer = setTimeout(() => dashToast.classList.remove('is-visible'), 5000);
-    }
-
-    function hideToast() {
-      clearTimeout(dashToastTimer);
-      dashToast.classList.remove('is-visible');
-      dashToast.inert = true;
-    }
-
-    $('#closeDashToast')?.addEventListener('click', hideToast);
-
-    /* ---------- Dados da grade ---------- */
-    const dayLabels = { seg: 'segunda-feira', ter: 'terça-feira', qua: 'quarta-feira', qui: 'quinta-feira', sex: 'sexta-feira' };
-
-    const allocations = {
-      'seg-08:00': { room: 'Lab 02', discipline: 'Soldagem MIG', instructor: 'Carlos Menezes' },
-      'seg-14:00': { room: 'Sala 03', discipline: 'Segurança do Trabalho', instructor: 'Ana Paula' },
-      'ter-08:00': { room: 'Lab 01', discipline: 'Metrologia', instructor: 'Helena Prado' },
-      'ter-10:00': { room: 'Lab 03', discipline: 'Automação Industrial', instructor: 'Rafael Lima' },
-      'ter-14:00': { room: 'Lab 04', discipline: 'Manutenção Elétrica', instructor: 'Diego Souza' },
-      'qua-08:00': { room: 'Lab 04', discipline: 'Usinagem CNC', instructor: 'Marcos Vieira' },
-      'qua-10:00': { room: 'Lab 02', discipline: 'Soldagem MIG', instructor: 'Carlos Menezes' },
-      'qua-14:00': { room: 'Lab 03', discipline: 'Automação Industrial × CLP', instructor: 'Rafael Lima' },
-      'qui-08:00': { room: 'Lab 03', discipline: 'Automação Industrial', instructor: 'Rafael Lima' },
-      'qui-10:00': { room: 'Lab 01', discipline: 'Metrologia', instructor: 'Helena Prado' },
-      'qui-14:00': { room: 'Sala 03', discipline: 'Segurança do Trabalho', instructor: 'Ana Paula' },
-      'qui-16:00': { room: 'Lab 05', discipline: 'CLP', instructor: 'Rafael Lima' },
-      'sex-10:00': { room: 'Lab 04', discipline: 'Usinagem CNC', instructor: 'Marcos Vieira' },
-      'sex-14:00': { room: 'Lab 02', discipline: 'Soldagem MIG', instructor: 'Carlos Menezes' }
-    };
-
-    const ruleState = { clp: true, solda: true, professor: true };
-
-    /* ---------- Drawer de alocação ---------- */
-    const drawer = $('#drawer');
-    const form = $('#allocationForm');
-    const feedback = $('#formFeedback');
-    const fieldDiscipline = $('#fieldDiscipline');
-    const fieldDay = $('#fieldDay');
-    const fieldTime = $('#fieldTime');
-    const fieldRoom = $('#fieldRoom');
-    const fieldInstructor = $('#fieldInstructor');
-
-    fieldDay?.addEventListener('change', () => { if (typeof atualizarSalasOcupadas === 'function') atualizarSalasOcupadas(); });
-    fieldTime?.addEventListener('change', () => { if (typeof atualizarSalasOcupadas === 'function') atualizarSalasOcupadas(); });
-    fieldRoom?.addEventListener('change', () => { if (typeof atualizarAvisoConflito === 'function') atualizarAvisoConflito(); });
-
-    function setFeedback(kind, title, text) {
-      const styles = {
-        success: { box: 'border-emerald-200 bg-emerald-50', icon: 'ph-check-circle text-emerald-600', title: 'text-emerald-800', copy: 'text-emerald-700/80' },
-        error: { box: 'border-red-200 bg-red-50', icon: 'ph-x-circle text-red-500', title: 'text-red-800', copy: 'text-red-600/80' },
-        warning: { box: 'border-senai-orange/20 bg-senai-orange/[0.06]', icon: 'ph-warning-circle text-senai-orange', title: 'text-[#8A370D]', copy: 'text-[#8A370D]/70' }
-      };
-      const style = styles[kind] || styles.warning;
-
-      feedback.className = `mt-4 rounded-xl border p-3.5 ${style.box}`;
-      feedback.innerHTML = `
-        <div class="flex gap-2.5">
-          <i class="ph-fill ${style.icon} mt-0.5 shrink-0 text-[15px]"></i>
-          <div>
-            <p class="text-[9.5px] font-semibold ${style.title}"></p>
-            <p class="mt-1 text-[8.5px] leading-relaxed ${style.copy}"></p>
-          </div>
-        </div>`;
-      feedback.querySelector('p.font-semibold').textContent = title;
-      feedback.querySelectorAll('p')[1].textContent = text;
-    }
-
-    function clearFeedback() {
-      feedback.className = 'mt-4 hidden rounded-xl border p-3.5';
-      feedback.innerHTML = '';
-    }
-
-    const SALAS_DESCRICAO = {
-      'Lab 02': 'Soldagem',
-      'Lab 03': 'Automação',
-      'Lab 04': 'Usinagem CNC',
-      'Lab 05': 'Automação avançada',
-      'Sala 01': 'Teoria',
-      'Sala 03': 'Teoria'
-    };
-
-    function popularSalas() {
-      const salas = (window.GestorDashboard && window.GestorDashboard.salas) || [];
-      if (!salas.length) return;
-      const valorAtual = fieldRoom.value;
-      fieldRoom.innerHTML = salas.map((sala) => {
-        const detalhe = [sala.bloco, sala.andar].filter(Boolean).join(', ');
-        const descricao = SALAS_DESCRICAO[sala.nome] || detalhe;
-        const rotulo = descricao ? `${sala.nome} - ${descricao}` : sala.nome;
-        return `<option value="${escapeHtml(sala.nome)}" data-sala-id="${sala.id}" data-label="${escapeHtml(rotulo)}">${escapeHtml(rotulo)}</option>`;
-      }).join('');
-      if (valorAtual) fieldRoom.value = valorAtual;
-      atualizarSalasOcupadas();
-    }
-
-    function dataSelecionadaISO() {
-      const dia = fieldDay.value;
-      const inicio = window.GestorDashboard && window.GestorDashboard.semanaInicio;
-      if (!inicio) return null;
-      const mapa = { seg: 0, ter: 1, qua: 2, qui: 3, sex: 4 };
-      const offset = mapa[dia];
-      if (offset === undefined) return null;
-      const d = new Date(inicio);
-      d.setDate(d.getDate() + offset);
-      return d.toISOString().slice(0, 10);
-    }
-
-    function aulaNoHorario() {
-      const aulas = (window.GestorDashboard && window.GestorDashboard.aulasSemana) || [];
-      const dataISO = dataSelecionadaISO();
-      const hora = fieldTime.value;
-      const sala = fieldRoom.value;
-      if (!dataISO || !sala) return null;
-      for (const dia of aulas) {
-        if (dia.data !== dataISO) continue;
-        const encontrada = (dia.aulas || []).find((aula) => aula.inicio === hora && aula.sala === sala);
-        if (encontrada) return encontrada;
-      }
-      return null;
-    }
-
-    function atualizarAvisoConflito() {
-      const aviso = $('#roomConflictWarning');
-      if (!aviso) return;
-      aviso.classList.toggle('hidden', !aulaNoHorario());
-    }
-
-    function atualizarSalasOcupadas() {
-      const aulas = (window.GestorDashboard && window.GestorDashboard.aulasSemana) || [];
-      const dataISO = dataSelecionadaISO();
-      const hora = fieldTime.value;
-      const ocupadas = new Set();
-      aulas.forEach((dia) => {
-        if (dia.data !== dataISO) return;
-        (dia.aulas || []).forEach((aula) => {
-          if (aula.inicio === hora) ocupadas.add(aula.sala);
-        });
-      });
-
-      Array.from(fieldRoom.options).forEach((opt) => {
-        const base = opt.dataset.label || opt.value;
-        const ocupada = ocupadas.has(opt.value);
-        opt.textContent = ocupada ? `${base} (ocupado)` : base;
-      });
-
-      atualizarAvisoConflito();
-    }
-
-    function atualizarRotulosDias() {
-      const inicio = window.GestorDashboard && window.GestorDashboard.semanaInicio;
-      if (!inicio) return;
-      const nomes = { seg: 'Segunda', ter: 'Terça', qua: 'Quarta', qui: 'Quinta', sex: 'Sexta' };
-      Array.from(fieldDay.options).forEach((opt, indice) => {
-        const d = new Date(inicio);
-        d.setDate(d.getDate() + indice);
-        opt.textContent = `${nomes[opt.value] || opt.value} · ${d.getDate()}`;
-      });
-    }
-
-    function openDrawer(preset = {}) {
-      drawer.inert = false;
-      drawer.classList.add('is-open');
-      drawer.setAttribute('aria-hidden', 'false');
-      clearFeedback();
-
-      atualizarRotulosDias();
-      popularSalas();
-
-      if (preset.day) fieldDay.value = preset.day;
-      if (preset.time) fieldTime.value = preset.time;
-      if (preset.room) fieldRoom.value = preset.room;
-      if (preset.discipline) fieldDiscipline.value = preset.discipline;
-
-      atualizarSalasOcupadas();
-
-      if (preset.conflict) {
-        setFeedback(
-          'warning',
-          'Conflito ativo neste horário',
-          'O Lab 03 já está ocupado. Escolha outro laboratório ou outro horário para concluir a alocação.'
-        );
-      }
-
-      setTimeout(() => fieldDiscipline.focus(), 300);
-    }
-
-    function closeDrawer() {
-      drawer.classList.remove('is-open');
-      drawer.setAttribute('aria-hidden', 'true');
-      drawer.inert = true;
-    }
-
-    $('#newAllocation')?.addEventListener('click', () => openDrawer());
-    $$('[data-close-drawer]').forEach((element) => element.addEventListener('click', closeDrawer));
-
-    function openConflict() {
-      openDrawer({ day: 'qua', time: '14:00', room: 'Lab 03', conflict: true });
-    }
-
-    $('#resolveConflictMetric')?.addEventListener('click', openConflict);
-    $$('[data-resolve]').forEach((button) => button.addEventListener('click', openConflict));
-
-    /* ---------- Criação de bloco ---------- */
-    function buildBlock({ discipline, room, instructor, day, time }) {
-      const isLab = room.startsWith('Lab');
-      const isPractical = discipline === 'Soldagem MIG' || discipline === 'CLP';
-      const block = document.createElement('div');
-
-      block.className = 'schedule-block relative h-full rounded-lg border-l-4 p-2.5 ' + (
-        isPractical
-          ? 'border-orange-500 bg-orange-50'
-          : isLab
-            ? 'border-blue-500 bg-blue-50'
-            : 'border-slate-300 bg-slate-50'
-      );
-      block.dataset.type = isLab ? 'lab' : 'sala';
-      block.dataset.search = normalize(`${discipline} ${room} ${instructor} ${dayLabels[day]} ${day} ${time}`);
-
-      block.innerHTML = `
-        <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-wide ${isPractical ? 'bg-orange-100 text-orange-700' : isLab ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-600'}">[${isPractical ? 'PRÁTICA' : isLab ? 'LAB' : 'SALA'}]</span>
-        <div class="mt-2 flex items-start justify-between gap-1.5">
-          <p class="text-[11px] font-semibold leading-tight text-slate-800"></p>
+  <!-- MODAL: DETALHES / PERFIL / PREFERÊNCIAS -->
+  <div id="infoModal" class="fixed inset-0 z-[100] hidden" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle">
+    <div class="absolute inset-0 bg-senai-dark/45 backdrop-blur-[2px]" data-close-info></div>
+    <div class="absolute left-1/2 top-1/2 flex max-h-[88vh] w-[calc(100vw-2rem)] max-w-[560px] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl bg-white shadow-lg">
+      <div class="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-4">
+        <div>
+          <h2 id="infoModalTitle" class="text-[16px] font-semibold tracking-tight text-senai-dark">Detalhes</h2>
+          <p id="infoModalSubtitle" class="mt-1 text-[9.5px] text-slate-500"></p>
         </div>
-        <p class="mt-1.5 inline-flex items-center gap-1 rounded bg-white/80 px-1.5 py-0.5 text-[8px] font-medium text-slate-500">
-          <i class="ph ph-map-pin text-[8px]"></i><span class="room"></span>
-        </p>
-        <p class="instructor mt-1.5 truncate text-[8px] text-slate-500"></p>
-      `;
+        <button type="button" data-close-info aria-label="Fechar detalhes" class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-senai-dark">
+          <i class="ph ph-x text-[12px]"></i>
+        </button>
+      </div>
+      <div id="infoModalBody" class="overflow-y-auto px-6 py-5"></div>
+    </div>
+  </div>
 
-      block.querySelector('p').textContent = discipline;
-      block.querySelector('.room').textContent = room;
-      block.querySelector('.instructor').textContent = instructor;
+  <!-- MODAL: CENTRAL DE AVISOS -->
+  <div id="noticesModal" class="fixed inset-0 z-[100] hidden" role="dialog" aria-modal="true" aria-labelledby="noticesModalTitle">
+    <div class="absolute inset-0 bg-senai-dark/45 backdrop-blur-[2px]" data-close-notices></div>
+    <div class="absolute left-1/2 top-1/2 flex max-h-[90vh] w-[calc(100vw-2rem)] max-w-[820px] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl bg-white shadow-lg">
+      <div class="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="h-px w-5 bg-senai-orange"></span>
+            <p class="text-[8px] font-semibold uppercase tracking-[.2em] text-senai-orange">Comunicação</p>
+          </div>
+          <h2 id="noticesModalTitle" class="mt-2 text-[18px] font-semibold tracking-tight text-senai-dark">Avisos e comunicados</h2>
+          <p class="mt-1 text-[9.5px] text-slate-500">Crie, edite e acompanhe o que chega ao painel do aluno.</p>
+        </div>
+        <button type="button" data-close-notices aria-label="Fechar central de avisos" class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-senai-dark">
+          <i class="ph ph-x text-[14px]"></i>
+        </button>
+      </div>
 
-      return block;
-    }
+      <div id="noticesListView" class="flex min-h-0 flex-1 flex-col">
+        <div class="flex flex-col gap-2 border-b border-slate-100 px-6 py-3 sm:flex-row sm:items-center">
+          <div class="relative flex-1">
+            <i class="ph ph-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-slate-400"></i>
+            <input id="noticeSearch" type="search" placeholder="Pesquisar avisos" class="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-[10px] text-senai-dark outline-none focus:border-slate-300 focus:bg-white" />
+          </div>
+          <select id="noticeTypeFilter" class="h-9 rounded-lg border border-slate-200 bg-white px-2 text-[10px] font-medium text-slate-600 outline-none">
+            <option value="todos">Todos os tipos</option>
+            <option value="sala">Sala</option>
+            <option value="material">Material</option>
+            <option value="evento">Evento</option>
+            <option value="cancelamento">Cancelamento</option>
+            <option value="sistema">Sistema</option>
+          </select>
+          <button id="newNotice" type="button" class="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-[#F26522] px-3 text-[10px] font-semibold text-white transition hover:bg-[#d85a1a]">
+            <i class="ph ph-plus text-[12px]"></i>
+            Novo aviso
+          </button>
+        </div>
+        <div id="noticesAdminList" class="min-h-[200px] flex-1 overflow-y-auto px-6"></div>
+        <div class="border-t border-slate-100 px-6 py-2.5">
+          <p id="noticesAdminCount" class="text-[8.5px] text-slate-500"></p>
+        </div>
+      </div>
 
-    /* ---------- Validação e alocação ---------- */
-    form?.addEventListener('submit', (event) => {
-      event.preventDefault();
-
-      const discipline = fieldDiscipline.value;
-      const room = fieldRoom.value;
-      const day = fieldDay.value;
-      const time = fieldTime.value;
-      const instructor = fieldInstructor.value;
-
-      const mapa = { seg: 0, ter: 1, qua: 2, qui: 3, sex: 4 };
-      const inicioSemana = window.GestorDashboard && window.GestorDashboard.semanaInicio;
-      let dataISO = null;
-      if (inicioSemana && mapa[day] !== undefined) {
-        const d = new Date(inicioSemana);
-        d.setDate(d.getDate() + mapa[day]);
-        dataISO = d.toISOString().slice(0, 10);
-      }
-      let error = null;
-
-      if (ruleState.clp && discipline === 'CLP' && !['Lab 03', 'Lab 05'].includes(room)) {
-        error = {
-          title: 'Regra de infraestrutura',
-          text: 'Aulas de CLP exigem laboratório com computadores. Selecione o Lab 03 ou o Lab 05.'
-        };
-      } else if (ruleState.solda && discipline === 'Soldagem MIG' && room !== 'Lab 02') {
-        error = {
-          title: 'Regra de infraestrutura',
-          text: 'Soldagem MIG exige bancada e sistema de exaustão. Selecione o Lab 02.'
-        };
-      }
-
-      if (error) {
-        setFeedback('error', error.title, error.text);
-        showToast('warning', error.title, error.text);
-        return;
-      }
-
-      const conflito = aulaNoHorario();
-      if (conflito) {
-        const detalhe = conflito.instrutor ? ` com ${conflito.instrutor}` : '';
-        setFeedback(
-          'error',
-          'Horário já ocupado',
-          `${room} já possui aula${detalhe} neste dia e horário. Escolha outro recurso ou outro horário.`
-        );
-        showToast('warning', 'Horário já ocupado', `${room} está indisponível neste horário.`);
-        atualizarAvisoConflito();
-        return;
-      }
-
-      const emptySlot = dataISO
-        ? document.querySelector(`.empty-slot[data-date="${dataISO}"][data-time="${time}"]`)
-        : document.querySelector(`.empty-slot[data-day="${day}"][data-time="${time}"]`);
-      if (emptySlot) {
-        emptySlot.remove();
-        // Re-renderização será feita pela API; aqui apenas feedback.
-      }
-
-      applyFilters();
-
-      const notify = $('#notifyStudents')?.checked;
-      const successText = `${discipline} · ${room} · ${dayLabels[day]} às ${time}. ${notify ? 'Alunos notificados via push.' : 'Alocação salva sem notificação.'}`;
-      setFeedback('success', 'Alocação validada', successText);
-      showToast('success', 'Alocação concluída', successText);
-
-      setTimeout(closeDrawer, 1200);
-    });
-
-    /* ---------- Regras ---------- */
-    $$('.rule-toggle').forEach((toggle) => {
-      toggle.addEventListener('click', () => {
-        const rule = toggle.dataset.rule;
-        const isOn = toggle.getAttribute('aria-pressed') !== 'true';
-        toggle.setAttribute('aria-pressed', String(isOn));
-        toggle.classList.toggle('bg-senai-orange', isOn);
-        toggle.classList.toggle('bg-slate-200', !isOn);
-
-        const knob = toggle.querySelector('.rule-knob');
-        knob.classList.toggle('right-0.5', isOn);
-        knob.classList.toggle('left-0.5', !isOn);
-
-        ruleState[rule] = isOn;
-
-        const activeCount = Object.values(ruleState).filter(Boolean).length;
-        const counter = $('#activeRulesCount');
-        if (counter) {
-          counter.innerHTML = `<span class="h-1 w-1 rounded-full bg-emerald-500"></span>${activeCount} ativas`;
-        }
-
-        showToast(
-          isOn ? 'success' : 'info',
-          isOn ? 'Regra reativada' : 'Regra pausada',
-          isOn ? 'A validação automática voltou a ser aplicada.' : 'A validação desta regra está suspensa no modo demonstração.'
-        );
-      });
-    });
-
-    /* ---------- Filtros e busca ---------- */
-    let activeFilter = 'all';
-
-    function applyFilters() {
-      const query = normalize($('#globalSearch')?.value || '');
-      const buscaAtiva = query.length > 0;
-      let visiveis = 0;
-
-      $$('.schedule-block').forEach((block) => {
-        const tipo = block.dataset.type;
-        const conflito = block.dataset.conflict === '1';
-
-        let matchesType = true;
-        if (activeFilter === 'lab') matchesType = tipo === 'lab';
-        else if (activeFilter === 'sala') matchesType = tipo === 'sala';
-        else if (activeFilter === 'conflict') matchesType = conflito;
-
-        const alvo = block.dataset.search || block.textContent || '';
-        const matchesQuery = !buscaAtiva || normalize(alvo).includes(query);
-        const mostrar = matchesType && matchesQuery;
-
-        block.classList.toggle('hidden', !mostrar);
-        if (mostrar) visiveis += 1;
-      });
-
-      const filtrando = activeFilter !== 'all' || buscaAtiva;
-      $$('.empty-slot').forEach((slot) => slot.classList.toggle('hidden', filtrando));
-      $('#gradeEmptyState')?.classList.toggle('hidden', !filtrando || visiveis > 0);
-    }
-
-    window.applyGradeFilters = applyFilters;
-
-    $$('[data-filter]').forEach((button) => {
-      button.addEventListener('click', () => {
-        $$('[data-filter]').forEach((other) => {
-          other.classList.remove('is-active');
-          other.setAttribute('aria-pressed', 'false');
-        });
-        button.classList.add('is-active');
-        button.setAttribute('aria-pressed', 'true');
-        activeFilter = button.dataset.filter;
-        applyFilters();
-      });
-    });
-
-    $('#globalSearch')?.addEventListener('input', applyFilters);
-
-    /* ---------- Atalhos e ações ---------- */
-    document.addEventListener('keydown', (event) => {
-      const tag = document.activeElement?.tagName;
-      const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(tag);
-
-      if (event.key === '/' && !typing) {
-        event.preventDefault();
-        $('#globalSearch')?.focus();
-      }
-
-      if (event.key === 'Escape') {
-        closeDrawer();
-        closeSidebar();
-        closePopovers();
-        if ($('#globalSearch')?.value) {
-          $('#globalSearch').value = '';
-          applyFilters();
-        }
-      }
-    });
-
-    $('#todayButton')?.addEventListener('click', () => {
-      const hoje = new Date();
-      const rotulo = hoje.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
-      showToast('info', 'Você está aqui', `${rotulo.charAt(0).toUpperCase() + rotulo.slice(1)} está destacado na grade.`);
-    });
-
-    /* ---------- Notificações e menu do perfil ---------- */
-    const bellButton = $('#bellButton');
-    const bellPopover = $('#bellPopover');
-    const profileButton = $('#profileButton');
-    const profileMenu = $('#profileMenu');
-
-    function closePopovers() {
-      [bellPopover, profileMenu].forEach((painel) => painel?.classList.add('hidden'));
-      bellButton?.setAttribute('aria-expanded', 'false');
-      profileButton?.setAttribute('aria-expanded', 'false');
-    }
-
-    function togglePopover(painel, botao) {
-      if (!painel) return;
-      const abrir = painel.classList.contains('hidden');
-      closePopovers();
-      if (!abrir) return;
-      painel.classList.remove('hidden');
-      botao?.setAttribute('aria-expanded', 'true');
-    }
-
-    bellButton?.addEventListener('click', () => {
-      const abriu = bellPopover?.classList.contains('hidden');
-      togglePopover(bellPopover, bellButton);
-      if (abriu) $('#headerBellDot')?.classList.add('hidden');
-    });
-
-    $('#bellClose')?.addEventListener('click', closePopovers);
-
-    $('#bellSeeAll')?.addEventListener('click', () => {
-      closePopovers();
-      $('#avisos')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-
-    profileButton?.addEventListener('click', () => {
-      togglePopover(profileMenu, profileButton);
-    });
-
-    $$('[data-profile-action]').forEach((item) => {
-      item.addEventListener('click', () => {
-        const acao = item.dataset.profileAction;
-        closePopovers();
-
-        if (acao === 'sair') {
-          if (window.GestorAPI?.sair) window.GestorAPI.sair();
-          return;
-        }
-
-        showToast(
-          'info',
-          acao === 'perfil' ? 'Meu Perfil' : 'Configurações',
-          'Esta área será liberada em uma próxima atualização.'
-        );
-      });
-    });
-
-    document.addEventListener('click', (evento) => {
-      if (bellPopover && !bellPopover.contains(evento.target) && !bellButton?.contains(evento.target)) {
-        bellPopover.classList.add('hidden');
-        bellButton?.setAttribute('aria-expanded', 'false');
-      }
-      if (profileMenu && !profileMenu.contains(evento.target) && !profileButton?.contains(evento.target)) {
-        profileMenu.classList.add('hidden');
-        profileButton?.setAttribute('aria-expanded', 'false');
-      }
-    });
-
-    $('#manageNotices')?.addEventListener('click', () => {
-      const avisos = window.GestorPainel?.avisos || [];
-      showToast(
-        'info',
-        'Avisos recentes',
-        avisos.length
-          ? `${avisos.length} aviso${avisos.length === 1 ? '' : 's'} carregado${avisos.length === 1 ? '' : 's'} da API.`
-          : 'Nenhum aviso publicado até agora.'
-      );
-    });
-
-    /* Estado inicial */
-    applyFilters();
-  </script>
+      <div id="noticeEditorView" class="hidden min-h-0 flex-1 overflow-y-auto px-6 py-5">
+        <form id="noticeForm">
+          <h3 id="noticeFormTitle" class="text-[13px] font-semibold text-senai-dark">Novo aviso</h3>
+          <label class="mt-4 block">
+            <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Título</span>
+            <input id="noticeTitle" type="text" required maxlength="120" class="mt-1.5 w-full rounded-xl border border-senai-line bg-white px-3.5 py-2.5 text-[11px] text-senai-dark outline-none focus:border-senai-dark/30" />
+          </label>
+          <div class="mt-3 grid grid-cols-2 gap-3">
+            <label class="block">
+              <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Tipo</span>
+              <select id="noticeType" class="mt-1.5 w-full rounded-xl border border-senai-line bg-white px-3 py-2.5 text-[11px] text-senai-dark outline-none">
+                <option value="sistema">Sistema</option>
+                <option value="sala">Sala</option>
+                <option value="material">Material</option>
+                <option value="evento">Evento</option>
+                <option value="cancelamento">Cancelamento</option>
+              </select>
+            </label>
+            <label class="block">
+              <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Destinatário</span>
+              <select id="noticeRecipient" class="mt-1.5 w-full rounded-xl border border-senai-line bg-white px-3 py-2.5 text-[11px] text-senai-dark outline-none">
+                <option value="">Todos os alunos</option>
+              </select>
+            </label>
+          </div>
+          <label class="mt-3 block">
+            <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Mensagem</span>
+            <textarea id="noticeText" rows="4" required maxlength="2000" class="mt-1.5 w-full resize-none rounded-xl border border-senai-line bg-white px-3.5 py-2.5 text-[11px] text-senai-dark outline-none focus:border-senai-dark/30"></textarea>
+          </label>
+          <label class="mt-3 inline-flex cursor-pointer items-center gap-2 text-[9.5px] font-medium text-slate-600">
+            <input id="noticePush" type="checkbox" checked class="h-3.5 w-3.5 rounded border-slate-300 text-senai-orange focus:ring-senai-orange" />
+            Enviar push para quem recebe
+          </label>
+          <div id="noticeFormFeedback" class="mt-3 hidden rounded-xl border p-3 text-[9px]" role="alert"></div>
+          <div class="mt-4 flex items-center gap-2">
+            <button id="saveNotice" type="submit" class="rounded-lg bg-[#F26522] px-4 py-2 text-[10px] font-semibold text-white transition hover:bg-[#d85a1a]">Publicar aviso</button>
+            <button id="cancelNotice" type="button" class="rounded-lg border border-slate-300 px-3 py-2 text-[10px] font-medium text-slate-600 transition hover:bg-slate-50">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
   <script>
     /* Identidade visual - confirma no console de onde cada arte oficial foi carregada. */

@@ -102,6 +102,7 @@ def criar_aula(
     titulo: str,
     subtitulo: str = "",
     tipo: str = "teórica",
+    notificar: bool = False,
     aula_id: str | None = None,
 ) -> Aula:
     aluno = db.get(Aluno, aluno_id)
@@ -142,9 +143,229 @@ def criar_aula(
         direcoes=sala.direcoes,
     )
     db.add(aula)
+
+    aviso = None
+    if notificar:
+        aviso = _aviso_de_alocacao(
+            aluno_id=aluno.id,
+            aula_id=aula.id,
+            titulo="Nova aula alocada",
+            texto=(
+                f"{titulo} foi alocada para {data:%d/%m} das {inicio:%H:%M} "
+                f"às {fim:%H:%M}, no {sala.nome}."
+            ),
+        )
+        db.add(aviso)
+
     db.commit()
     db.refresh(aula)
+    if aviso:
+        db.refresh(aviso)
+        _publicar_aviso(db, aviso)
     return aula
+
+
+def _aviso_de_alocacao(
+    *, aluno_id: int, aula_id: str | None, titulo: str, texto: str
+) -> Aviso:
+    return Aviso(
+        id=f"aviso-aula-{uuid4().hex[:10]}",
+        aluno_id=aluno_id,
+        tipo="sistema",
+        titulo=titulo,
+        texto=texto,
+        quando=agora_utc(),
+        aula_id=aula_id,
+    )
+
+
+def _publicar_aviso(db: Session, aviso: Aviso) -> None:
+    evento = {"mensagem": aviso.titulo, "avisoId": aviso.id, "tipo": aviso.tipo}
+    broker.publicar(aviso.aluno_id, "aviso", evento)
+    enviar_para_aluno(db, aviso.aluno_id, payload_aviso(aviso))
+
+
+def atualizar_aula(
+    db: Session,
+    *,
+    aula_id: str,
+    aluno_id: int | None = None,
+    sala_id: int | None = None,
+    instrutor_id: int | None = None,
+    data: date | None = None,
+    inicio: time | None = None,
+    fim: time | None = None,
+    titulo: str | None = None,
+    subtitulo: str | None = None,
+    tipo: str | None = None,
+    notificar: bool = False,
+) -> Aula:
+    aula = db.get(Aula, aula_id)
+    if not aula:
+        raise LookupError("Aula não encontrada.")
+
+    novo_aluno_id = aluno_id if aluno_id is not None else aula.aluno_id
+    nova_sala_id = sala_id if sala_id is not None else aula.sala_id
+    novo_instrutor_id = instrutor_id if instrutor_id is not None else aula.instrutor_id
+    nova_data = data if data is not None else aula.data
+    novo_inicio = inicio if inicio is not None else aula.inicio
+    novo_fim = fim if fim is not None else aula.fim
+
+    aluno = db.get(Aluno, novo_aluno_id)
+    sala = db.get(Sala, nova_sala_id)
+    instrutor = db.get(Instrutor, novo_instrutor_id)
+    if not aluno:
+        raise LookupError("Aluno não encontrado.")
+    if not sala:
+        raise LookupError("Sala não encontrada.")
+    if not instrutor:
+        raise LookupError("Instrutor não encontrado.")
+    if novo_fim <= novo_inicio:
+        raise ErroDeNegocio("O horário final precisa ser depois do inicial.")
+
+    conflito_sala = _buscar_conflito(
+        db,
+        data=nova_data,
+        inicio=novo_inicio,
+        fim=novo_fim,
+        sala_id=nova_sala_id,
+        ignorar_aula_id=aula.id,
+    )
+    if conflito_sala:
+        raise SalaOcupadaError(conflito_sala)
+
+    conflito_instrutor = _buscar_conflito(
+        db,
+        data=nova_data,
+        inicio=novo_inicio,
+        fim=novo_fim,
+        instrutor_id=novo_instrutor_id,
+        ignorar_aula_id=aula.id,
+    )
+    if conflito_instrutor:
+        raise InstrutorOcupadoError(conflito_instrutor)
+
+    sala_anterior = aula.sala
+    trocou_sala = sala_anterior and sala_anterior.id != sala.id
+
+    aula.aluno_id = aluno.id
+    aula.sala_id = sala.id
+    aula.instrutor_id = instrutor.id
+    aula.data = nova_data
+    aula.inicio = novo_inicio
+    aula.fim = novo_fim
+    if titulo is not None:
+        aula.titulo = titulo
+    if subtitulo is not None:
+        aula.subtitulo = subtitulo
+    if tipo is not None:
+        aula.tipo = tipo
+    if trocou_sala:
+        aula.sala_anterior = sala_anterior
+        aula.alterada = True
+    aula.direcoes = sala.direcoes or aula.direcoes
+
+    aviso = None
+    if notificar:
+        aviso = _aviso_de_alocacao(
+            aluno_id=aluno.id,
+            aula_id=aula.id,
+            titulo="Aula atualizada",
+            texto=(
+                f"{aula.titulo} agora está marcada para {nova_data:%d/%m} "
+                f"das {novo_inicio:%H:%M} às {novo_fim:%H:%M}, no {sala.nome}."
+            ),
+        )
+        db.add(aviso)
+
+    db.commit()
+    db.refresh(aula)
+    if aviso:
+        db.refresh(aviso)
+        _publicar_aviso(db, aviso)
+    return aula
+
+
+def remover_aula(db: Session, *, aula_id: str, notificar: bool = False) -> None:
+    aula = db.get(Aula, aula_id)
+    if not aula:
+        raise LookupError("Aula não encontrada.")
+
+    aviso = None
+    if notificar:
+        aviso = _aviso_de_alocacao(
+            aluno_id=aula.aluno_id,
+            aula_id=None,
+            titulo="Aula cancelada",
+            texto=(
+                f"A aula {aula.titulo} de {aula.data:%d/%m}, "
+                f"das {aula.inicio:%H:%M} às {aula.fim:%H:%M}, foi cancelada."
+            ),
+        )
+        db.add(aviso)
+
+    db.delete(aula)
+    db.commit()
+    if aviso:
+        db.refresh(aviso)
+        _publicar_aviso(db, aviso)
+
+
+def criar_instrutor(db: Session, *, nome: str, iniciais: str) -> Instrutor:
+    nome = nome.strip()
+    iniciais = iniciais.strip().upper()[:4]
+    existente = db.scalar(
+        select(Instrutor).where(func.lower(Instrutor.nome) == nome.lower())
+    )
+    if existente:
+        raise ErroDeNegocio("Já existe um instrutor com esse nome.")
+
+    instrutor = Instrutor(nome=nome, iniciais=iniciais or nome[:2].upper())
+    db.add(instrutor)
+    db.commit()
+    db.refresh(instrutor)
+    return instrutor
+
+
+def atualizar_aviso(
+    db: Session,
+    *,
+    aviso_id: str,
+    titulo: str | None = None,
+    texto: str | None = None,
+    tipo: str | None = None,
+) -> Aviso:
+    aviso = db.get(Aviso, aviso_id)
+    if not aviso:
+        raise LookupError("Aviso não encontrado.")
+    if titulo is not None:
+        aviso.titulo = titulo
+    if texto is not None:
+        aviso.texto = texto
+    if tipo is not None:
+        aviso.tipo = tipo
+    db.commit()
+    db.refresh(aviso)
+    if aviso.aluno_id is None:
+        broker.publicar_para_todos(
+            "aviso", {"mensagem": aviso.titulo, "avisoId": aviso.id, "tipo": aviso.tipo}
+        )
+    else:
+        broker.publicar(
+            aviso.aluno_id,
+            "aviso",
+            {"mensagem": aviso.titulo, "avisoId": aviso.id, "tipo": aviso.tipo},
+        )
+    return aviso
+
+
+def remover_aviso(db: Session, *, aviso_id: str) -> None:
+    aviso = db.get(Aviso, aviso_id)
+    if not aviso:
+        raise LookupError("Aviso não encontrado.")
+    db.delete(aviso)
+    db.commit()
+
 
 
 def mudar_sala(

@@ -64,7 +64,7 @@ from sqlalchemy import func, select  # noqa: E402
 from app.database import SessionLocal, criar_banco  # noqa: E402
 from app.models import Aluno, Usuario  # noqa: E402
 from app.security import gerar_hash_senha  # noqa: E402
-from app.seed import SENHA_DEMO, semear  # noqa: E402
+from app.seed import SENHA_DEMO, garantir_contas_grupo, semear  # noqa: E402
 
 
 def _destino_seguro(url: str) -> str:
@@ -164,10 +164,16 @@ def main() -> None:
             )
             db.commit()
 
+        extras = garantir_contas_grupo(db)
+
     print()
     print("Concluído. Credenciais de acesso:")
     print(f"  Aluno:       matrícula 202604178821 | senha {SENHA_DEMO}")
     print(f"  Coordenação: matrícula coord01      | senha {SENHA_DEMO}")
+    for login in extras["logins"]:
+        print(f"  Grupo:       login {login}           | senha {SENHA_DEMO}")
+    if extras["instrutor"]:
+        print("  Instrutor criado: " + ", ".join(extras["instrutor"]))
 
 
 if __name__ == "__main__":

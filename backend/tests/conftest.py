@@ -37,13 +37,15 @@ def _fk_sqlite(conexao_dbapi, _registro) -> None:
     cursor.close()
 
 
+SessionTeste = sessionmaker(
+    bind=engine_teste, autoflush=False, expire_on_commit=False
+)
+
+
 @pytest.fixture()
 def client():
     Base.metadata.drop_all(bind=engine_teste)
     Base.metadata.create_all(bind=engine_teste)
-    SessionTeste = sessionmaker(
-        bind=engine_teste, autoflush=False, expire_on_commit=False
-    )
     with SessionTeste() as db:
         assert semear(db) is True
 
@@ -61,6 +63,12 @@ def client():
     finally:
         cliente.close()
         app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+def db_teste(client):
+    with SessionTeste() as db:
+        yield db
 
 
 def _login(client: TestClient, matricula: str) -> dict:

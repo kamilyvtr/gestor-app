@@ -30,6 +30,18 @@ from .tempo import agora_utc
 
 SENHA_DEMO = "senai123"
 
+# Contas individuais solicitadas para o painel do aluno.
+# O login é a credencial; a matrícula acadêmica dos registros existentes não é alterada.
+CONTAS_GRUPO = (
+    {"login": "202607", "nome": "Kamily Vitória", "iniciais": "KV"},
+    {"login": "202601", "nome": "Keven", "iniciais": "K"},
+    {"login": "202602", "nome": "Lucas Eduardo", "iniciais": "LE"},
+    {"login": "202603", "nome": "Vanildo", "iniciais": "V"},
+    {"login": "202604", "nome": "Rafaella Rochely", "iniciais": "RR"},
+)
+
+INSTRUTOR_COMPARTILHADO = {"nome": "Isael Lima", "iniciais": "IL"}
+
 
 def _usuario(
     db: Session,
@@ -401,6 +413,60 @@ def semear(db: Session) -> bool:
     return True
 
 
+def garantir_contas_grupo(db: Session) -> dict[str, list[str]]:
+    """Cria, de forma idempotente, as contas do grupo e o instrutor Isael Lima.
+
+    Não altera usuários existentes nem matrículas. Retorna o que foi criado.
+    """
+    criados: list[str] = []
+    for conta in CONTAS_GRUPO:
+        existe = db.scalar(
+            select(Usuario).where(Usuario.matricula == conta["login"])
+        )
+        if existe:
+            continue
+        usuario = Usuario(
+            matricula=conta["login"],
+            senha_hash=gerar_hash_senha(SENHA_DEMO),
+            papel="aluno",
+            nome=conta["nome"],
+            nome_completo=conta["nome"],
+            iniciais=conta["iniciais"],
+            ativo=True,
+        )
+        db.add(usuario)
+        db.flush()
+        db.add(
+            Aluno(
+                usuario=usuario,
+                curso="Técnico em Automação Industrial",
+                unidade="SENAI · Automação",
+                turno="Tarde",
+            )
+        )
+        criados.append(conta["login"])
+
+    instrutor_criado = False
+    nome_isael = INSTRUTOR_COMPARTILHADO["nome"]
+    existe_instrutor = db.scalar(
+        select(Instrutor).where(func.lower(Instrutor.nome) == nome_isael.lower())
+    )
+    if not existe_instrutor:
+        db.add(
+            Instrutor(
+                nome=nome_isael,
+                iniciais=INSTRUTOR_COMPARTILHADO["iniciais"],
+            )
+        )
+        instrutor_criado = True
+
+    db.commit()
+    return {
+        "logins": criados,
+        "instrutor": [nome_isael] if instrutor_criado else [],
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Dados de demonstração do Gestor SENAI")
     parser.add_argument(
@@ -418,6 +484,7 @@ def main() -> None:
 
     with SessionLocal() as db:
         criado = semear(db)
+        extras = garantir_contas_grupo(db)
 
     if criado:
         print("Seed aplicado.")
@@ -425,6 +492,12 @@ def main() -> None:
         print("  Coordenação: matrícula coord01      | senha senai123")
     else:
         print("O banco já possui usuários. Use --reset para recriar.")
+
+    if extras["logins"]:
+        print("Contas do grupo criadas: " + ", ".join(extras["logins"]))
+        print("  Senha inicial: senai123 (altere no perfil)")
+    if extras["instrutor"]:
+        print("Instrutor criado: " + ", ".join(extras["instrutor"]))
 
 
 if __name__ == "__main__":

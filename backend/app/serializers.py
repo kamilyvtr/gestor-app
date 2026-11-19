@@ -58,7 +58,13 @@ def aula_para_out(aula: Aula) -> AulaOut:
 
 def aula_painel_para_out(aula: Aula) -> AulaPainelOut:
     base = aula_para_out(aula).model_dump()
-    return AulaPainelOut(**base, aluno=aula.aluno.usuario.nome)
+    return AulaPainelOut(
+        **base,
+        aluno=aula.aluno.usuario.nome,
+        aluno_id=aula.aluno_id,
+        sala_id=aula.sala_id,
+        instrutor_id=aula.instrutor_id,
+    )
 
 
 def aviso_para_out(aviso: Aviso, lida: bool) -> AvisoOut:
