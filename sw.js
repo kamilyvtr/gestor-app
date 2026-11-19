@@ -1,16 +1,16 @@
 /* ==========================================================================
-   Gestor SENAI — Service Worker
+   Gestor SENAI - Service Worker
    --------------------------------------------------------------------------
    Estratégias:
    • Navegação (HTML): network-first com fallback para o app shell em cache.
    • Arquivos do app (css/js/ícones): stale-while-revalidate.
    • CDNs (Tailwind, Google Fonts, Phosphor): stale-while-revalidate em cache
-     separado — permite abrir o PWA com boa aparência mesmo offline.
+     separado - permite abrir o PWA com boa aparência mesmo offline.
    • Rotas /api/: nunca são cacheadas (dados do back-end Python são sempre
      buscados na rede).
    ========================================================================== */
 
-const VERSAO = '5.5.0';
+const VERSAO = '5.6.0';
 const CACHE_SHELL = `gestor-senai-shell-v${VERSAO}`;
 const CACHE_EXTERNO = `gestor-senai-externo-v${VERSAO}`;
 const CACHES_ATUAIS = [CACHE_SHELL, CACHE_EXTERNO];

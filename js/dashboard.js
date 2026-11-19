@@ -337,8 +337,8 @@
     if (selo) {
       const alta = pct >= 90;
       selo.className = alta
-        ? 'inline-flex items-center gap-1 rounded-xl bg-orange-50 px-1.5 py-0.5 text-[8.5px] font-semibold text-[#B9470F]'
-        : 'inline-flex items-center gap-1 rounded-xl bg-emerald-50 px-1.5 py-0.5 text-[8.5px] font-semibold text-emerald-700';
+        ? 'inline-flex items-center gap-1 rounded-xl bg-orange-50 px-1.5 py-0.5 text-[9.5px] font-semibold text-[#B9470F]'
+        : 'inline-flex items-center gap-1 rounded-xl bg-emerald-50 px-1.5 py-0.5 text-[9.5px] font-semibold text-emerald-700';
       selo.innerHTML = alta
         ? '<i class="ph ph-warning text-[10px]"></i> Alta ocupação'
         : '<i class="ph ph-check-circle text-[10px]"></i> Ocupação do dia';
@@ -370,10 +370,10 @@
 
     if (selo) {
       if (total > 0) {
-        selo.className = 'inline-flex items-center gap-1.5 rounded-xl border border-senai-orange/15 bg-senai-orange/[0.08] px-2 py-1 text-[8.5px] font-semibold uppercase tracking-[.08em] text-[#B9470F]';
+        selo.className = 'inline-flex items-center gap-1.5 rounded-xl border border-senai-orange/15 bg-senai-orange/[0.08] px-2 py-1 text-[9.5px] font-semibold uppercase tracking-[.08em] text-[#B9470F]';
         selo.innerHTML = '<span class="h-1 w-1 rounded-full bg-senai-orange"></span>Requer atenção';
       } else {
-        selo.className = 'inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-2 py-1 text-[8.5px] font-semibold uppercase tracking-[.08em] text-emerald-700';
+        selo.className = 'inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-2 py-1 text-[9.5px] font-semibold uppercase tracking-[.08em] text-emerald-700';
         selo.innerHTML = '<span class="h-1 w-1 rounded-full bg-emerald-500"></span>Grade consistente';
       }
     }
@@ -441,21 +441,21 @@
           <div class="flex items-center justify-between gap-3">
             <div class="min-w-0">
               <p class="text-[10.5px] font-semibold text-senai-dark">${escapar(sala.nome)}</p>
-              <p class="mt-0.5 text-[8.5px] text-slate-500">${escapar(sala.bloco)} · ${escapar(sala.andar)}</p>
+              <p class="mt-0.5 text-[9.5px] text-slate-500">${escapar(sala.bloco)} · ${escapar(sala.andar)}</p>
             </div>
-            <span class="shrink-0 text-[9px] font-semibold text-slate-600">${aulas.length} aula${aulas.length === 1 ? '' : 's'}</span>
+            <span class="shrink-0 text-[9.5px] font-semibold text-slate-600">${aulas.length} aula${aulas.length === 1 ? '' : 's'}</span>
           </div>
           <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
             <div class="h-full rounded-full bg-senai-dark" style="width:${pct}%"></div>
           </div>
-          <p class="mt-1.5 text-[8.5px] text-slate-500">${aulas.length ? aulas.map((aula) => `${aula.inicio}-${aula.fim}`).join(' · ') : 'Livre hoje'}</p>
+          <p class="mt-1.5 text-[9.5px] text-slate-500">${aulas.length ? aulas.map((aula) => `${aula.inicio}-${aula.fim}`).join(' · ') : 'Livre hoje'}</p>
         </div>`;
     }).join('');
 
     const corpo = `
       <div class="rounded-xl bg-senai-mist p-3.5">
         <p class="text-[10px] font-semibold text-senai-dark">Ocupação atual: ${Number(estado.resumo?.ocupacaoPercent) || 0}%</p>
-        <p class="mt-1 text-[8.5px] text-slate-500">${Number(estado.resumo?.labsEmUso) || 0} de ${Number(estado.resumo?.totalLabs) || 0} laboratórios em uso hoje.</p>
+        <p class="mt-1 text-[9.5px] text-slate-500">${Number(estado.resumo?.labsEmUso) || 0} de ${Number(estado.resumo?.totalLabs) || 0} laboratórios em uso hoje.</p>
       </div>
       ${noPeriodo ? `<div class="mt-3">${linhas || '<p class="py-4 text-center text-[9.5px] text-slate-500">Nenhum laboratório cadastrado.</p>'}</div>` : '<p class="mt-4 text-[9.5px] text-slate-500">A semana exibida não inclui hoje. Volte para a semana atual para ver a ocupação detalhada.</p>'}`;
 
@@ -474,11 +474,11 @@
       : aulas.length
         ? `<div class="divide-y divide-slate-100">${aulas.map((aula) => `
             <button type="button" data-info-aula="${escapar(aula.id)}" class="flex w-full items-start gap-3 py-3 text-left transition hover:bg-slate-50">
-              <span class="mt-0.5 w-[46px] shrink-0 text-[9px] font-semibold text-senai-dark">${escapar(aula.inicio)}</span>
+              <span class="mt-0.5 w-[46px] shrink-0 text-[9.5px] font-semibold text-senai-dark">${escapar(aula.inicio)}</span>
               <div class="min-w-0 flex-1">
                 <p class="truncate text-[10.5px] font-semibold text-senai-dark">${escapar(aula.titulo)}</p>
-                <p class="mt-0.5 text-[8.5px] text-slate-500">${escapar(aula.sala)} · ${escapar(aula.instrutor)}</p>
-                <p class="mt-0.5 text-[8px] text-slate-400">${escapar(aula.aluno)} · ${escapar(aula.inicio)}-${escapar(aula.fim)}</p>
+                <p class="mt-0.5 text-[9.5px] text-slate-500">${escapar(aula.sala)} · ${escapar(aula.instrutor)}</p>
+                <p class="mt-0.5 text-[9px] text-slate-400">${escapar(aula.aluno)} · ${escapar(aula.inicio)}-${escapar(aula.fim)}</p>
               </div>
               <i class="ph ph-caret-right mt-1 shrink-0 text-[11px] text-slate-300"></i>
             </button>`).join('')}</div>`
@@ -494,10 +494,10 @@
             <span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-red-500"></span>
             <div class="min-w-0 flex-1">
               <p class="text-[10.5px] font-semibold text-senai-dark">Choque de ${escapar(conflito.tipo === 'sala' ? 'sala' : 'instrutor')}: ${escapar(conflito.recurso)}</p>
-              <p class="mt-0.5 text-[8.5px] text-slate-500">${escapar(nomeCurtoDoDia(conflito.data))}, ${escapar(dataCurta(conflito.data))} · ${escapar(conflito.inicio)}-${escapar(conflito.fim)}</p>
-              <p class="mt-0.5 text-[8.5px] leading-relaxed text-slate-500">${escapar(conflito.detalhe)}</p>
+              <p class="mt-0.5 text-[9.5px] text-slate-500">${escapar(nomeCurtoDoDia(conflito.data))}, ${escapar(dataCurta(conflito.data))} · ${escapar(conflito.inicio)}-${escapar(conflito.fim)}</p>
+              <p class="mt-0.5 text-[9.5px] leading-relaxed text-slate-500">${escapar(conflito.detalhe)}</p>
             </div>
-            <button type="button" data-ir-conflito="${indice}" class="shrink-0 rounded-lg border border-slate-200 px-2 py-1 text-[8px] font-semibold text-senai-dark transition hover:border-senai-dark/30">Ver na grade</button>
+            <button type="button" data-ir-conflito="${indice}" class="shrink-0 rounded-lg border border-slate-200 px-2 py-1 text-[9px] font-semibold text-senai-dark transition hover:border-senai-dark/30">Ver na grade</button>
           </div>`).join('')}</div>`
       : '<p class="py-6 text-center text-[9.5px] text-slate-500">Nenhum conflito identificado nesta semana.</p>';
 
@@ -613,7 +613,7 @@
         <div class="py-7 text-center">
           <i class="ph ph-bell-slash text-[22px] text-slate-300"></i>
           <p class="mt-2 text-[10px] font-medium text-senai-dark">Nenhuma notificação</p>
-          <p class="mt-1 text-[8.5px] text-slate-500">Avisos e conflitos aparecem aqui.</p>
+          <p class="mt-1 text-[9.5px] text-slate-500">Avisos e conflitos aparecem aqui.</p>
         </div>`;
       return;
     }
@@ -629,8 +629,8 @@
             <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${lida ? 'bg-slate-200' : cor}"></span>
             <span class="min-w-0 flex-1">
               <span class="block truncate text-[10px] font-semibold ${lida ? 'text-slate-500' : 'text-senai-dark'}">${escapar(item.titulo)}</span>
-              <span class="mt-0.5 block truncate text-[8.5px] text-slate-500">${escapar(item.texto)}</span>
-              <span class="mt-0.5 block text-[8px] text-slate-400">${escapar(item.rotulo)} · ${escapar(tempoRelativo(item.quando))}</span>
+              <span class="mt-0.5 block truncate text-[9.5px] text-slate-500">${escapar(item.texto)}</span>
+              <span class="mt-0.5 block text-[9px] text-slate-400">${escapar(item.rotulo)} · ${escapar(tempoRelativo(item.quando))}</span>
             </span>
           </button>
           ${lida ? '' : `<button type="button" data-marcar-lida="${escapar(item.id)}" aria-label="Marcar como lida" title="Marcar como lida" class="mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-emerald-600"><i class="ph ph-check text-[11px]"></i></button>`}
@@ -664,7 +664,7 @@
 
     abrirInfo(item.titulo, `${ROTULOS_AVISO[item.referencia.tipo] || 'Aviso'} · ${tempoRelativo(item.referencia.quando)}`, `
       <p class="text-[10.5px] leading-relaxed text-slate-600">${escapar(item.referencia.texto)}</p>
-      <div class="mt-4 rounded-xl bg-slate-50 p-3 text-[8.5px] text-slate-500">
+      <div class="mt-4 rounded-xl bg-slate-50 p-3 text-[9.5px] text-slate-500">
         <p><span class="font-semibold text-senai-dark">Destinatário:</span> ${escapar(item.referencia.destinatario)}</p>
         <p class="mt-1"><span class="font-semibold text-senai-dark">Publicado:</span> ${escapar(new Date(item.referencia.quando).toLocaleString('pt-BR'))}</p>
       </div>`);
@@ -775,7 +775,7 @@
       painel.innerHTML = `
         <div class="px-3 py-5 text-center">
           <p class="text-[10px] font-medium text-senai-dark">Nenhum resultado</p>
-          <p class="mt-1 text-[8.5px] text-slate-500">Tente sala, laboratório, instrutor, aluno ou aviso.</p>
+          <p class="mt-1 text-[9.5px] text-slate-500">Tente sala, laboratório, instrutor, aluno ou aviso.</p>
         </div>`;
       painel.classList.remove('hidden');
       return;
@@ -783,10 +783,10 @@
 
     painel.innerHTML = estado.resultadosBusca.map((item, indice) => `
       <button type="button" role="option" data-resultado="${indice}" aria-selected="false" class="flex w-full items-start gap-2.5 rounded-lg px-2.5 py-2 text-left transition hover:bg-slate-50">
-        <span class="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md bg-senai-mist text-[9px] font-semibold text-senai-dark">${escapar(ROTULOS_RESULTADO[item.tipo].slice(0, 2))}</span>
+        <span class="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md bg-senai-mist text-[9.5px] font-semibold text-senai-dark">${escapar(ROTULOS_RESULTADO[item.tipo].slice(0, 2))}</span>
         <span class="min-w-0 flex-1">
           <span class="block truncate text-[10px] font-semibold text-senai-dark">${escapar(item.titulo)}</span>
-          <span class="block truncate text-[8.5px] text-slate-500">${escapar(item.detalhe)}</span>
+          <span class="block truncate text-[9.5px] text-slate-500">${escapar(item.detalhe)}</span>
         </span>
         <span class="mt-0.5 shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[7px] font-semibold uppercase tracking-wide text-slate-500">${escapar(ROTULOS_RESULTADO[item.tipo])}</span>
       </button>`).join('');
@@ -862,28 +862,28 @@
         <span class="grid h-12 w-12 place-items-center rounded-full bg-senai-dark text-[13px] font-semibold text-white">${escapar(usuario.iniciais || 'CP')}</span>
         <div class="min-w-0">
           <p class="truncate text-[12px] font-semibold text-senai-dark">${escapar(usuario.nome_completo || usuario.nome || 'Coordenação')}</p>
-          <p class="mt-0.5 text-[9px] text-slate-500">${escapar(usuario.matricula || '')} · Coordenação acadêmica</p>
+          <p class="mt-0.5 text-[9.5px] text-slate-500">${escapar(usuario.matricula || '')} · Coordenação acadêmica</p>
         </div>
       </div>
 
       <form id="profilePasswordForm" class="mt-5 border-t border-slate-100 pt-4">
         <p class="text-[10px] font-semibold text-senai-dark">Alterar senha</p>
-        <p class="mt-0.5 text-[8.5px] text-slate-500">Use no mínimo 8 caracteres.</p>
+        <p class="mt-0.5 text-[9.5px] text-slate-500">Use no mínimo 8 caracteres.</p>
         <label class="mt-3 block">
-          <span class="text-[8.5px] font-semibold uppercase tracking-[.12em] text-slate-500">Senha atual</span>
+          <span class="text-[9.5px] font-semibold uppercase tracking-[.12em] text-slate-500">Senha atual</span>
           <input id="senhaAtual" type="password" autocomplete="current-password" required class="mt-1 w-full rounded-lg border border-senai-line px-3 py-2 text-[11px] outline-none focus:border-senai-dark/30" />
         </label>
         <div class="mt-2 grid grid-cols-2 gap-2">
           <label class="block">
-            <span class="text-[8.5px] font-semibold uppercase tracking-[.12em] text-slate-500">Nova senha</span>
+            <span class="text-[9.5px] font-semibold uppercase tracking-[.12em] text-slate-500">Nova senha</span>
             <input id="senhaNova" type="password" autocomplete="new-password" minlength="8" required class="mt-1 w-full rounded-lg border border-senai-line px-3 py-2 text-[11px] outline-none focus:border-senai-dark/30" />
           </label>
           <label class="block">
-            <span class="text-[8.5px] font-semibold uppercase tracking-[.12em] text-slate-500">Confirmar</span>
+            <span class="text-[9.5px] font-semibold uppercase tracking-[.12em] text-slate-500">Confirmar</span>
             <input id="senhaConfirma" type="password" autocomplete="new-password" minlength="8" required class="mt-1 w-full rounded-lg border border-senai-line px-3 py-2 text-[11px] outline-none focus:border-senai-dark/30" />
           </label>
         </div>
-        <div id="senhaFeedback" class="mt-3 hidden rounded-lg border p-2.5 text-[9px]" role="alert"></div>
+        <div id="senhaFeedback" class="mt-3 hidden rounded-lg border p-2.5 text-[9.5px]" role="alert"></div>
         <button type="submit" class="mt-3 w-full rounded-lg bg-senai-dark py-2.5 text-[10px] font-semibold text-white transition hover:bg-[#00496F]">Salvar nova senha</button>
       </form>`);
 
@@ -896,7 +896,7 @@
 
       const exibir = (mensagem, erro) => {
         if (!feedback) return;
-        feedback.className = `mt-3 rounded-lg border p-2.5 text-[9px] ${erro ? 'border-red-200 bg-red-50 text-red-600' : 'border-emerald-200 bg-emerald-50 text-emerald-700'}`;
+        feedback.className = `mt-3 rounded-lg border p-2.5 text-[9.5px] ${erro ? 'border-red-200 bg-red-50 text-red-600' : 'border-emerald-200 bg-emerald-50 text-emerald-700'}`;
         feedback.textContent = mensagem;
       };
 
@@ -933,14 +933,14 @@
         <label class="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-senai-line p-3.5">
           <span>
             <span class="block text-[10px] font-semibold text-senai-dark">Mostrar conflitos no sino</span>
-            <span class="mt-0.5 block text-[8.5px] text-slate-500">Inclui os choques de sala e instrutor nas notificações.</span>
+            <span class="mt-0.5 block text-[9.5px] text-slate-500">Inclui os choques de sala e instrutor nas notificações.</span>
           </span>
           <input id="prefConflitos" type="checkbox" ${estado.preferencias.conflitos ? 'checked' : ''} class="mt-0.5 h-4 w-4 rounded border-slate-300 text-senai-orange focus:ring-senai-orange" />
         </label>
         <label class="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-senai-line p-3.5">
           <span>
             <span class="block text-[10px] font-semibold text-senai-dark">Mostrar avisos no sino</span>
-            <span class="mt-0.5 block text-[8.5px] text-slate-500">Inclui os comunicados publicados aos alunos.</span>
+            <span class="mt-0.5 block text-[9.5px] text-slate-500">Inclui os comunicados publicados aos alunos.</span>
           </span>
           <input id="prefAvisos" type="checkbox" ${estado.preferencias.avisos ? 'checked' : ''} class="mt-0.5 h-4 w-4 rounded border-slate-300 text-senai-orange focus:ring-senai-orange" />
         </label>
@@ -950,7 +950,7 @@
           <i class="ph ph-arrow-counter-clockwise text-[12px]"></i>
           Restaurar notificações lidas
         </button>
-        <p class="mt-2 text-[8px] text-slate-400">As preferências ficam salvas apenas neste navegador.</p>
+        <p class="mt-2 text-[9px] text-slate-400">As preferências ficam salvas apenas neste navegador.</p>
       </div>`);
 
     const salvar = () => {
@@ -1011,21 +1011,21 @@
     const salaTeorica = !ehLab;
 
     let tom = 'border-slate-300 bg-slate-50';
-    let selo = '<span class="inline-flex items-center rounded bg-slate-200 px-1.5 py-0.5 text-[7.5px] font-semibold uppercase tracking-wide text-slate-600">SALA</span>';
+    let selo = '<span class="inline-flex items-center rounded bg-slate-200 px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide text-slate-600">SALA</span>';
 
     if (pratica) {
       tom = 'border-orange-500 bg-orange-50';
-      selo = '<span class="inline-flex items-center rounded bg-orange-100 px-1.5 py-0.5 text-[7.5px] font-semibold uppercase tracking-wide text-orange-700">PRÁTICA</span>';
+      selo = '<span class="inline-flex items-center rounded bg-orange-100 px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide text-orange-700">PRÁTICA</span>';
     } else if (ehLab) {
       tom = 'border-blue-500 bg-blue-50';
-      selo = '<span class="inline-flex items-center rounded bg-blue-100 px-1.5 py-0.5 text-[7.5px] font-semibold uppercase tracking-wide text-blue-700">LAB</span>';
+      selo = '<span class="inline-flex items-center rounded bg-blue-100 px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide text-blue-700">LAB</span>';
     } else if (salaTeorica) {
       tom = 'border-slate-300 bg-slate-50';
     }
 
     if (ehConflito) {
       tom = 'border-red-500 bg-red-50';
-      selo = '<span class="inline-flex items-center rounded bg-red-100 px-1.5 py-0.5 text-[7.5px] font-semibold uppercase tracking-wide text-red-700">CONFLITO</span>';
+      selo = '<span class="inline-flex items-center rounded bg-red-100 px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide text-red-700">CONFLITO</span>';
     }
 
     const busca = normalizar([
@@ -1042,21 +1042,22 @@
     ].join(' '));
 
     return `
-      <button type="button" class="schedule-block ${tom} w-full rounded-lg border-l-4 p-2 text-left shadow-sm transition-shadow hover:shadow-md" data-aula="${escapar(aula.id)}" data-date="${dataISO}" data-time="${escapar(aula.inicio)}" data-room="${escapar(aula.sala)}" data-type="${ehLab ? 'lab' : 'sala'}" data-conflict="${ehConflito ? '1' : '0'}" data-search="${escapar(busca)}" aria-label="Abrir alocação ${escapar(aula.titulo)}">
+      <button type="button" class="schedule-block ${tom} w-full rounded-lg border-l-4 p-1.5 text-left shadow-sm transition-shadow hover:shadow-md" data-aula="${escapar(aula.id)}" data-date="${dataISO}" data-time="${escapar(aula.inicio)}" data-room="${escapar(aula.sala)}" data-type="${ehLab ? 'lab' : 'sala'}" data-conflict="${ehConflito ? '1' : '0'}" data-search="${escapar(busca)}" aria-label="Abrir alocação ${escapar(aula.titulo)}">
         <span class="flex items-center justify-between gap-1">
           ${selo}
-          <span class="shrink-0 text-[7.5px] font-medium text-slate-500">${escapar(aula.inicio)}-${escapar(aula.fim)}</span>
+          <span class="shrink-0 text-[9.5px] font-semibold text-slate-600">${escapar(aula.inicio)}-${escapar(aula.fim)}</span>
         </span>
-        <span class="mt-1.5 block truncate text-[10.5px] font-semibold leading-tight text-slate-800" title="${escapar(aula.titulo)}">${escapar(aula.titulo)}</span>
-        <span class="mt-1 block truncate text-[8.5px] text-slate-500" title="${escapar(aula.sala)} · ${escapar(aula.instrutor)}">${escapar(aula.sala)} · ${escapar(aula.instrutor)}</span>
-        <span class="mt-0.5 block truncate text-[8px] text-slate-400" title="${escapar(aula.aluno)}">${escapar(aula.aluno)}</span>
+        <span class="mt-1 block truncate text-[11.5px] font-semibold leading-tight text-slate-800" title="${escapar(aula.titulo)}">${escapar(aula.titulo)}</span>
+        <span class="mt-0.5 block truncate text-[9.5px] font-medium text-slate-600" title="${escapar(aula.sala)} · ${escapar(aula.instrutor)}">${escapar(aula.sala)} · ${escapar(aula.instrutor)}</span>
+        <span class="mt-0.5 block truncate text-[9.5px] text-slate-500" title="${escapar(aula.aluno)}">${escapar(aula.aluno)}</span>
       </button>`;
   }
 
   function botaoVazio(dataISO, hora, rotulo) {
     return `
-      <button type="button" class="empty-slot flex min-h-[64px] w-full items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50/60 transition hover:border-[#003B5C] hover:bg-slate-50" data-date="${dataISO}" data-time="${hora}" aria-label="Alocar aula em ${escapar(rotulo)} às ${escapar(hora)}">
-        <i class="ph ph-plus text-[12px] text-slate-400"></i>
+      <button type="button" class="empty-slot group relative flex min-h-[64px] w-full flex-col items-center justify-center gap-0.5 rounded-lg border border-dashed border-slate-300 transition" data-date="${dataISO}" data-time="${hora}" aria-label="Alocar aula em ${escapar(rotulo)} às ${escapar(hora)}" title="Clique para alocar aula aqui">
+        <i class="ph ph-plus text-[14px] text-slate-400"></i>
+        <span class="slot-hint pointer-events-none absolute bottom-1 text-[9.5px] font-medium text-slate-500">Clique para alocar</span>
       </button>`;
   }
 
@@ -1071,17 +1072,17 @@
     const diaUnico = estado.modo === 'dia';
 
     let headHtml = '<tr>';
-    headHtml += `<th scope="col" class="sticky left-0 z-20 w-[90px] border-b border-r border-slate-100 bg-white px-3 py-3 text-left"><span class="text-[8px] font-semibold uppercase tracking-[.16em] text-slate-500">Horário</span></th>`;
+    headHtml += `<th scope="col" class="sticky left-0 z-20 w-[90px] border-b border-r border-slate-200 bg-white px-3 py-3 text-left"><span class="text-[9.5px] font-semibold uppercase tracking-[.14em] text-slate-600">Horário</span></th>`;
 
     dias.forEach((dia) => {
       const data = dataDeISO(dia.dataISO);
       const atual = hoje === dia.dataISO;
       headHtml += `
-        <th scope="col" class="border-b border-slate-100 ${atual ? 'bg-senai-dark/[0.025]' : 'bg-white'} px-2 py-3 text-center font-normal">
+        <th scope="col" class="border-b border-r border-slate-200 ${atual ? 'bg-senai-dark/[0.025]' : 'bg-white'} px-2 py-2.5 text-center font-normal">
           <div class="flex flex-col items-center gap-1.5">
-            <span class="text-[8px] font-semibold uppercase tracking-[.18em] ${atual ? 'text-[#B9470F]' : 'text-slate-500'}">${diaUnico ? escapar(nomeDoDia(dia.dataISO)) : escapar(NOMES_DIA[dia.chave] || nomeCurtoDoDia(dia.dataISO))}</span>
-            <span class="grid h-7 min-w-7 place-items-center rounded-full px-1.5 text-[11px] font-semibold ${atual ? 'bg-senai-dark text-white' : 'text-senai-dark'}">${data.getDate()}</span>
-            ${diaUnico ? `<span class="text-[8.5px] text-slate-500">${escapar(MESES_LONGOS[data.getMonth()])}</span>` : ''}
+            <span class="text-[9.5px] font-semibold uppercase tracking-[.12em] ${atual ? 'text-[#B9470F]' : 'text-slate-500'}">${diaUnico ? escapar(nomeDoDia(dia.dataISO)) : escapar(NOMES_DIA[dia.chave] || nomeCurtoDoDia(dia.dataISO))}</span>
+            <span class="grid h-6 min-w-6 place-items-center rounded-full px-1.5 text-[11px] font-semibold ${atual ? 'bg-senai-dark text-white ring-2 ring-senai-dark/10' : 'text-senai-dark'}">${data.getDate()}</span>
+            ${diaUnico ? `<span class="text-[9.5px] text-slate-500">${escapar(MESES_LONGOS[data.getMonth()])}</span>` : ''}
           </div>
         </th>`;
     });
@@ -1098,15 +1099,15 @@
 
       bodyHtml += `<tr data-horario="${hora}">`;
       bodyHtml += `
-        <th scope="row" class="sticky left-0 z-10 border-b border-r border-slate-100 bg-white px-3 py-2 text-left align-top ${abrirPeriodo ? 'border-t-2 border-t-slate-200' : ''}">
-          <p class="text-[10.5px] font-semibold text-senai-dark">${escapar(hora)}</p>
-          <p class="mt-0.5 text-[7.5px] font-medium uppercase tracking-[.12em] ${periodo === 'Noite' ? 'text-indigo-500' : 'text-slate-500'}">${abrirPeriodo ? periodo : ''}</p>
+        <th scope="row" class="sticky left-0 z-10 border-b border-r border-slate-200 bg-white px-3 py-2 text-left align-top ${abrirPeriodo ? 'border-t-2 border-t-slate-300' : ''}">
+          <p class="text-[11px] font-semibold text-senai-dark">${escapar(hora)}</p>
+          <p class="mt-0.5 text-[9.5px] font-medium uppercase tracking-[.1em] ${periodo === 'Noite' ? 'text-indigo-500' : 'text-slate-500'}">${abrirPeriodo ? periodo : ''}</p>
         </th>`;
 
       dias.forEach((dia) => {
         const aulas = aulasDoHorario(dia.dataISO, hora);
         const atual = hoje === dia.dataISO;
-        bodyHtml += `<td class="border-b border-slate-100 ${atual ? 'bg-senai-dark/[0.012]' : 'bg-white'} p-1.5 align-top ${abrirPeriodo ? 'border-t-2 border-t-slate-100' : ''}">`;
+        bodyHtml += `<td class="border-b border-r border-slate-200 ${atual ? 'bg-senai-dark/[0.012]' : 'bg-white'} p-1.5 align-top ${abrirPeriodo ? 'border-t-2 border-t-slate-200' : ''}">`;
         if (aulas.length) {
           bodyHtml += `<div class="space-y-1.5">${aulas.map((aula) => cartaoAula(aula, dia.dataISO, hora)).join('')}</div>`;
         } else {
@@ -1438,7 +1439,7 @@
         <i class="ph-fill ${estilo.icon} mt-0.5 shrink-0 text-[15px]"></i>
         <div>
           <p class="text-[9.5px] font-semibold ${estilo.title}">${escapar(titulo)}</p>
-          <p class="mt-1 text-[8.5px] leading-relaxed ${estilo.copy}">${escapar(texto)}</p>
+          <p class="mt-1 text-[9.5px] leading-relaxed ${estilo.copy}">${escapar(texto)}</p>
         </div>
       </div>`;
   }
@@ -1659,7 +1660,7 @@
         <div class="py-10 text-center">
           <i class="ph ph-megaphone text-[28px] text-slate-300"></i>
           <p class="mt-2 text-[10.5px] font-semibold text-senai-dark">Nenhum aviso encontrado</p>
-          <p class="mt-1 text-[8.5px] text-slate-500">Publique um novo comunicado para os alunos.</p>
+          <p class="mt-1 text-[9.5px] text-slate-500">Publique um novo comunicado para os alunos.</p>
         </div>`;
       return;
     }
@@ -1669,12 +1670,12 @@
         <div class="flex items-start justify-between gap-3">
           <button type="button" data-ver-aviso="${escapar(aviso.id)}" class="min-w-0 flex-1 text-left">
             <span class="flex flex-wrap items-center gap-1.5">
-              <span class="inline-flex items-center gap-1 rounded bg-slate-100 px-1.5 py-0.5 text-[7.5px] font-semibold uppercase tracking-wide text-slate-600">${escapar(ROTULOS_AVISO[aviso.tipo] || aviso.tipo)}</span>
-              <span class="text-[8px] text-slate-400">${escapar(tempoRelativo(aviso.quando))}</span>
+              <span class="inline-flex items-center gap-1 rounded bg-slate-100 px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide text-slate-600">${escapar(ROTULOS_AVISO[aviso.tipo] || aviso.tipo)}</span>
+              <span class="text-[9px] text-slate-400">${escapar(tempoRelativo(aviso.quando))}</span>
             </span>
             <span class="mt-1 block truncate text-[10.5px] font-semibold text-senai-dark">${escapar(aviso.titulo)}</span>
-            <span class="mt-0.5 block text-[9px] leading-relaxed text-slate-500">${escapar(aviso.texto.length > 120 ? `${aviso.texto.slice(0, 117)}...` : aviso.texto)}</span>
-            <span class="mt-1 block text-[8px] text-slate-400">Para: ${escapar(aviso.destinatario)} · Publicado em ${escapar(new Date(aviso.quando).toLocaleDateString('pt-BR'))}</span>
+            <span class="mt-0.5 block text-[9.5px] leading-relaxed text-slate-500">${escapar(aviso.texto.length > 120 ? `${aviso.texto.slice(0, 117)}...` : aviso.texto)}</span>
+            <span class="mt-1 block text-[9px] text-slate-400">Para: ${escapar(aviso.destinatario)} · Publicado em ${escapar(new Date(aviso.quando).toLocaleDateString('pt-BR'))}</span>
           </button>
           <span class="flex shrink-0 gap-1">
             <button type="button" data-editar-aviso="${escapar(aviso.id)}" aria-label="Editar aviso" title="Editar" class="grid h-7 w-7 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-senai-dark"><i class="ph ph-pencil-simple text-[12px]"></i></button>
@@ -1707,7 +1708,7 @@
     if (porId('noticeText')) porId('noticeText').value = aviso?.texto || '';
     if (porId('noticeType')) porId('noticeType').value = aviso?.tipo || 'sistema';
     if (porId('noticePush')) porId('noticePush').checked = true;
-    if (porId('noticeFormFeedback')) porId('noticeFormFeedback').className = 'mt-3 hidden rounded-xl border p-3 text-[9px]';
+    if (porId('noticeFormFeedback')) porId('noticeFormFeedback').className = 'mt-3 hidden rounded-xl border p-3 text-[9.5px]';
 
     popularDestinatarios(aviso);
     porId('noticeTitle')?.focus();
@@ -1726,7 +1727,7 @@
 
     const exibir = (mensagem, erro) => {
       if (!feedback) return;
-      feedback.className = `mt-3 rounded-xl border p-3 text-[9px] ${erro ? 'border-red-200 bg-red-50 text-red-600' : 'border-emerald-200 bg-emerald-50 text-emerald-700'}`;
+      feedback.className = `mt-3 rounded-xl border p-3 text-[9.5px] ${erro ? 'border-red-200 bg-red-50 text-red-600' : 'border-emerald-200 bg-emerald-50 text-emerald-700'}`;
       feedback.textContent = mensagem;
     };
 
@@ -1798,7 +1799,7 @@
     if (!aviso) return;
     abrirInfo(aviso.titulo, `${ROTULOS_AVISO[aviso.tipo] || 'Aviso'} · ${new Date(aviso.quando).toLocaleString('pt-BR')}`, `
       <p class="text-[10.5px] leading-relaxed text-slate-600">${escapar(aviso.texto)}</p>
-      <div class="mt-4 rounded-xl bg-slate-50 p-3 text-[8.5px] text-slate-500">
+      <div class="mt-4 rounded-xl bg-slate-50 p-3 text-[9.5px] text-slate-500">
         <p><span class="font-semibold text-senai-dark">Destinatário:</span> ${escapar(aviso.destinatario)}</p>
         <p class="mt-1"><span class="font-semibold text-senai-dark">Tipo:</span> ${escapar(ROTULOS_AVISO[aviso.tipo] || aviso.tipo)}</p>
       </div>`);
@@ -1820,7 +1821,7 @@
         <div class="px-1 py-6 text-center">
           <i class="ph ph-megaphone text-[22px] text-slate-300"></i>
           <p class="mt-2 text-[10px] font-medium text-senai-dark">Nenhum aviso publicado</p>
-          <p class="mt-1 text-[9px] text-slate-500">Os comunicados enviados aos alunos aparecem aqui.</p>
+          <p class="mt-1 text-[9.5px] text-slate-500">Os comunicados enviados aos alunos aparecem aqui.</p>
         </div>`;
       return;
     }
@@ -1832,10 +1833,10 @@
           <span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full ${cor}"></span>
           <span class="min-w-0 flex-1">
             <span class="block truncate text-[10px] font-semibold leading-snug text-senai-dark">${escapar(aviso.titulo)}</span>
-            <span class="mt-1 block text-[8.5px] leading-relaxed text-slate-500">${escapar(aviso.texto.length > 90 ? `${aviso.texto.slice(0, 87)}...` : aviso.texto)}</span>
-            <span class="mt-1 block text-[8px] text-slate-400">Para: ${escapar(aviso.destinatario)}</span>
+            <span class="mt-1 block text-[9.5px] leading-relaxed text-slate-500">${escapar(aviso.texto.length > 90 ? `${aviso.texto.slice(0, 87)}...` : aviso.texto)}</span>
+            <span class="mt-1 block text-[9px] text-slate-400">Para: ${escapar(aviso.destinatario)}</span>
           </span>
-          <span class="shrink-0 text-[8px] text-slate-500">${escapar(tempoRelativo(aviso.quando))}</span>
+          <span class="shrink-0 text-[9px] text-slate-500">${escapar(tempoRelativo(aviso.quando))}</span>
         </button>`;
     }).join('');
   }

@@ -54,8 +54,12 @@
     .schedule-block.is-dimmed { opacity: .14; filter: grayscale(1); pointer-events: none; }
     .schedule-block:not(.is-dimmed):hover { transform: translateY(-1px); }
 
-    .empty-slot .ph-plus { opacity: 0; transform: scale(.8); transition: all .2s ease; }
-    .empty-slot:hover .ph-plus, .empty-slot:focus-visible .ph-plus { opacity: 1; transform: scale(1); }
+    .empty-slot { background-color: #F8FAFC; }
+    .empty-slot:hover, .empty-slot:focus-visible { background-color: #EEF3F7; border-color: #94A3B8; }
+    .empty-slot .ph-plus { opacity: .6; transform: scale(1); transition: opacity .2s ease, transform .2s ease, color .2s ease; }
+    .empty-slot:hover .ph-plus, .empty-slot:focus-visible .ph-plus { opacity: 1; transform: scale(1.12); color: #003B5C; }
+    .empty-slot .slot-hint { opacity: 0; transform: translateY(3px); transition: opacity .2s ease, transform .2s ease; }
+    .empty-slot:hover .slot-hint, .empty-slot:focus-visible .slot-hint { opacity: 1; transform: translateY(0); }
 
     .nav-link { color: rgba(255, 255, 255, .52); }
     .nav-link:hover { color: #FFFFFF; background: rgba(255, 255, 255, .05); }
@@ -141,7 +145,7 @@
       <div class="relative mx-6 h-px bg-white/10"></div>
 
       <nav class="relative flex-1 overflow-y-auto px-4 py-6 no-scrollbar" aria-label="Menu principal">
-        <p class="px-3 text-[8px] font-semibold uppercase tracking-[.22em] text-white/30">Operação</p>
+        <p class="px-3 text-[9px] font-semibold uppercase tracking-[.22em] text-white/30">Operação</p>
 
         <div class="mt-3 space-y-1">
           <a href="#top" class="nav-link is-active relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition" data-nav-link>
@@ -162,7 +166,7 @@
           <a href="#avisos" class="nav-link relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition" data-nav-link>
             <i class="ph ph-megaphone text-[17px]"></i>
             Avisos
-            <span id="sidebarNoticeCount" class="ml-auto rounded-xl bg-white px-1.5 py-0.5 text-[8px] font-semibold text-senai-dark">-</span>
+            <span id="sidebarNoticeCount" class="ml-auto rounded-xl bg-white px-1.5 py-0.5 text-[9px] font-semibold text-senai-dark">-</span>
           </a>
         </div>
 
@@ -175,7 +179,7 @@
         </div>
         <div class="min-w-0 flex-1">
           <p id="sidebarName" class="truncate text-[11px] font-medium text-white">Coordenação</p>
-          <p class="text-[8.5px] text-white/35">Coordenação acadêmica</p>
+          <p class="text-[9.5px] text-white/35">Coordenação acadêmica</p>
         </div>
         <button id="sidebarLogout" aria-label="Sair da conta" title="Sair" class="inline-flex items-center gap-2 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-lg px-4 py-2 mt-auto transition-colors">
           <i class="ph ph-sign-out text-[15px]"></i>
@@ -196,10 +200,10 @@
             <i class="ph ph-list text-[18px]"></i>
           </button>
 
-          <div class="relative hidden w-full max-w-[350px] md:block">
-            <i class="ph ph-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[15px] text-slate-500"></i>
+          <div class="relative hidden w-full max-w-[360px] md:block">
+            <i class="ph ph-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[14px] text-slate-500"></i>
             <input id="globalSearch" type="search" placeholder="Buscar sala, curso ou instrutor" autocomplete="off"
-              class="h-10 w-full rounded-xl border border-slate-200 bg-slate-100 pl-10 pr-4 text-[11.5px] font-medium text-senai-dark outline-none transition placeholder:font-normal placeholder:text-slate-500 focus:bg-white focus:border-slate-300 focus:ring-0" />
+              class="h-9 w-full rounded-lg border border-gray-200 bg-gray-100 pl-9 pr-3 text-[12px] font-medium text-senai-dark outline-none transition placeholder:font-normal placeholder:text-slate-500 focus:border-slate-300 focus:bg-white focus:ring-0" />
             <div id="searchResults" class="absolute left-0 right-0 top-[calc(100%+8px)] z-50 hidden max-h-[340px] overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg" role="listbox" aria-label="Resultados da busca"></div>
           </div>
 
@@ -215,10 +219,10 @@
                 <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
                   <div>
                     <p class="text-[11px] font-semibold text-senai-dark">Notificações</p>
-                    <p id="bellSubtitle" class="mt-0.5 text-[8.5px] text-slate-500">Avisos e alertas recentes</p>
+                    <p id="bellSubtitle" class="mt-0.5 text-[9.5px] text-slate-500">Avisos e alertas recentes</p>
                   </div>
                   <div class="flex items-center gap-1.5">
-                    <button id="bellMarkAll" type="button" class="rounded-lg px-2 py-1 text-[8px] font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-senai-dark">Marcar lidas</button>
+                    <button id="bellMarkAll" type="button" class="rounded-lg px-2 py-1 text-[9px] font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-senai-dark">Marcar lidas</button>
                     <button id="bellClose" type="button" aria-label="Fechar notificações" class="grid h-7 w-7 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-senai-dark">
                       <i class="ph ph-x text-[11px]"></i>
                     </button>
@@ -229,7 +233,7 @@
                   <div class="py-6 text-center text-[9.5px] text-slate-500">Carregando notificações...</div>
                 </div>
 
-                <button id="bellSeeAll" type="button" class="flex w-full items-center justify-between border-t border-slate-100 px-4 py-2.5 text-[8.5px] font-semibold text-senai-dark transition hover:text-senai-orange">
+                <button id="bellSeeAll" type="button" class="flex w-full items-center justify-between border-t border-slate-100 px-4 py-2.5 text-[9.5px] font-semibold text-senai-dark transition hover:text-senai-orange">
                   Abrir central de avisos
                   <i class="ph ph-arrow-up-right text-[11px]"></i>
                 </button>
@@ -237,21 +241,21 @@
             </div>
 
             <div class="relative">
-              <button id="profileButton" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Abrir menu do perfil" class="flex items-center gap-3 rounded-lg bg-[#003B5C] p-2 pr-3 text-white transition hover:bg-[#00496F]">
-                <div class="relative grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15 text-[10px] font-semibold text-white">
+              <button id="profileButton" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Abrir menu do perfil" class="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-senai-dark transition hover:border-slate-300 hover:bg-slate-50">
+                <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-slate-100 text-[9.5px] font-semibold text-senai-dark">
                   <span id="headerInitials">-</span>
-                </div>
-                <div class="hidden text-left lg:block">
-                  <p id="headerUserName" class="text-[11px] font-semibold leading-none text-white">Coordenação</p>
-                  <p class="mt-1 text-[8.5px] text-white/60">Coordenação acadêmica</p>
-                </div>
-                <i class="ph ph-caret-down hidden text-[11px] text-white/60 sm:block"></i>
+                </span>
+                <span class="hidden text-left lg:block">
+                  <span id="headerUserName" class="block text-[10.5px] font-semibold leading-none text-senai-dark">Coordenação</span>
+                  <span class="mt-0.5 block text-[9.5px] text-slate-500">Coordenação acadêmica</span>
+                </span>
+                <i class="ph ph-caret-down hidden text-[10px] text-slate-400 sm:block"></i>
               </button>
 
               <div id="profileMenu" class="absolute right-0 top-[calc(100%+10px)] z-50 hidden w-56 overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg" role="menu" aria-label="Menu do perfil">
                 <div class="border-b border-slate-100 px-3 py-2.5">
                   <p id="profileMenuName" class="truncate text-[10.5px] font-semibold text-senai-dark">Coordenação</p>
-                  <p id="profileMenuRole" class="mt-0.5 text-[8.5px] text-slate-500">Coordenação acadêmica</p>
+                  <p id="profileMenuRole" class="mt-0.5 text-[9.5px] text-slate-500">Coordenação acadêmica</p>
                 </div>
 
                 <button type="button" role="menuitem" data-profile-action="perfil" class="mt-1 flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[10.5px] font-medium text-slate-700 transition hover:bg-slate-50 hover:text-senai-dark">
@@ -281,14 +285,14 @@
           <div>
             <div class="flex items-center gap-2.5">
               <span class="h-px w-7 bg-senai-orange"></span>
-              <p class="text-[9px] font-semibold uppercase tracking-[.22em] text-[#B9470F]">Coordenação · <span id="weekEyebrow">Semana atual</span></p>
+              <p class="text-[9.5px] font-semibold uppercase tracking-[.22em] text-[#B9470F]">Coordenação · <span id="weekEyebrow">Semana atual</span></p>
             </div>
             <h1 class="mt-3 text-[29px] font-semibold leading-none tracking-[-0.04em] text-senai-dark lg:text-[34px]">Grade de horários</h1>
-            <p class="mt-2.5 text-[11.5px] font-light text-slate-600">Alocação de laboratórios, salas e instrutores em tempo real.</p>
+            <p class="mt-2.5 text-[12px] font-normal text-slate-600">Alocação de laboratórios, salas e instrutores em tempo real.</p>
           </div>
 
           <div class="flex flex-wrap items-center gap-2.5">
-            <div class="hidden items-center gap-2 rounded-xl border border-senai-line bg-white px-3.5 py-2.5 text-[10px] font-medium text-slate-500 shadow-sm sm:flex">
+            <div class="hidden items-center gap-2 rounded-xl border border-senai-line bg-white px-3.5 py-2.5 text-[10.5px] font-medium text-slate-600 sm:flex">
               <i class="ph ph-calendar-blank text-[14px] text-senai-dark"></i>
               <span id="periodoLabel">-</span>
             </div>
@@ -305,7 +309,7 @@
           <article id="cardOccupancy" data-dashboard-card="ocupacao" tabindex="0" aria-label="Ver ocupação dos laboratórios" class="group relative cursor-pointer overflow-hidden rounded-2xl border border-white bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
             <div class="flex items-start justify-between gap-4">
               <div>
-                <p class="text-[9px] font-semibold uppercase tracking-[.16em] text-slate-500">Ocupação dos Labs</p>
+                <p class="text-[9.5px] font-semibold uppercase tracking-[.16em] text-slate-500">Ocupação dos Labs</p>
                 <p class="mt-3 flex items-baseline gap-0.5 text-[33px] font-semibold leading-none tracking-[-0.05em] text-senai-dark">
                   <span id="occupancyValue">-</span><span class="text-[15px] font-medium text-slate-500">%</span>
                 </p>
@@ -320,16 +324,16 @@
             </div>
 
             <div class="mt-4 flex items-center gap-2">
-              <span id="occupancyBadge" class="inline-flex items-center gap-1 rounded-xl bg-slate-100 px-1.5 py-0.5 text-[8.5px] font-semibold text-slate-500">
+              <span id="occupancyBadge" class="inline-flex items-center gap-1 rounded-xl bg-slate-100 px-1.5 py-0.5 text-[9.5px] font-semibold text-slate-500">
                 <i class="ph ph-arrows-clockwise text-[10px]"></i> Sincronizando
               </span>
-              <span class="text-[9px] text-slate-500">indicador do dia</span>
+              <span class="text-[9.5px] text-slate-500">indicador do dia</span>
             </div>
 
             <div class="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-100">
               <div id="occupancyBar" class="h-full w-0 rounded-full bg-senai-dark transition-all duration-700"></div>
             </div>
-            <div class="mt-2.5 flex items-center justify-between text-[8.5px] text-slate-500">
+            <div class="mt-2.5 flex items-center justify-between text-[9.5px] text-slate-500">
               <span id="labsUsage">- labs em uso</span>
               <span id="labsTotal">- no total</span>
             </div>
@@ -339,7 +343,7 @@
           <article id="cardLessons" data-dashboard-card="aulas" tabindex="0" aria-label="Ver as aulas de hoje" class="group relative cursor-pointer overflow-hidden rounded-2xl border border-white bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
             <div class="flex items-start justify-between gap-4">
               <div>
-                <p class="text-[9px] font-semibold uppercase tracking-[.16em] text-slate-500">Aulas Hoje</p>
+                <p class="text-[9.5px] font-semibold uppercase tracking-[.16em] text-slate-500">Aulas Hoje</p>
                 <p class="mt-3 flex items-baseline gap-0.5 text-[33px] font-semibold leading-none tracking-[-0.05em] text-senai-dark">
                   <span id="lessonsToday">-</span>
                 </p>
@@ -357,10 +361,10 @@
                 <span class="w-3 rounded-t-[3px] bg-slate-200" style="height:82%"></span>
                 <span class="w-3 rounded-t-[3px] bg-slate-200" style="height:58%"></span>
               </div>
-              <p id="lessonsDetail" class="text-right text-[8.5px] leading-relaxed text-slate-500">Consultando<br/>a API…</p>
+              <p id="lessonsDetail" class="text-right text-[9.5px] leading-relaxed text-slate-500">Consultando<br/>a API…</p>
             </div>
 
-            <div class="mt-3 flex items-center justify-between border-t border-slate-100 pt-2.5 text-[8.5px]">
+            <div class="mt-3 flex items-center justify-between border-t border-slate-100 pt-2.5 text-[9.5px]">
               <span id="lessonsUpdated" class="text-slate-500">Sincronizando</span>
               <span id="lessonsTotal" class="font-medium text-senai-dark">-</span>
             </div>
@@ -372,7 +376,7 @@
 
             <div class="relative flex items-start justify-between gap-4">
               <div>
-                <p class="text-[9px] font-semibold uppercase tracking-[.16em] text-slate-500">Conflitos</p>
+                <p class="text-[9.5px] font-semibold uppercase tracking-[.16em] text-slate-500">Conflitos</p>
                 <p class="mt-3 flex items-baseline gap-0.5 text-[33px] font-semibold leading-none tracking-[-0.05em] text-senai-orange">
                   <span id="conflictsValue">-</span>
                 </p>
@@ -383,11 +387,11 @@
             </div>
 
             <div class="relative mt-4 flex items-center gap-2.5">
-              <span id="conflictBadge" class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-2 py-1 text-[8.5px] font-semibold uppercase tracking-[.08em] text-slate-500">
+              <span id="conflictBadge" class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-2 py-1 text-[9.5px] font-semibold uppercase tracking-[.08em] text-slate-500">
                 <span class="h-1 w-1 rounded-full bg-slate-400"></span>
                 Verificando
               </span>
-              <span id="conflictDetail" class="text-[9px] text-slate-500">Consultando a grade…</span>
+              <span id="conflictDetail" class="text-[9.5px] text-slate-500">Consultando a grade…</span>
             </div>
 
             <button id="resolveConflictMetric" hidden class="relative mt-4 flex items-center gap-1.5 border-t border-slate-100 pt-3 text-[9.5px] font-semibold text-senai-dark transition hover:text-senai-orange">
@@ -407,7 +411,7 @@
               <div>
                 <div class="flex flex-wrap items-center gap-2">
                   <h2 id="gradeTitle" class="text-[14.5px] font-semibold tracking-tight text-senai-dark">Programação semanal</h2>
-                  <span id="weekBadge" class="rounded-xl bg-senai-mist px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-[.08em] text-slate-600">Semana atual</span>
+                  <span id="weekBadge" class="rounded-xl bg-senai-mist px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[.08em] text-slate-600">Semana atual</span>
                 </div>
                 <p class="mt-1 text-[9.5px] text-slate-500"><span id="periodoGrade">-</span> · <span id="allocationCount">carregando aulas</span></p>
               </div>
@@ -439,14 +443,14 @@
 
           <div class="flex flex-col gap-3 border-b border-slate-100 px-5 py-3.5 lg:flex-row lg:items-center lg:justify-between">
             <div id="filterChips" class="no-scrollbar flex items-center gap-1.5 overflow-x-auto" aria-label="Filtros da grade">
-              <button class="filter-chip is-active shrink-0 rounded-xl border px-2.5 py-1.5 text-[9px] font-medium transition" data-filter="all" aria-pressed="true">Todos</button>
-              <button class="filter-chip shrink-0 rounded-xl border px-2.5 py-1.5 text-[9px] font-medium transition" data-filter="lab" aria-pressed="false">Laboratórios</button>
-              <button class="filter-chip shrink-0 rounded-xl border px-2.5 py-1.5 text-[9px] font-medium transition" data-filter="sala" aria-pressed="false">Salas</button>
-              <button class="filter-chip shrink-0 rounded-xl border px-2.5 py-1.5 text-[9px] font-medium transition" data-filter="conflict" aria-pressed="false">Conflitos</button>
-              <span id="filterResultCount" class="ml-2 shrink-0 text-[8.5px] text-slate-500"></span>
+              <button class="filter-chip is-active shrink-0 rounded-xl border px-2.5 py-1.5 text-[9.5px] font-medium transition" data-filter="all" aria-pressed="true">Todos</button>
+              <button class="filter-chip shrink-0 rounded-xl border px-2.5 py-1.5 text-[9.5px] font-medium transition" data-filter="lab" aria-pressed="false">Laboratórios</button>
+              <button class="filter-chip shrink-0 rounded-xl border px-2.5 py-1.5 text-[9.5px] font-medium transition" data-filter="sala" aria-pressed="false">Salas</button>
+              <button class="filter-chip shrink-0 rounded-xl border px-2.5 py-1.5 text-[9.5px] font-medium transition" data-filter="conflict" aria-pressed="false">Conflitos</button>
+              <span id="filterResultCount" class="ml-2 shrink-0 text-[9.5px] text-slate-500"></span>
             </div>
 
-            <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-[8.5px] text-slate-500">
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-[9.5px] text-slate-500">
               <span class="inline-flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-senai-dark"></span>Laboratório</span>
               <span class="inline-flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-senai-orange"></span>Prática</span>
               <span class="inline-flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>Sala</span>
@@ -464,12 +468,12 @@
           <div id="gradeEmptyState" class="hidden px-5 py-10 text-center">
             <i class="ph ph-funnel text-[24px] text-slate-300"></i>
             <p class="mt-2 text-[10.5px] font-semibold text-senai-dark">Nenhuma aula encontrada</p>
-            <p class="mt-1 text-[9px] text-slate-500">Ajuste a busca ou selecione outro filtro.</p>
+            <p class="mt-1 text-[9.5px] text-slate-500">Ajuste a busca ou selecione outro filtro.</p>
           </div>
 
           <div class="flex flex-col gap-2 border-t border-slate-100 px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <p class="text-[8.5px] text-slate-500">Clique em um espaço vazio para alocar uma aula.</p>
-            <p class="flex items-center gap-1.5 text-[8.5px] text-slate-500">
+            <p class="text-[9.5px] text-slate-500">Clique em um espaço vazio para alocar uma aula.</p>
+            <p class="flex items-center gap-1.5 text-[9.5px] text-slate-500">
               <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
               Sincronizado com a agenda dos alunos
             </p>
@@ -502,7 +506,7 @@
                 </div>
                 <div class="min-w-0 flex-1">
                   <p class="text-[10.5px] font-semibold text-senai-dark">CLP exige laboratório com computadores</p>
-                  <p class="mt-0.5 text-[9px] leading-relaxed text-slate-500">Bloqueia aulas de CLP em salas sem infraestrutura de automação.</p>
+                  <p class="mt-0.5 text-[9.5px] leading-relaxed text-slate-500">Bloqueia aulas de CLP em salas sem infraestrutura de automação.</p>
                 </div>
                 <button class="rule-toggle relative h-5 w-9 shrink-0 rounded-full bg-senai-orange transition" data-rule="clp" aria-pressed="true" aria-label="Alternar regra de infraestrutura de CLP">
                   <span class="rule-knob absolute right-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm"></span>
@@ -515,7 +519,7 @@
                 </div>
                 <div class="min-w-0 flex-1">
                   <p class="text-[10.5px] font-semibold text-senai-dark">Soldagem exige bancada e exaustão</p>
-                  <p class="mt-0.5 text-[9px] leading-relaxed text-slate-500">Impede alocações de práticas de solda fora do Lab 02.</p>
+                  <p class="mt-0.5 text-[9.5px] leading-relaxed text-slate-500">Impede alocações de práticas de solda fora do Lab 02.</p>
                 </div>
                 <button class="rule-toggle relative h-5 w-9 shrink-0 rounded-full bg-senai-orange transition" data-rule="solda" aria-pressed="true" aria-label="Alternar regra de infraestrutura de soldagem">
                   <span class="rule-knob absolute right-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm"></span>
@@ -528,7 +532,7 @@
                 </div>
                 <div class="min-w-0 flex-1">
                   <p class="text-[10.5px] font-semibold text-senai-dark">Instrutor não pode estar em dois labs</p>
-                  <p class="mt-0.5 text-[9px] leading-relaxed text-slate-500">Valida a disponibilidade do professor no mesmo dia e horário.</p>
+                  <p class="mt-0.5 text-[9.5px] leading-relaxed text-slate-500">Valida a disponibilidade do professor no mesmo dia e horário.</p>
                 </div>
                 <button class="rule-toggle relative h-5 w-9 shrink-0 rounded-full bg-senai-orange transition" data-rule="professor" aria-pressed="true" aria-label="Alternar regra de disponibilidade do instrutor">
                   <span class="rule-knob absolute right-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm"></span>
@@ -537,11 +541,11 @@
             </div>
 
             <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 bg-slate-50/50 px-5 py-3">
-              <p class="flex items-center gap-1.5 text-[8.5px] text-slate-500">
+              <p class="flex items-center gap-1.5 text-[9.5px] text-slate-500">
                 <i class="ph ph-lightning text-[11px] text-senai-orange"></i>
                 Validação em tempo real ativa
               </p>
-              <button class="text-[8.5px] font-semibold text-senai-dark transition hover:text-senai-orange">Ver histórico de regras</button>
+              <button class="text-[9.5px] font-semibold text-senai-dark transition hover:text-senai-orange">Ver histórico de regras</button>
             </div>
           </section>
 
@@ -562,7 +566,7 @@
             </div>
 
             <div class="border-t border-slate-100 px-5 py-3">
-              <button id="manageNotices" class="flex w-full items-center justify-between text-[8.5px] font-semibold text-senai-dark transition hover:text-senai-orange">
+              <button id="manageNotices" class="flex w-full items-center justify-between text-[9.5px] font-semibold text-senai-dark transition hover:text-senai-orange">
                 Gerenciar todos os avisos
                 <i class="ph ph-arrow-up-right text-[11px]"></i>
               </button>
@@ -570,7 +574,7 @@
           </section>
         </div>
 
-        <footer class="mt-8 flex flex-col gap-2 border-t border-slate-200/70 pt-4 text-[8.5px] text-slate-600 sm:flex-row sm:items-center sm:justify-between">
+        <footer class="mt-8 flex flex-col gap-2 border-t border-slate-200/70 pt-4 text-[9.5px] text-slate-600 sm:flex-row sm:items-center sm:justify-between">
           <p class="flex items-center gap-1.5">
             <img src="assets/gestor-senai-icon.svg" alt="" aria-hidden="true" class="h-4 w-4 rounded-[5px]" data-brand="marca-rodape-dashboard" />
             Gestor SENAI · Coordenação acadêmica
@@ -606,7 +610,7 @@
         <div>
           <div class="flex items-center gap-2">
             <span class="h-px w-5 bg-senai-orange"></span>
-            <p id="drawerEyebrow" class="text-[8px] font-semibold uppercase tracking-[.2em] text-senai-orange">Planejamento</p>
+            <p id="drawerEyebrow" class="text-[9px] font-semibold uppercase tracking-[.2em] text-senai-orange">Planejamento</p>
           </div>
           <h2 id="drawerTitle" class="mt-2 text-[20px] font-semibold tracking-[-0.02em] text-senai-dark">Nova alocação</h2>
           <p id="drawerSubtitle" class="mt-1 text-[9.5px] text-slate-500">Preencha os dados e confirme a alocação.</p>
@@ -621,12 +625,12 @@
           <i class="ph ph-shield-check mt-0.5 shrink-0 text-[17px] text-senai-dark"></i>
           <div>
             <p class="text-[9.5px] font-semibold text-senai-dark">Validação automática ativa</p>
-            <p class="mt-1 text-[8.5px] leading-relaxed text-slate-500">O sistema bloqueia choques de sala, instrutor e laboratórios sem a infraestrutura exigida.</p>
+            <p class="mt-1 text-[9.5px] leading-relaxed text-slate-500">O sistema bloqueia choques de sala, instrutor e laboratórios sem a infraestrutura exigida.</p>
           </div>
         </div>
 
         <label class="mt-5 block">
-          <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Aluno / turma</span>
+          <span class="text-[9.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Aluno / turma</span>
           <div class="relative mt-1.5">
             <select id="fieldStudent" required class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5">
               <option value="">Carregando alunos...</option>
@@ -636,7 +640,7 @@
         </label>
 
         <label class="mt-4 block">
-          <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Disciplina / atividade</span>
+          <span class="text-[9.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Disciplina / atividade</span>
           <div class="relative mt-1.5">
             <input id="fieldDiscipline" list="disciplineOptions" required maxlength="120" placeholder="Ex.: Automação Industrial"
               class="w-full rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition placeholder:font-normal placeholder:text-slate-400 focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5" />
@@ -654,7 +658,7 @@
 
         <div class="mt-2.5 grid grid-cols-2 gap-3">
           <label class="col-span-2 block sm:col-span-1">
-            <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Dia</span>
+            <span class="text-[9.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Dia</span>
             <div class="relative mt-1.5">
               <select id="fieldDay" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5">
                 <option value="seg">Segunda</option>
@@ -668,7 +672,7 @@
           </label>
 
           <label class="col-span-2 block sm:col-span-1">
-            <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Tipo</span>
+            <span class="text-[9.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Tipo</span>
             <div class="relative mt-1.5">
               <select id="fieldType" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5">
                 <option value="prática">Prática</option>
@@ -679,7 +683,7 @@
           </label>
 
           <label class="block">
-            <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Início</span>
+            <span class="text-[9.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Início</span>
             <div class="relative mt-1.5">
               <select id="fieldStart" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5"></select>
               <i class="ph ph-caret-down pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] text-slate-500"></i>
@@ -687,7 +691,7 @@
           </label>
 
           <label class="block">
-            <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Término</span>
+            <span class="text-[9.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Término</span>
             <div class="relative mt-1.5">
               <select id="fieldEnd" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5"></select>
               <i class="ph ph-caret-down pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] text-slate-500"></i>
@@ -696,12 +700,12 @@
         </div>
 
         <label class="mt-3 block">
-          <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Laboratório ou sala</span>
+          <span class="text-[9.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Laboratório ou sala</span>
           <div class="relative mt-1.5">
             <select id="fieldRoom" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5"></select>
             <i class="ph ph-caret-down pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] text-slate-500"></i>
           </div>
-          <p id="roomConflictWarning" class="mt-2 hidden text-[9px] font-semibold text-red-600" role="alert">
+          <p id="roomConflictWarning" class="mt-2 hidden text-[9.5px] font-semibold text-red-600" role="alert">
             <span class="inline-flex items-center gap-1.5">
               <i class="ph-fill ph-warning-circle text-[12px]"></i>
               Atenção: Horário já ocupado
@@ -711,8 +715,8 @@
 
         <div class="mt-3">
           <div class="flex items-end justify-between gap-2">
-            <label for="fieldInstructor" class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Instrutor</label>
-            <button id="newInstructorToggle" type="button" class="inline-flex items-center gap-1 text-[8.5px] font-semibold text-senai-orange transition hover:text-[#B9470F]">
+            <label for="fieldInstructor" class="text-[9.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Instrutor</label>
+            <button id="newInstructorToggle" type="button" class="inline-flex items-center gap-1 text-[9.5px] font-semibold text-senai-orange transition hover:text-[#B9470F]">
               <i class="ph ph-plus-circle text-[11px]"></i>
               Novo instrutor
             </button>
@@ -728,14 +732,14 @@
               <input id="newInstructorInitials" type="text" maxlength="4" placeholder="Iniciais" class="rounded-lg border border-senai-line bg-white px-3 py-2 text-[10.5px] uppercase text-senai-dark outline-none focus:border-senai-dark/30" />
             </div>
             <div class="mt-2 flex items-center gap-2">
-              <button id="saveInstructor" type="button" class="rounded-lg bg-senai-dark px-3 py-1.5 text-[9px] font-semibold text-white transition hover:bg-[#00496F]">Cadastrar</button>
-              <button id="cancelInstructor" type="button" class="rounded-lg px-2 py-1.5 text-[9px] font-medium text-slate-500 transition hover:text-senai-dark">Cancelar</button>
+              <button id="saveInstructor" type="button" class="rounded-lg bg-senai-dark px-3 py-1.5 text-[9.5px] font-semibold text-white transition hover:bg-[#00496F]">Cadastrar</button>
+              <button id="cancelInstructor" type="button" class="rounded-lg px-2 py-1.5 text-[9.5px] font-medium text-slate-500 transition hover:text-senai-dark">Cancelar</button>
             </div>
           </div>
         </div>
 
         <label class="mt-4 block">
-          <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Observações</span>
+          <span class="text-[9.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Observações</span>
           <textarea id="fieldNotes" rows="2" maxlength="160" placeholder="Opcional: materiais, turma ou orientação" class="mt-1.5 w-full resize-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition placeholder:font-normal placeholder:text-slate-400 focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5"></textarea>
         </label>
 
@@ -789,7 +793,7 @@
         <div>
           <div class="flex items-center gap-2">
             <span class="h-px w-5 bg-senai-orange"></span>
-            <p class="text-[8px] font-semibold uppercase tracking-[.2em] text-senai-orange">Comunicação</p>
+            <p class="text-[9px] font-semibold uppercase tracking-[.2em] text-senai-orange">Comunicação</p>
           </div>
           <h2 id="noticesModalTitle" class="mt-2 text-[18px] font-semibold tracking-tight text-senai-dark">Avisos e comunicados</h2>
           <p class="mt-1 text-[9.5px] text-slate-500">Crie, edite e acompanhe o que chega ao painel do aluno.</p>
@@ -820,7 +824,7 @@
         </div>
         <div id="noticesAdminList" class="min-h-[200px] flex-1 overflow-y-auto px-6"></div>
         <div class="border-t border-slate-100 px-6 py-2.5">
-          <p id="noticesAdminCount" class="text-[8.5px] text-slate-500"></p>
+          <p id="noticesAdminCount" class="text-[9.5px] text-slate-500"></p>
         </div>
       </div>
 
@@ -828,12 +832,12 @@
         <form id="noticeForm">
           <h3 id="noticeFormTitle" class="text-[13px] font-semibold text-senai-dark">Novo aviso</h3>
           <label class="mt-4 block">
-            <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Título</span>
+            <span class="text-[9.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Título</span>
             <input id="noticeTitle" type="text" required maxlength="120" class="mt-1.5 w-full rounded-xl border border-senai-line bg-white px-3.5 py-2.5 text-[11px] text-senai-dark outline-none focus:border-senai-dark/30" />
           </label>
           <div class="mt-3 grid grid-cols-2 gap-3">
             <label class="block">
-              <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Tipo</span>
+              <span class="text-[9.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Tipo</span>
               <select id="noticeType" class="mt-1.5 w-full rounded-xl border border-senai-line bg-white px-3 py-2.5 text-[11px] text-senai-dark outline-none">
                 <option value="sistema">Sistema</option>
                 <option value="sala">Sala</option>
@@ -843,21 +847,21 @@
               </select>
             </label>
             <label class="block">
-              <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Destinatário</span>
+              <span class="text-[9.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Destinatário</span>
               <select id="noticeRecipient" class="mt-1.5 w-full rounded-xl border border-senai-line bg-white px-3 py-2.5 text-[11px] text-senai-dark outline-none">
                 <option value="">Todos os alunos</option>
               </select>
             </label>
           </div>
           <label class="mt-3 block">
-            <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Mensagem</span>
+            <span class="text-[9.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Mensagem</span>
             <textarea id="noticeText" rows="4" required maxlength="2000" class="mt-1.5 w-full resize-none rounded-xl border border-senai-line bg-white px-3.5 py-2.5 text-[11px] text-senai-dark outline-none focus:border-senai-dark/30"></textarea>
           </label>
           <label class="mt-3 inline-flex cursor-pointer items-center gap-2 text-[9.5px] font-medium text-slate-600">
             <input id="noticePush" type="checkbox" checked class="h-3.5 w-3.5 rounded border-slate-300 text-senai-orange focus:ring-senai-orange" />
             Enviar push para quem recebe
           </label>
-          <div id="noticeFormFeedback" class="mt-3 hidden rounded-xl border p-3 text-[9px]" role="alert"></div>
+          <div id="noticeFormFeedback" class="mt-3 hidden rounded-xl border p-3 text-[9.5px]" role="alert"></div>
           <div class="mt-4 flex items-center gap-2">
             <button id="saveNotice" type="submit" class="rounded-lg bg-[#F26522] px-4 py-2 text-[10px] font-semibold text-white transition hover:bg-[#d85a1a]">Publicar aviso</button>
             <button id="cancelNotice" type="button" class="rounded-lg border border-slate-300 px-3 py-2 text-[10px] font-medium text-slate-600 transition hover:bg-slate-50">Cancelar</button>
