@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import base64
 import json
 import logging
+import os
 from typing import Any
 
 from pywebpush import WebPushException, webpush
@@ -22,13 +24,49 @@ def _infos_assinatura(sub: PushSubscription) -> dict[str, Any]:
     }
 
 
+def _sem_configuracao(motivo: str) -> ResultadoPushOut:
+    logger.warning("[PUSH] envio ignorado: %s", motivo)
+    return ResultadoPushOut(configurado=False, motivo=motivo)
+
+
+def chave_publica_derivada() -> str | None:
+    """Chave pública (base64url) correspondente à chave privada configurada.
+
+    Serve para conferir se a VAPID_PUBLIC_KEY do painel combina com a privada —
+    quando não combinam, o serviço de push responde 403 e nada é entregue.
+    """
+    chave = settings.chave_privada_vapid
+    if not chave:
+        return None
+    try:
+        from cryptography.hazmat.primitives import serialization
+        from pywebpush import Vapid
+
+        vapid = (
+            Vapid.from_file(private_key_file=chave)
+            if os.path.isfile(chave)
+            else Vapid.from_string(private_key=chave)
+        )
+        if hasattr(vapid.public_key, "public_bytes"):
+            bruto = vapid.public_key.public_bytes(
+                serialization.Encoding.X962,
+                serialization.PublicFormat.UncompressedPoint,
+            )
+        else:  # Vapid01 já expõe os bytes
+            bruto = vapid.public_key
+        return base64.urlsafe_b64encode(bruto).rstrip(b"=").decode()
+    except Exception:
+        logger.exception("[PUSH] não foi possível derivar a chave pública")
+        return None
+
+
 def enviar_para_aluno(
     db: Session, aluno_id: int, payload: dict[str, Any]
 ) -> ResultadoPushOut:
     if not settings.vapid_configurado:
-        return ResultadoPushOut(
-            configurado=False,
-            motivo="Chaves VAPID não configuradas. Rode scripts/gerar_vapid.py.",
+        return _sem_configuracao(
+            "Chaves VAPID não configuradas no servidor "
+            f"(chave privada: {settings.vapid_origem_chave})."
         )
 
     assinaturas = list(
@@ -36,21 +74,34 @@ def enviar_para_aluno(
             select(PushSubscription).where(PushSubscription.aluno_id == aluno_id)
         )
     )
-    print(
-        f"[PUSH] aluno_id={aluno_id}: {len(assinaturas)} inscrição(ões) encontrada(s).",
-        flush=True,
+    logger.info(
+        "[PUSH] aluno_id=%s: %s inscrição(ões) encontrada(s).",
+        aluno_id,
+        len(assinaturas),
     )
+    if not assinaturas:
+        return ResultadoPushOut(
+            configurado=True,
+            enviados=0,
+            motivo="O aluno ainda não ativou as notificações neste aparelho.",
+        )
     return _enviar(db, assinaturas, payload, aluno_id=aluno_id)
 
 
 def enviar_para_todos(db: Session, payload: dict[str, Any]) -> ResultadoPushOut:
     if not settings.vapid_configurado:
-        return ResultadoPushOut(
-            configurado=False,
-            motivo="Chaves VAPID não configuradas. Rode scripts/gerar_vapid.py.",
+        return _sem_configuracao(
+            "Chaves VAPID não configuradas no servidor "
+            f"(chave privada: {settings.vapid_origem_chave})."
         )
 
     assinaturas = list(db.scalars(select(PushSubscription)))
+    if not assinaturas:
+        return ResultadoPushOut(
+            configurado=True,
+            enviados=0,
+            motivo="Nenhum aluno ativou as notificações ainda.",
+        )
     return _enviar(db, assinaturas, payload)
 
 
@@ -60,6 +111,10 @@ def _enviar(
     payload: dict[str, Any],
     aluno_id: int | None = None,
 ) -> ResultadoPushOut:
+    chave_privada = settings.chave_privada_vapid
+    if not chave_privada:
+        return _sem_configuracao("Chave privada VAPID ilegível.")
+
     enviados = falhas = removidas = 0
     corpo = json.dumps(payload, ensure_ascii=False)
 
@@ -68,15 +123,18 @@ def _enviar(
             resposta = webpush(
                 subscription_info=_infos_assinatura(assinatura),
                 data=corpo,
-                vapid_private_key=str(settings.vapid_private_key_path),
+                vapid_private_key=chave_privada,
                 vapid_claims={"sub": settings.vapid_subject},
+                headers={"Urgency": "high"},
                 timeout=settings.push_timeout,
-                ttl=60,
+                ttl=settings.push_ttl,
             )
             status = getattr(resposta, "status_code", 201)
-            print(
-                f"[PUSH] aluno_id={aluno_id} endpoint={assinatura.endpoint[:40]} status_code={status}",
-                flush=True,
+            logger.info(
+                "[PUSH] aluno_id=%s endpoint=%s… status=%s",
+                aluno_id,
+                assinatura.endpoint[:40],
+                status,
             )
             if status >= 400:
                 falhas += 1
@@ -90,22 +148,32 @@ def _enviar(
                 corpo_erro = getattr(erro.response, "text", "") or ""
             except Exception:
                 corpo_erro = ""
-            print(
-                f"[PUSH] aluno_id={aluno_id} endpoint={assinatura.endpoint[:40]} status_code={status} (exceção) body={corpo_erro}",
-                flush=True,
+            logger.warning(
+                "[PUSH] aluno_id=%s endpoint=%s… status=%s (exceção) body=%s",
+                aluno_id,
+                assinatura.endpoint[:40],
+                status,
+                corpo_erro[:200],
             )
             if status in (404, 410):
                 db.delete(assinatura)
                 removidas += 1
+            elif status == 403:
+                falhas += 1
+                logger.error(
+                    "[PUSH] 403 do serviço de push: a VAPID_PUBLIC_KEY não confere com a "
+                    "VAPID_PRIVATE_KEY no servidor. Rode GET /push/diagnostico "
+                    "(campo chave_publica_confere)."
+                )
             else:
                 falhas += 1
-                logger.warning("Falha de Web Push: %s", erro)
         except Exception:  # rede, DNS, timeout etc.
             falhas += 1
             logger.exception("Erro inesperado ao enviar Web Push")
 
     if removidas:
         db.commit()
+        logger.info("[PUSH] %s inscrição(ões) expiradas removidas.", removidas)
 
     return ResultadoPushOut(
         enviados=enviados,

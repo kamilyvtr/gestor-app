@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from collections import defaultdict
 from datetime import date, datetime, time, timedelta
 from uuid import uuid4
@@ -35,6 +36,8 @@ from .push import (
     payload_aviso,
     payload_mudanca_sala,
 )
+
+logger = logging.getLogger("gestor_senai.painel")
 
 
 class ErroDeNegocio(Exception):
@@ -429,13 +432,12 @@ def mudar_sala(
     )
     broker.publicar(aula.aluno_id, "mudanca-sala", evento.model_dump(by_alias=True))
 
-    print(f"[PAINEL] mudar_sala aula_id={aula.id} aluno_id={aula.aluno_id} -> disparando push", flush=True)
     push = enviar_para_aluno(
         db,
         aula.aluno_id,
         payload_mudanca_sala(aula, nova_sala, sala_anterior, mensagem),
     )
-    print(f"[PAINEL] resultado push: {push}", flush=True)
+    logger.info("[PAINEL] push após mudança de sala: %s", push)
     return aula, aviso, evento, push
 
 

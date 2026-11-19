@@ -331,8 +331,8 @@ function renderizarHome() {
 
 function templateAulaCompacta(aula) {
   const badge = aula.alterada
-    ? '<span class="rounded bg-senai-orange/10 px-1.5 py-0.5 text-[7.5px] font-semibold uppercase tracking-wider text-senai-orangeDeep">Sala alterada</span>'
-    : `<span class="rounded ${aula.tipo === 'prática' ? 'bg-orange-50 text-senai-orangeDeep' : 'bg-slate-100 text-slate-600'} px-1.5 py-0.5 text-[7.5px] font-semibold uppercase tracking-wider">${escaparHTML(capitalizar(aula.tipo))}</span>`;
+    ? '<span class="rounded bg-senai-orange/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-senai-orangeDeep">Sala alterada</span>'
+    : `<span class="rounded ${aula.tipo === 'prática' ? 'bg-orange-50 text-senai-orangeDeep' : 'bg-slate-100 text-slate-600'} px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide">${escaparHTML(capitalizar(aula.tipo))}</span>`;
 
   const corBarra = aula.alterada ? 'bg-senai-orange' : 'bg-senai-dark';
   const corPin = aula.alterada ? 'text-senai-orange' : 'text-slate-600';
@@ -345,17 +345,17 @@ function templateAulaCompacta(aula) {
       class="press group relative flex w-full items-center gap-3 overflow-hidden rounded-xl border border-senai-line bg-white py-3.5 pl-5 pr-3.5 text-left shadow-sm hover:-translate-y-0.5 hover:border-senai-orange/25 hover:shadow-md"
     >
       <span class="absolute inset-y-3 left-0 w-[3px] rounded-r-full ${corBarra}"></span>
-      <span class="w-[46px] shrink-0">
-        <span class="tnum block text-[12.5px] font-semibold leading-none text-senai-dark">${escaparHTML(aula.inicio)}</span>
-        <span class="mt-1 block text-[8.5px] font-medium uppercase tracking-[.1em] text-slate-600">${escaparHTML(aula.duracao)}</span>
+      <span class="w-[48px] shrink-0">
+        <span class="tnum block text-[13px] font-semibold leading-none text-senai-dark">${escaparHTML(aula.inicio)}</span>
+        <span class="mt-1 block text-[9px] font-medium uppercase tracking-[.08em] text-slate-600">${escaparHTML(aula.duracao)}</span>
       </span>
       <span class="h-9 w-px bg-senai-line"></span>
       <span class="min-w-0 flex-1">
-        <span class="flex items-center gap-1.5">
-          <span class="truncate text-[12.5px] font-semibold text-senai-dark">${escaparHTML(aula.titulo)}</span>
+        <span class="flex flex-wrap items-center gap-x-1.5 gap-y-1">
+          <span class="line-clamp-2 text-[13px] font-semibold leading-snug text-senai-dark">${escaparHTML(aula.titulo)}</span>
           ${badge}
         </span>
-        <span class="mt-1 flex items-center gap-1.5 text-[10px] text-slate-600">
+        <span class="mt-1 flex items-center gap-1.5 text-[10.5px] text-slate-600">
           <i class="ph ph-map-pin text-[11px] ${corPin}"></i>
           <span class="${destaqueSala}">${escaparHTML(aula.sala)}</span>
           <span class="h-[3px] w-[3px] rounded-full bg-slate-300"></span>
@@ -426,8 +426,8 @@ function renderizarAgendaDia(indice = estado.diaSelecionado) {
 
   lista.innerHTML = dia.aulas.map((aula) => {
     const badge = aula.alterada
-      ? '<span class="rounded bg-senai-orange/10 px-1.5 py-0.5 text-[7.5px] font-semibold uppercase tracking-wider text-senai-orangeDeep">Sala alterada</span>'
-      : `<span class="rounded ${aula.tipo === 'prática' ? 'bg-orange-50 text-senai-orangeDeep' : 'bg-slate-100 text-slate-600'} px-1.5 py-0.5 text-[7.5px] font-semibold uppercase tracking-wider">${escaparHTML(capitalizar(aula.tipo))}</span>`;
+      ? '<span class="rounded bg-senai-orange/10 px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide text-senai-orangeDeep">Sala alterada</span>'
+      : `<span class="rounded ${aula.tipo === 'prática' ? 'bg-orange-50 text-senai-orangeDeep' : 'bg-slate-100 text-slate-600'} px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide">${escaparHTML(capitalizar(aula.tipo))}</span>`;
 
     return `
       <button
@@ -435,19 +435,19 @@ function renderizarAgendaDia(indice = estado.diaSelecionado) {
         data-aula-id="${escaparHTML(aula.id)}"
         class="press group flex w-full items-stretch gap-3 overflow-hidden rounded-2xl border border-senai-line bg-white p-3.5 text-left shadow-sm hover:-translate-y-0.5 hover:border-senai-orange/25 hover:shadow-md"
       >
-        <span class="relative flex w-[52px] shrink-0 flex-col items-center justify-center rounded-xl bg-senai-mist px-1 py-2">
-          <span class="tnum text-[13px] font-semibold leading-none text-senai-dark">${escaparHTML(aula.inicio)}</span>
-          <span class="mt-1 text-[8.5px] font-medium uppercase tracking-[.08em] text-slate-600">${escaparHTML(aula.fim)}</span>
+        <span class="relative flex w-[54px] shrink-0 flex-col items-center justify-center rounded-xl bg-senai-mist px-1 py-2">
+          <span class="tnum text-[13.5px] font-semibold leading-none text-senai-dark">${escaparHTML(aula.inicio)}</span>
+          <span class="mt-1 text-[9.5px] font-medium uppercase tracking-[.06em] text-slate-600">${escaparHTML(aula.fim)}</span>
           ${aula.alterada ? '<span class="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-senai-orange"></span>' : ''}
         </span>
 
         <span class="min-w-0 flex-1 py-0.5">
-          <span class="flex items-center gap-1.5">
-            <span class="truncate text-[12.5px] font-semibold text-senai-dark">${escaparHTML(aula.titulo)}</span>
+          <span class="flex flex-wrap items-center gap-x-1.5 gap-y-1">
+            <span class="line-clamp-2 text-[13px] font-semibold leading-snug text-senai-dark">${escaparHTML(aula.titulo)}</span>
             ${badge}
           </span>
-          <span class="mt-0.5 block truncate text-[9.5px] text-slate-600">${escaparHTML(aula.subtitulo)}</span>
-          <span class="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[9.5px] text-slate-600">
+          <span class="mt-1 line-clamp-2 block text-[11px] leading-snug text-slate-700">${escaparHTML(aula.subtitulo)}</span>
+          <span class="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-600">
             <span class="inline-flex items-center gap-1">
               <i class="ph ph-map-pin text-[11px] ${aula.alterada ? 'text-senai-orange' : 'text-slate-600'}"></i>
               <span class="${aula.alterada ? 'font-medium text-senai-dark' : ''}">${escaparHTML(aula.sala)}</span>
@@ -1036,7 +1036,7 @@ async function pedirPermissaoNotificacao() {
       'ph-bell-ringing'
     );
     await mostrarNotificacaoDeTeste(true);
-    registrarPushNoServidor();
+    await registrarPushNoServidor({ silencioso: false });
   } else if (permissao === 'denied') {
     mostrarToast(
       'Permissão não concedida',
@@ -1080,29 +1080,79 @@ async function mostrarNotificacaoDeTeste(boasVindas = false) {
    -------------------------------------------------------------------------- */
 
 function chaveParaUint8Array(base64) {
-  const preenchimento = '='.repeat((4 - (base64.length % 4)) % 4);
-  const normalizada = (base64 + preenchimento).replace(/-/g, '+').replace(/_/g, '/');
+  // A chave pode chegar com espaços, quebras de linha ou '=' de padding
+  // (comum quando vem de variável de ambiente). Normaliza antes do atob.
+  const limpa = String(base64 || '').replace(/[\s\r\n]/g, '').replace(/=+$/, '');
+  const preenchimento = '='.repeat((4 - (limpa.length % 4)) % 4);
+  const normalizada = (limpa + preenchimento).replace(/-/g, '+').replace(/_/g, '/');
   const bruto = window.atob(normalizada);
   return Uint8Array.from(Array.from(bruto, (caractere) => caractere.charCodeAt(0)));
 }
 
 /**
  * Garante a inscrição do navegador no Web Push e envia a assinatura à API.
- * Silencioso por padrão: sem VAPID configurado, apenas registra um aviso.
+ *
+ * Roda em silêncio no carregamento do app (`silencioso = true`). Quando o aluno
+ * toca em "Ativar notificações", chamamos com silencioso: false para devolver
+ * uma mensagem clara do que está faltando (permissão, instalação no iOS ou
+ * chave VAPID ausente no servidor).
  */
-async function registrarPushNoServidor() {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+async function registrarPushNoServidor({ silencioso = true } = {}) {
+  const desistir = (motivo, mensagem) => {
+    if (!silencioso && mensagem) {
+      mostrarToast('Notificações não ativadas', mensagem, 'ph-warning-circle');
+    }
+    return { ok: false, motivo };
+  };
+
+  if (!('serviceWorker' in navigator)) {
+    return desistir('sem-service-worker', 'Este navegador não suporta Service Worker.');
+  }
+  if (!('PushManager' in window)) {
+    return desistir(
+      'sem-push-manager',
+      'Este navegador não oferece Web Push. No iPhone, instale o app na Tela de Início.'
+    );
+  }
+  if (!('Notification' in window) || Notification.permission !== 'granted') {
+    return desistir('sem-permissao', 'Autorize as notificações primeiro.');
+  }
+  if (ehIOS() && !estaInstalado()) {
+    // O iOS só aceita Web Push em PWA instalado na Tela de Início.
+    return desistir(
+      'ios-nao-instalado',
+      'No iPhone, adicione o Gestor SENAI à Tela de Início (Compartilhar → Adicionar à Tela de Início) e abra por lá para receber notificações.'
+    );
+  }
 
   try {
     const registro = await navigator.serviceWorker.ready;
     let inscricao = await registro.pushManager.getSubscription();
 
     if (!inscricao) {
-      const { publicKey } = await window.GestorAPI.requisitar('/push/chave-publica', {
-        redirecionar: false
-      });
-      if (!publicKey) return;
+      let publicKey;
+
+      try {
+        const dados = await window.GestorAPI.requisitar('/push/chave-publica', {
+          redirecionar: false
+        });
+        publicKey = dados?.publicKey;
+      } catch (erro) {
+        if (erro?.status === 503) {
+          return desistir(
+            'servidor-sem-chave',
+            'O servidor ainda não está configurado para enviar notificações. Avise a coordenação.'
+          );
+        }
+        throw erro;
+      }
+
+      if (!publicKey) {
+        return desistir(
+          'servidor-sem-chave',
+          'O servidor ainda não está configurado para enviar notificações. Avise a coordenação.'
+        );
+      }
 
       inscricao = await registro.pushManager.subscribe({
         userVisibleOnly: true,
@@ -1117,8 +1167,21 @@ async function registrarPushNoServidor() {
     });
 
     console.info('[Gestor SENAI] Web Push registrado para este aparelho.');
+
+    if (!silencioso) {
+      mostrarToast(
+        'Notificações ativadas',
+        'Este aparelho vai receber as mudanças de sala e os avisos da coordenação.',
+        'ph-check-circle'
+      );
+    }
+    return { ok: true };
   } catch (erro) {
     console.warn('[Gestor SENAI] Não foi possível registrar o Web Push.', erro);
+    return desistir(
+      'erro',
+      'Não foi possível concluir a inscrição neste aparelho. Tente novamente em instantes.'
+    );
   }
 }
 
@@ -1285,6 +1348,14 @@ async function registrarServiceWorker() {
           console.info('[Gestor SENAI] Nova versão disponível. Recarregue para atualizar.');
         }
       });
+    });
+
+    // O Service Worker avisa quando o navegador rotaciona a inscrição de push.
+    navigator.serviceWorker.addEventListener('message', (evento) => {
+      if (evento.data?.type === 'PUSH_RESUBSCREVER') {
+        console.info('[Gestor SENAI] Inscrição de push rotacionada; registrando novamente.');
+        registrarPushNoServidor({ silencioso: true });
+      }
     });
   } catch (erro) {
     console.error('[Gestor SENAI] Falha ao registrar o Service Worker', erro);

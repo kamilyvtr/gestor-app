@@ -10,7 +10,7 @@
      buscados na rede).
    ========================================================================== */
 
-const VERSAO = '5.7.1';
+const VERSAO = '5.9.0';
 const CACHE_SHELL = `gestor-senai-shell-v${VERSAO}`;
 const CACHE_EXTERNO = `gestor-senai-externo-v${VERSAO}`;
 const CACHES_ATUAIS = [CACHE_SHELL, CACHE_EXTERNO];
@@ -266,13 +266,24 @@ self.addEventListener('push', (evento) => {
   }
 
   const titulo = dados.title || 'Gestor SENAI';
+  const icone = new URL('./assets/icon-192.png', self.registration.scope).href;
+  const destino = dados.url || './index.html#avisos';
+
   const opcoes = {
     body: dados.body || 'Você tem um novo aviso da coordenação.',
-    icon: './assets/icon-192.png',
-    badge: './assets/icon-192.png',
-    tag: dados.tag || 'gestor-senai-aviso',
-    data: { url: dados.url || './index.html#avisos' }
+    icon: icone,
+    badge: icone,
+    lang: 'pt-BR',
+    dir: 'ltr',
+    // Tag única por evento: dois avisos diferentes não se sobrescrevem.
+    tag: dados.tag || `gestor-senai-${Date.now()}`,
+    // renotify faz o aparelho vibrar/tocar mesmo quando a tag repete.
+    renotify: true,
+    silent: false,
+    data: { url: destino, ...(dados.data || {}) }
   };
+
+  console.info('[Gestor SENAI SW] Push recebido:', titulo);
 
   evento.waitUntil((async () => {
     try {
@@ -282,13 +293,28 @@ self.addEventListener('push', (evento) => {
       try {
         await self.registration.showNotification('Gestor SENAI', {
           body: 'Você tem um novo aviso. Abra o app para ver.',
-          icon: './assets/icon-192.png',
-          badge: './assets/icon-192.png',
-          tag: 'gestor-senai-aviso'
+          icon: icone,
+          badge: icone,
+          tag: 'gestor-senai-aviso',
+          data: { url: destino }
         });
       } catch (erro2) {
         console.error('[Gestor SENAI SW] Falha no fallback de notificação:', erro2);
       }
+    }
+  })());
+});
+
+/* O navegador troca a inscrição de tempos em tempos; avisamos a página para
+   registrar o novo endpoint (sem isso o aluno para de receber silenciosamente). */
+self.addEventListener('pushsubscriptionchange', (evento) => {
+  evento.waitUntil((async () => {
+    const clientes = await self.clients.matchAll({
+      type: 'window',
+      includeUncontrolled: true
+    });
+    for (const cliente of clientes) {
+      cliente.postMessage({ type: 'PUSH_RESUBSCREVER' });
     }
   })());
 });

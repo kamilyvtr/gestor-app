@@ -93,6 +93,64 @@ Com a versão nova, o evento `activate` apaga os caches antigos e aplica os arqu
 > front-end mostra "Acordando o servidor..." e espera até 60 s. Para a apresentação,
 > use um monitor HTTP em `/health` a cada 10 min (cron-job.org / UptimeRobot).
 
+## Notificações Push (VAPID)
+
+O navegador assina o Web Push com a **chave pública** e a API assina o envio com a
+**chave privada**. As duas precisam ser do mesmo par — se não forem, o serviço de
+push responde `403` e nada chega ao aluno.
+
+| Ambiente | Chave privada | Chave pública |
+|---|---|---|
+| Local | `backend/.vapid/private_key.pem` (ignorado pelo Git) | `backend/.vapid/public_key.txt` |
+| Render | variável `VAPID_PRIVATE_KEY` com o **PEM inteiro** | variável `VAPID_PUBLIC_KEY` |
+
+> ⚠️ `backend/.vapid/` está no `.gitignore` — a chave privada **nunca** vai para o
+> repositório. É por isso que em produção ela precisa vir por variável de ambiente.
+
+Pode colar o PEM com quebras de linha reais ou em uma linha só, usando `\n` no
+lugar das quebras (o backend normaliza automaticamente).
+
+Para copiar os valores exatos da sua máquina:
+
+```powershell
+cd backend
+# chave pública (87 caracteres, uma linha)
+Get-Content .vapid/public_key.txt
+
+# chave privada em uma linha só, com \n  (é o formato mais fácil de colar no Render)
+(Get-Content .vapid/private_key.pem -Raw).Trim() -replace "`r`n", "\n" | Set-Clipboard
+```
+
+No Render: **Environment** → adicione `VAPID_PUBLIC_KEY` e `VAPID_PRIVATE_KEY`
+(cole o conteúdo copiado) e clique em **Save Changes**. O serviço reinicia sozinho.
+
+> As inscrições são **por origem e por banco**. Um iPhone que ativou notificações no
+> `localhost` não vale para o site da Vercel: no domínio de produção é preciso abrir
+> o PWA instalado e tocar em **Ativar notificações** uma vez. Isso grava o endpoint
+> no banco de produção (Neon).
+
+### Como conferir se está tudo certo
+
+```powershell
+# 1. O servidor está com as chaves carregadas?
+curl https://SEU-SERVICO.onrender.com/health
+#    → "web_push": true
+
+# 2. O painel sabia enviar? (precisa do token da coordenação)
+curl -H "Authorization: Bearer SEU_TOKEN" https://SEU-SERVICO.onrender.com/push/diagnostico
+#    → "configurado": true, "chave_publica_confere": true,
+#      "inscricoes": 1, "alunos_com_push": 1
+```
+
+Se `chave_publica_confere` vier `false`, a `VAPID_PUBLIC_KEY` do painel não combina
+com a privada — corrija as duas e faça um novo deploy.
+
+### No iPhone
+
+O iOS só aceita Web Push com o PWA **instalado na Tela de Início**
+(Compartilhar → Adicionar à Tela de Início) e aberto por lá. No Safari aberto
+normalmente a inscrição é recusada pelo sistema.
+
 ## Popular o banco de produção (Neon)
 
 ```powershell

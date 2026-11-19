@@ -36,6 +36,11 @@ async def lifespan(_app: FastAPI):
         "Diagnóstico de configuração | AMBIENTE: %s",
         settings.ambiente,
     )
+    logger.info(
+        "Diagnóstico de configuração | Web Push: %s | chave privada: %s",
+        "configurado" if settings.vapid_configurado else "NÃO configurado",
+        settings.vapid_origem_chave,
+    )
 
     criar_banco()
 
@@ -60,8 +65,12 @@ async def lifespan(_app: FastAPI):
             "JWT_SECRET padrão em uso. Defina uma chave forte em backend/.env antes de publicar."
         )
     if not settings.vapid_configurado:
-        logger.warning(
-            "Web Push desativado: rode python scripts/gerar_vapid.py para gerar as chaves VAPID."
+        logger.error(
+            "Web Push DESATIVADO (chave privada %s). O aluno pode conceder permissão "
+            "no aparelho, mas o servidor não consegue enviar. Em produção defina "
+            "VAPID_PUBLIC_KEY e VAPID_PRIVATE_KEY (PEM completo) nas variáveis de "
+            "ambiente; em desenvolvimento rode python scripts/gerar_vapid.py.",
+            settings.vapid_origem_chave,
         )
 
     logger.info(

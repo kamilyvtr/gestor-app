@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from ..config import settings
 from ..database import get_db
-from ..deps import aluno_atual
-from ..models import Aluno
+from ..deps import aluno_atual, coordenacao_atual
+from ..models import Aluno, PushSubscription
 from ..schemas import (
     ChavePublicaOut,
     PushSubscriptionIn,
@@ -17,6 +18,48 @@ from ..schemas import (
 from ..services import push as servico_push
 
 router = APIRouter(prefix="/push", tags=["Web Push"])
+
+
+@router.get("/diagnostico", summary="Estado do Web Push no servidor")
+def diagnostico(
+    _: object = Depends(coordenacao_atual),
+    db: Session = Depends(get_db),
+) -> dict:
+    """Ajuda a diagnosticar o envio sem precisar de acesso ao shell do servidor."""
+    total_inscricoes = int(
+        db.scalar(select(func.count()).select_from(PushSubscription)) or 0
+    )
+    total_alunos = int(db.scalar(select(func.count()).select_from(Aluno)) or 0)
+    com_push = int(
+        db.scalar(
+            select(func.count(func.distinct(PushSubscription.aluno_id))).select_from(
+                PushSubscription
+            )
+        )
+        or 0
+    )
+    derivada = servico_push.chave_publica_derivada()
+    return {
+        "configurado": settings.vapid_configurado,
+        "chave_privada": settings.vapid_origem_chave,
+        "chave_publica_tamanho": len(settings.vapid_public_key),
+        "chave_publica_confere": (
+            None
+            if not derivada or not settings.vapid_public_key
+            else derivada == settings.vapid_public_key
+        ),
+        "vapid_subject": settings.vapid_subject,
+        "ttl": settings.push_ttl,
+        "inscricoes": total_inscricoes,
+        "alunos_com_push": com_push,
+        "alunos": total_alunos,
+        "dica": (
+            "Tudo pronto para enviar."
+            if settings.vapid_configurado
+            else "Defina VAPID_PRIVATE_KEY (PEM) no servidor ou envie "
+            "backend/.vapid/private_key.pem no deploy."
+        ),
+    }
 
 
 @router.get("/chave-publica", response_model=ChavePublicaOut)

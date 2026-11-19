@@ -1,11 +1,24 @@
 from __future__ import annotations
 
+import base64
+import binascii
+import re
 from pathlib import Path
 
 from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+def _pem_para_base64url(pem: str) -> str | None:
+    """Converte um PEM (EC P-256) no base64url que o pywebpush espera."""
+    try:
+        corpo = re.sub(r"-----BEGIN[^-]+-----|-----END[^-]+-----", "", pem)
+        der = base64.b64decode("".join(corpo.split()), validate=True)
+    except (binascii.Error, ValueError):
+        return None
+    return base64.urlsafe_b64encode(der).rstrip(b"=").decode()
 
 
 class Settings(BaseSettings):
@@ -61,8 +74,28 @@ class Settings(BaseSettings):
     # Web Push (VAPID)
     vapid_subject: str = "mailto:contato@gestorsenai.com.br"
     vapid_public_key: str = ""
+    # Em produção (Render) o par de chaves vem por variável de ambiente:
+    # VAPID_PRIVATE_KEY recebe o conteúdo PEM. O caminho em disco é o fallback
+    # usado no desenvolvimento local.
+    vapid_private_key: str = ""
     vapid_private_key_path: Path = BASE_DIR / ".vapid" / "private_key.pem"
     push_timeout: float = 10.0
+    push_ttl: int = 3600
+
+    @field_validator("vapid_public_key", "vapid_private_key", mode="before")
+    @classmethod
+    def _normalizar_chave_vapid(cls, valor):
+        """Aceita a chave colada com aspas, espaços ou com \\n escapado.
+
+        Painéis como o do Render entregam o PEM em uma linha só; sem essa
+        normalização o pywebpush não consegue ler a chave.
+        """
+        if not isinstance(valor, str):
+            return valor
+        texto = valor.strip().strip('"').strip("'")
+        if "\\n" in texto:
+            texto = texto.replace("\\n", "\n")
+        return texto
 
     @model_validator(mode="after")
     def carregar_vapid_do_arquivo(self) -> "Settings":
@@ -73,8 +106,36 @@ class Settings(BaseSettings):
         return self
 
     @property
+    def chave_privada_vapid(self) -> str | None:
+        """Valor pronto para o pywebpush: caminho do PEM ou chave em base64url.
+
+        O pywebpush aceita um arquivo PEM ou a chave em base64url (DER). Como o
+        Render entrega o PEM por variável de ambiente (não há arquivo), a chave
+        do ambiente é convertida para base64url aqui.
+        """
+        if self.vapid_private_key and "BEGIN" in self.vapid_private_key:
+            return _pem_para_base64url(self.vapid_private_key)
+        try:
+            caminho = Path(self.vapid_private_key_path)
+            if caminho.exists():
+                conteudo = caminho.read_text(encoding="utf-8").strip()
+                return str(caminho) if conteudo else None
+        except OSError:
+            return None
+        return None
+
+    @property
+    def vapid_origem_chave(self) -> str:
+        """De onde a chave privada está vindo — aparece nos logs de startup."""
+        if self.vapid_private_key and "BEGIN" in self.vapid_private_key:
+            return "env:VAPID_PRIVATE_KEY"
+        if Path(self.vapid_private_key_path).exists():
+            return "arquivo:.vapid/private_key.pem"
+        return "ausente"
+
+    @property
     def vapid_configurado(self) -> bool:
-        return bool(self.vapid_public_key) and self.vapid_private_key_path.exists()
+        return bool(self.vapid_public_key) and self.chave_privada_vapid is not None
 
     @property
     def eh_desenvolvimento(self) -> bool:
