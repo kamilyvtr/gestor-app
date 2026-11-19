@@ -15,7 +15,7 @@ Sistema de gestão de salas, laboratórios e aulas do SENAI Bacabal.
 
 ## Links
 
-- Front-end: `https://gestor-app-backend-fpbt2hhvk-kamilyvtrs-projects.vercel.app`
+- Front-end: `https://gestor-app-backend.vercel.app`
 - API: `https://gestor-app-to6m.onrender.com` (`/docs` para o Swagger)
 - Repositório: `https://github.com/kamilyvtr/gestor-app`
 
