@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Gestor SENAI — integração do painel da coordenação
+   Gestor SENAI - integração do painel da coordenação
    --------------------------------------------------------------------------
    Consome a API (resumo, conflitos, avisos, alocações) e protege a tela.
    Depende de js/sessao.js.
@@ -23,6 +23,42 @@
     cancelamento: 'bg-rose-500',
     sistema: 'bg-slate-300'
   };
+
+  const ICONES_AVISO = {
+    sala: 'ph-door',
+    material: 'ph-package',
+    evento: 'ph-calendar-star',
+    cancelamento: 'ph-x-circle',
+    sistema: 'ph-info'
+  };
+
+  const FUNDOS_AVISO = {
+    sala: 'bg-senai-orange/10 text-senai-orange',
+    material: 'bg-sky-50 text-sky-600',
+    evento: 'bg-emerald-50 text-emerald-600',
+    cancelamento: 'bg-rose-50 text-rose-600',
+    sistema: 'bg-slate-100 text-slate-500'
+  };
+
+  // Usados no sino enquanto a API ainda não retorna avisos.
+  const AVISOS_DEMONSTRACAO = [
+    {
+      tipo: 'sala',
+      titulo: 'Lab 03 liberado mais cedo',
+      texto: 'A manutenção preventiva terminou antes do previsto. O laboratório está livre a partir das 14:00.',
+      destinatario: 'Coordenação',
+      quando: new Date(Date.now() - 35 * 60000).toISOString(),
+      exemplo: true
+    },
+    {
+      tipo: 'evento',
+      titulo: 'Semana de Inovação SENAI',
+      texto: 'Inscrições para as turmas da tarde abertas até sexta-feira, no portal do aluno.',
+      destinatario: 'Todos os alunos',
+      quando: new Date(Date.now() - 3 * 3600000).toISOString(),
+      exemplo: true
+    }
+  ];
 
   const porId = (id) => document.getElementById(id);
   const selecionar = (seletor) => document.querySelector(seletor);
@@ -75,6 +111,14 @@
     }[caractere]));
   }
 
+  function normalizar(valor) {
+    return String(valor ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  }
+
   function tempoRelativo(valor) {
     if (!valor) return '';
     const data = new Date(valor);
@@ -105,13 +149,13 @@
   function formatarPeriodo(inicio, fim) {
     const de = new Date(`${inicio}T12:00:00`);
     const ate = new Date(`${fim}T12:00:00`);
-    if (Number.isNaN(de.getTime()) || Number.isNaN(ate.getTime())) return `${inicio} — ${fim}`;
+    if (Number.isNaN(de.getTime()) || Number.isNaN(ate.getTime())) return `${inicio} - ${fim}`;
 
     if (de.getMonth() === ate.getMonth()) {
-      return `${de.getDate()} — ${ate.getDate()} de ${MESES_CURTOS[de.getMonth()]} de ${ate.getFullYear()}`;
+      return `${de.getDate()} - ${ate.getDate()} de ${MESES_CURTOS[de.getMonth()]} de ${ate.getFullYear()}`;
     }
 
-    return `${de.getDate()} de ${MESES_CURTOS[de.getMonth()]} — ${ate.getDate()} de ${MESES_CURTOS[ate.getMonth()]} de ${ate.getFullYear()}`;
+    return `${de.getDate()} de ${MESES_CURTOS[de.getMonth()]} - ${ate.getDate()} de ${MESES_CURTOS[ate.getMonth()]} de ${ate.getFullYear()}`;
   }
 
   function numeroDaSemana(data = new Date()) {
@@ -142,6 +186,7 @@
 
     if (porId('headerUserName')) porId('headerUserName').textContent = nome;
     if (porId('headerInitials')) porId('headerInitials').textContent = iniciais;
+    if (porId('profileMenuName')) porId('profileMenuName').textContent = nome;
     if (porId('sidebarName')) porId('sidebarName').textContent = nome;
     if (porId('sidebarInitials')) porId('sidebarInitials').textContent = iniciais;
   }
@@ -256,10 +301,8 @@
   function pintarAvisos(avisos) {
     const lista = porId('noticesList');
     const contador = porId('sidebarNoticeCount');
-    const ponto = porId('headerBellDot');
 
     if (contador) contador.textContent = avisos.length;
-    if (ponto) ponto.hidden = avisos.length === 0;
 
     if (!lista) return;
 
@@ -286,6 +329,43 @@
               <p class="mt-1 text-[8px] text-slate-400">Para: ${escapar(aviso.destinatario)}</p>
             </div>
             <span class="shrink-0 text-[8px] text-slate-500">${escapar(tempoRelativo(aviso.quando))}</span>
+          </div>
+        `;
+      })
+      .join('');
+  }
+
+  function pintarNotificacoes(avisos) {
+    const lista = porId('bellList');
+    const subtitulo = porId('bellSubtitle');
+    if (!lista) return;
+
+    const itens = avisos?.length ? avisos.slice(0, 6) : AVISOS_DEMONSTRACAO;
+
+    if (subtitulo) {
+      subtitulo.textContent = avisos?.length
+        ? `${itens.length} ${itens.length === 1 ? 'notificação recente' : 'notificações recentes'}`
+        : 'Exemplos de notificação';
+    }
+
+    lista.innerHTML = itens
+      .map((aviso) => {
+        const tipo = aviso.tipo || 'sistema';
+        const icone = ICONES_AVISO[tipo] || ICONES_AVISO.sistema;
+        const fundo = FUNDOS_AVISO[tipo] || FUNDOS_AVISO.sistema;
+        const meta = [escapar(aviso.destinatario || 'Coordenação'), escapar(tempoRelativo(aviso.quando))];
+        if (aviso.exemplo) meta.unshift('Exemplo');
+
+        return `
+          <div class="flex gap-3 border-b border-slate-100 py-3 last:border-0">
+            <span class="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg ${fundo}">
+              <i class="ph ${icone} text-[13px]"></i>
+            </span>
+            <div class="min-w-0 flex-1">
+              <p class="text-[10px] font-semibold leading-snug text-senai-dark">${escapar(aviso.titulo)}</p>
+              <p class="mt-0.5 text-[8.5px] leading-relaxed text-slate-500">${escapar(aviso.texto)}</p>
+              <p class="mt-1 text-[8px] text-slate-400">${meta.join(' · ')}</p>
+            </div>
           </div>
         `;
       })
@@ -389,6 +469,7 @@
           const ehConflito = /×|conflito/i.test(titulo);
           const ehLab = /^lab/i.test(sala);
           const ehPratica = /soldagem|clp|pr[áa]tica/i.test(titulo);
+          const buscaCard = normalizar([titulo, sala, aula.instrutor, nomeDoDia(dataISO), dataISO, hora].join(' '));
 
           let cardTone = 'border-l-4 border-slate-300 bg-slate-50';
           let cardBadge = '<span class="inline-flex items-center rounded bg-slate-200 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-slate-600">[SALA]</span>';
@@ -405,7 +486,7 @@
           }
 
           bodyHtml += `
-            <div class="schedule-block ${cardTone} rounded-lg p-3 shadow-sm transition-shadow hover:shadow-md cursor-pointer" data-date="${dataISO}" data-time="${hora}" data-room="${escapar(aula.sala)}" data-type="${ehLab ? 'lab' : 'sala'}">
+            <div class="schedule-block ${cardTone} rounded-lg p-3 shadow-sm transition-shadow hover:shadow-md cursor-pointer" data-date="${dataISO}" data-time="${hora}" data-room="${escapar(aula.sala)}" data-type="${ehLab ? 'lab' : 'sala'}" data-conflict="${ehConflito ? '1' : '0'}" data-search="${escapar(buscaCard)}">
               ${cardBadge}
               <p class="mt-2 text-[13px] font-semibold leading-snug text-slate-800">${escapar(aula.titulo)}</p>
               <p class="mt-1 text-[11px] leading-relaxed text-slate-500">${escapar(aula.sala)} · ${escapar(aula.instrutor)}</p>
@@ -448,6 +529,9 @@
       });
     });
 
+    // Reaplica a busca e o filtro ativo depois de cada renderização.
+    if (typeof window.applyGradeFilters === 'function') window.applyGradeFilters();
+
     sincronizarEstadoGlobal();
   }
 
@@ -475,6 +559,7 @@
       pintarResumo(resumo);
       pintarConflitos(conflitos);
       pintarAvisos(avisos);
+      pintarNotificacoes(avisos);
       pintarPeriodo(grade);
       renderizarGrade();
       const pickerAtual = porId('weekDatePicker');

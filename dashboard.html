@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#003B5C" />
-  <meta name="description" content="Gestor SENAI — painel da coordenação para alocação inteligente de laboratórios, salas e instrutores." />
+  <meta name="description" content="Gestor SENAI - painel da coordenação para alocação inteligente de laboratórios, salas e instrutores." />
   <meta name="version" content="1.0.0" />
 
   <!-- Identidade visual oficial -->
@@ -106,7 +106,7 @@
       <div class="pointer-events-none absolute -left-20 top-16 h-48 w-48 rounded-full bg-senai-orange/10 blur-3xl"></div>
 
       <div class="relative flex items-center justify-between px-6 pb-7 pt-7">
-        <a href="#top" class="flex items-center gap-3" aria-label="Gestor SENAI — início">
+        <a href="#top" class="flex items-center gap-3" aria-label="Gestor SENAI - início">
           <img src="assets/gestor-senai-icone-negativo.svg" alt="" aria-hidden="true" class="h-10 w-10 shrink-0" data-brand="logo-sidebar" />
           <div>
             <p class="text-[15px] font-semibold leading-none tracking-tight">Gestor <span class="font-light text-white/75">SENAI</span></p>
@@ -142,7 +142,7 @@
           <a href="#avisos" class="nav-link relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition" data-nav-link>
             <i class="ph ph-megaphone text-[17px]"></i>
             Avisos
-            <span id="sidebarNoticeCount" class="ml-auto rounded-xl bg-white px-1.5 py-0.5 text-[8px] font-semibold text-senai-dark">—</span>
+            <span id="sidebarNoticeCount" class="ml-auto rounded-xl bg-white px-1.5 py-0.5 text-[8px] font-semibold text-senai-dark">-</span>
           </a>
         </div>
 
@@ -150,7 +150,7 @@
 
       <div class="relative mx-3 mb-4 flex items-center gap-3 rounded-2xl p-3 transition hover:bg-white/5">
         <div class="relative grid h-9 w-9 shrink-0 place-items-center rounded-full bg-senai-orange/15 text-[10px] font-semibold text-senai-orange ring-1 ring-inset ring-senai-orange/25">
-          <span id="sidebarInitials">—</span>
+          <span id="sidebarInitials">-</span>
           <span class="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-senai-dark bg-emerald-400"></span>
         </div>
         <div class="min-w-0 flex-1">
@@ -188,10 +188,33 @@
               <span class="text-[8.5px] font-semibold uppercase tracking-[.12em] text-emerald-700">Sistema online</span>
             </div>
 
-            <button id="bellButton" aria-label="Ver notificações" class="relative grid h-10 w-10 place-items-center rounded-lg border border-slate-200 bg-white text-senai-dark transition hover:bg-slate-50">
-              <i class="ph ph-bell text-[18px]"></i>
-              <span id="headerBellDot" class="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-senai-orange ring-2 ring-white"></span>
-            </button>
+            <div class="relative">
+              <button id="bellButton" type="button" aria-label="Ver notificações" aria-haspopup="dialog" aria-expanded="false" class="relative grid h-10 w-10 place-items-center rounded-lg border border-slate-200 bg-white text-senai-dark transition hover:bg-slate-50">
+                <i class="ph ph-bell text-[18px]"></i>
+                <span id="headerBellDot" class="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-senai-orange ring-2 ring-white"></span>
+              </button>
+
+              <div id="bellPopover" class="absolute right-0 top-[calc(100%+10px)] z-50 hidden w-[330px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg" role="dialog" aria-label="Notificações recentes">
+                <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+                  <div>
+                    <p class="text-[11px] font-semibold text-senai-dark">Notificações</p>
+                    <p id="bellSubtitle" class="mt-0.5 text-[8.5px] text-slate-500">Avisos e alertas recentes</p>
+                  </div>
+                  <button id="bellClose" type="button" aria-label="Fechar notificações" class="grid h-7 w-7 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-senai-dark">
+                    <i class="ph ph-x text-[11px]"></i>
+                  </button>
+                </div>
+
+                <div id="bellList" class="max-h-[300px] overflow-y-auto px-4">
+                  <div class="py-6 text-center text-[9.5px] text-slate-500">Carregando notificações...</div>
+                </div>
+
+                <button id="bellSeeAll" type="button" class="flex w-full items-center justify-between border-t border-slate-100 px-4 py-2.5 text-[8.5px] font-semibold text-senai-dark transition hover:text-senai-orange">
+                  Ver todos os avisos
+                  <i class="ph ph-arrow-up-right text-[11px]"></i>
+                </button>
+              </div>
+            </div>
 
             <button id="logoutBtn" type="button" aria-label="Sair da conta" title="Sair"
               class="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-senai-dark transition hover:bg-slate-50">
@@ -201,15 +224,40 @@
 
             <div class="mx-1 hidden h-7 w-px bg-slate-200 sm:block"></div>
 
-            <div class="flex items-center gap-3 rounded-lg bg-[#003B5C] p-2 pr-3 text-white">
-              <div class="relative grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15 text-[10px] font-semibold text-white">
-                <span id="headerInitials">—</span>
+            <div class="relative">
+              <button id="profileButton" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Abrir menu do perfil" class="flex items-center gap-3 rounded-lg bg-[#003B5C] p-2 pr-3 text-white transition hover:bg-[#00496F]">
+                <div class="relative grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15 text-[10px] font-semibold text-white">
+                  <span id="headerInitials">-</span>
+                </div>
+                <div class="hidden text-left lg:block">
+                  <p id="headerUserName" class="text-[11px] font-semibold leading-none text-white">Coordenação</p>
+                  <p class="mt-1 text-[8.5px] text-white/60">Coordenação acadêmica</p>
+                </div>
+                <i class="ph ph-caret-down hidden text-[11px] text-white/60 sm:block"></i>
+              </button>
+
+              <div id="profileMenu" class="absolute right-0 top-[calc(100%+10px)] z-50 hidden w-56 overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg" role="menu" aria-label="Menu do perfil">
+                <div class="border-b border-slate-100 px-3 py-2.5">
+                  <p id="profileMenuName" class="truncate text-[10.5px] font-semibold text-senai-dark">Coordenação</p>
+                  <p class="mt-0.5 text-[8.5px] text-slate-500">Coordenação acadêmica</p>
+                </div>
+
+                <button type="button" role="menuitem" data-profile-action="perfil" class="mt-1 flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[10.5px] font-medium text-slate-700 transition hover:bg-slate-50 hover:text-senai-dark">
+                  <i class="ph ph-user-circle text-[14px]"></i>
+                  Meu Perfil
+                </button>
+                <button type="button" role="menuitem" data-profile-action="config" class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[10.5px] font-medium text-slate-700 transition hover:bg-slate-50 hover:text-senai-dark">
+                  <i class="ph ph-gear-six text-[14px]"></i>
+                  Configurações
+                </button>
+
+                <div class="my-1 h-px bg-slate-100"></div>
+
+                <button type="button" role="menuitem" data-profile-action="sair" class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[10.5px] font-medium text-rose-600 transition hover:bg-rose-50">
+                  <i class="ph ph-sign-out text-[14px]"></i>
+                  Sair
+                </button>
               </div>
-              <div class="hidden text-left lg:block">
-                <p id="headerUserName" class="text-[11px] font-semibold leading-none text-white">Coordenação</p>
-                <p class="mt-1 text-[8.5px] text-white/60">Coordenação acadêmica</p>
-              </div>
-              <i class="ph ph-caret-down hidden text-[11px] text-white/60 sm:block"></i>
             </div>
           </div>
         </div>
@@ -230,7 +278,7 @@
           <div class="flex flex-wrap items-center gap-2.5">
             <div class="hidden items-center gap-2 rounded-xl border border-senai-line bg-white px-3.5 py-2.5 text-[10px] font-medium text-slate-500 shadow-sm sm:flex">
               <i class="ph ph-calendar-blank text-[14px] text-senai-dark"></i>
-              <span id="periodoLabel">—</span>
+              <span id="periodoLabel">-</span>
             </div>
             <button id="newAllocation" class="inline-flex items-center gap-2 rounded-lg bg-[#F26522] px-4 py-3 text-[11px] font-semibold text-white shadow-md transition-colors hover:bg-[#d85a1a]">
               <i class="ph-bold ph-plus text-[15px]"></i>
@@ -247,7 +295,7 @@
               <div>
                 <p class="text-[9px] font-semibold uppercase tracking-[.16em] text-slate-500">Ocupação dos Labs</p>
                 <p class="mt-3 flex items-baseline gap-0.5 text-[33px] font-semibold leading-none tracking-[-0.05em] text-senai-dark">
-                  <span id="occupancyValue">—</span><span class="text-[15px] font-medium text-slate-500">%</span>
+                  <span id="occupancyValue">-</span><span class="text-[15px] font-medium text-slate-500">%</span>
                 </p>
               </div>
               <div class="relative grid h-12 w-12 shrink-0 place-items-center">
@@ -270,8 +318,8 @@
               <div id="occupancyBar" class="h-full w-0 rounded-full bg-senai-dark transition-all duration-700"></div>
             </div>
             <div class="mt-2.5 flex items-center justify-between text-[8.5px] text-slate-500">
-              <span id="labsUsage">— labs em uso</span>
-              <span id="labsTotal">— no total</span>
+              <span id="labsUsage">- labs em uso</span>
+              <span id="labsTotal">- no total</span>
             </div>
           </article>
 
@@ -302,7 +350,7 @@
 
             <div class="mt-3 flex items-center justify-between border-t border-slate-100 pt-2.5 text-[8.5px]">
               <span id="lessonsUpdated" class="text-slate-500">Sincronizando</span>
-              <span id="lessonsTotal" class="font-medium text-senai-dark">—</span>
+              <span id="lessonsTotal" class="font-medium text-senai-dark">-</span>
             </div>
           </article>
 
@@ -314,7 +362,7 @@
               <div>
                 <p class="text-[9px] font-semibold uppercase tracking-[.16em] text-slate-500">Conflitos</p>
                 <p class="mt-3 flex items-baseline gap-0.5 text-[33px] font-semibold leading-none tracking-[-0.05em] text-senai-orange">
-                  <span id="conflictsValue">—</span>
+                  <span id="conflictsValue">-</span>
                 </p>
               </div>
               <div class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-senai-orange/10 text-senai-orange">
@@ -349,7 +397,7 @@
                   <h2 class="text-[14.5px] font-semibold tracking-tight text-senai-dark">Programação semanal</h2>
                   <span id="weekBadge" class="rounded-xl bg-senai-mist px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-[.08em] text-slate-600">Semana atual</span>
                 </div>
-                <p class="mt-1 text-[9.5px] text-slate-500"><span id="periodoGrade">—</span> · <span id="allocationCount">carregando aulas</span></p>
+                <p class="mt-1 text-[9.5px] text-slate-500"><span id="periodoGrade">-</span> · <span id="allocationCount">carregando aulas</span></p>
               </div>
             </div>
 
@@ -372,10 +420,10 @@
 
           <div class="flex flex-col gap-3 border-b border-slate-100 px-5 py-3.5 lg:flex-row lg:items-center lg:justify-between">
             <div id="filterChips" class="no-scrollbar flex items-center gap-1.5 overflow-x-auto" aria-label="Filtros da grade">
-              <button class="filter-chip is-active shrink-0 rounded-xl border px-2.5 py-1.5 text-[9px] font-medium transition" data-filter="all">Todos</button>
-              <button class="filter-chip shrink-0 rounded-xl border px-2.5 py-1.5 text-[9px] font-medium transition" data-filter="lab">Laboratórios</button>
-              <button class="filter-chip shrink-0 rounded-xl border px-2.5 py-1.5 text-[9px] font-medium transition" data-filter="sala">Salas</button>
-              <button class="filter-chip shrink-0 rounded-xl border px-2.5 py-1.5 text-[9px] font-medium transition" data-filter="conflict">Conflitos</button>
+              <button class="filter-chip is-active shrink-0 rounded-xl border px-2.5 py-1.5 text-[9px] font-medium transition" data-filter="all" aria-pressed="true">Todos</button>
+              <button class="filter-chip shrink-0 rounded-xl border px-2.5 py-1.5 text-[9px] font-medium transition" data-filter="lab" aria-pressed="false">Laboratórios</button>
+              <button class="filter-chip shrink-0 rounded-xl border px-2.5 py-1.5 text-[9px] font-medium transition" data-filter="sala" aria-pressed="false">Salas</button>
+              <button class="filter-chip shrink-0 rounded-xl border px-2.5 py-1.5 text-[9px] font-medium transition" data-filter="conflict" aria-pressed="false">Conflitos</button>
             </div>
 
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-[8.5px] text-slate-500">
@@ -391,6 +439,12 @@
               <thead id="gradeHead"></thead>
               <tbody id="gradeBody"></tbody>
             </table>
+          </div>
+
+          <div id="gradeEmptyState" class="hidden px-5 py-10 text-center">
+            <i class="ph ph-funnel text-[24px] text-slate-300"></i>
+            <p class="mt-2 text-[10.5px] font-semibold text-senai-dark">Nenhuma aula encontrada</p>
+            <p class="mt-1 text-[9px] text-slate-500">Ajuste a busca ou selecione outro filtro.</p>
           </div>
 
           <div class="flex flex-col gap-2 border-t border-slate-100 px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
@@ -567,7 +621,7 @@
           </div>
         </label>
 
-        <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="mt-2.5 grid grid-cols-2 gap-3">
           <label class="block">
             <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Dia</span>
             <div class="relative mt-1.5">
@@ -600,15 +654,21 @@
           <span class="text-[8.5px] font-semibold uppercase tracking-[.15em] text-slate-500">Laboratório ou sala</span>
           <div class="relative mt-1.5">
             <select id="fieldRoom" class="w-full appearance-none rounded-xl border border-senai-line bg-white px-3.5 py-3 text-[11px] font-medium text-senai-dark outline-none transition focus:border-senai-dark/30 focus:ring-4 focus:ring-senai-dark/5">
-              <option value="Lab 01">Lab 01 — Metrologia</option>
-              <option value="Lab 02">Lab 02 — Soldagem</option>
-              <option value="Lab 03" selected>Lab 03 — Automação</option>
-              <option value="Lab 04">Lab 04 — Usinagem CNC</option>
-              <option value="Lab 05">Lab 05 — Automação avançada</option>
-              <option value="Sala 03">Sala 03 — Teoria</option>
+              <option value="Lab 01">Lab 01 - Metrologia</option>
+              <option value="Lab 02">Lab 02 - Soldagem</option>
+              <option value="Lab 03" selected>Lab 03 - Automação</option>
+              <option value="Lab 04">Lab 04 - Usinagem CNC</option>
+              <option value="Lab 05">Lab 05 - Automação avançada</option>
+              <option value="Sala 03">Sala 03 - Teoria</option>
             </select>
             <i class="ph ph-caret-down pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] text-slate-500"></i>
           </div>
+          <p id="roomConflictWarning" class="mt-2 hidden text-[9px] font-semibold text-red-600" role="alert">
+            <span class="inline-flex items-center gap-1.5">
+              <i class="ph-fill ph-warning-circle text-[12px]"></i>
+              Atenção: Horário já ocupado
+            </span>
+          </p>
         </label>
 
         <label class="mt-4 block">
@@ -633,7 +693,7 @@
             </span>
             <div>
               <p class="text-[9.5px] font-semibold text-senai-dark">Notificar alunos</p>
-              <p class="mt-0.5 text-[8px] text-slate-500">Enviar push em tempo real para a turma.</p>
+              <p class="mt-0.5 text-[7.5px] text-slate-400">Enviar push em tempo real para a turma.</p>
             </div>
           </div>
           <input id="notifyStudents" type="checkbox" checked class="peer sr-only" />
@@ -647,7 +707,7 @@
 
       <div class="border-t border-slate-100 bg-white px-6 py-4">
         <button type="submit" form="allocationForm" class="w-full rounded-xl bg-[#F26522] py-3 font-bold text-white transition hover:bg-[#d85a1a]">Salvar</button>
-        <button type="button" data-close-drawer class="mt-2 w-full rounded-xl px-3 py-1.5 text-[9px] font-medium text-slate-500 transition hover:bg-slate-50 hover:text-senai-dark">Cancelar</button>
+        <button type="button" data-close-drawer class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-[10px] font-semibold text-slate-600 transition hover:border-slate-400 hover:bg-slate-50 hover:text-senai-dark">Cancelar</button>
       </div>
     </aside>
   </div>
@@ -662,6 +722,14 @@
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase()
       .trim();
+
+    const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[char]));
 
     /* ---------- Sidebar ---------- */
     const sidebar = $('#sidebar');
@@ -747,7 +815,6 @@
     };
 
     const ruleState = { clp: true, solda: true, professor: true };
-    let lessonsToday = 120;
 
     /* ---------- Drawer de alocação ---------- */
     const drawer = $('#drawer');
@@ -761,6 +828,7 @@
 
     fieldDay?.addEventListener('change', () => { if (typeof atualizarSalasOcupadas === 'function') atualizarSalasOcupadas(); });
     fieldTime?.addEventListener('change', () => { if (typeof atualizarSalasOcupadas === 'function') atualizarSalasOcupadas(); });
+    fieldRoom?.addEventListener('change', () => { if (typeof atualizarAvisoConflito === 'function') atualizarAvisoConflito(); });
 
     function setFeedback(kind, title, text) {
       const styles = {
@@ -788,12 +856,24 @@
       feedback.innerHTML = '';
     }
 
+    const SALAS_DESCRICAO = {
+      'Lab 02': 'Soldagem',
+      'Lab 03': 'Automação',
+      'Lab 04': 'Usinagem CNC',
+      'Lab 05': 'Automação avançada',
+      'Sala 01': 'Teoria',
+      'Sala 03': 'Teoria'
+    };
+
     function popularSalas() {
       const salas = (window.GestorDashboard && window.GestorDashboard.salas) || [];
       if (!salas.length) return;
       const valorAtual = fieldRoom.value;
       fieldRoom.innerHTML = salas.map((sala) => {
-        return `<option value="${escapar(sala.nome)}" data-sala-id="${sala.id}">${escapar(sala.nome)}</option>`;
+        const detalhe = [sala.bloco, sala.andar].filter(Boolean).join(', ');
+        const descricao = SALAS_DESCRICAO[sala.nome] || detalhe;
+        const rotulo = descricao ? `${sala.nome} - ${descricao}` : sala.nome;
+        return `<option value="${escapeHtml(sala.nome)}" data-sala-id="${sala.id}" data-label="${escapeHtml(rotulo)}">${escapeHtml(rotulo)}</option>`;
       }).join('');
       if (valorAtual) fieldRoom.value = valorAtual;
       atualizarSalasOcupadas();
@@ -811,6 +891,26 @@
       return d.toISOString().slice(0, 10);
     }
 
+    function aulaNoHorario() {
+      const aulas = (window.GestorDashboard && window.GestorDashboard.aulasSemana) || [];
+      const dataISO = dataSelecionadaISO();
+      const hora = fieldTime.value;
+      const sala = fieldRoom.value;
+      if (!dataISO || !sala) return null;
+      for (const dia of aulas) {
+        if (dia.data !== dataISO) continue;
+        const encontrada = (dia.aulas || []).find((aula) => aula.inicio === hora && aula.sala === sala);
+        if (encontrada) return encontrada;
+      }
+      return null;
+    }
+
+    function atualizarAvisoConflito() {
+      const aviso = $('#roomConflictWarning');
+      if (!aviso) return;
+      aviso.classList.toggle('hidden', !aulaNoHorario());
+    }
+
     function atualizarSalasOcupadas() {
       const aulas = (window.GestorDashboard && window.GestorDashboard.aulasSemana) || [];
       const dataISO = dataSelecionadaISO();
@@ -824,18 +924,23 @@
       });
 
       Array.from(fieldRoom.options).forEach((opt) => {
+        const base = opt.dataset.label || opt.value;
         const ocupada = ocupadas.has(opt.value);
-        opt.disabled = ocupada;
-        opt.textContent = ocupada ? `${opt.value} — ocupado` : opt.value;
-        if (ocupada) opt.classList.add('text-slate-400');
-        else opt.classList.remove('text-slate-400');
+        opt.textContent = ocupada ? `${base} (ocupado)` : base;
       });
 
-      // Se a sala selecionada estiver ocupada, escolhe a primeira livre.
-      if (fieldRoom.options[fieldRoom.selectedIndex]?.disabled) {
-        const livre = Array.from(fieldRoom.options).find((o) => !o.disabled);
-        if (livre) fieldRoom.value = livre.value;
-      }
+      atualizarAvisoConflito();
+    }
+
+    function atualizarRotulosDias() {
+      const inicio = window.GestorDashboard && window.GestorDashboard.semanaInicio;
+      if (!inicio) return;
+      const nomes = { seg: 'Segunda', ter: 'Terça', qua: 'Quarta', qui: 'Quinta', sex: 'Sexta' };
+      Array.from(fieldDay.options).forEach((opt, indice) => {
+        const d = new Date(inicio);
+        d.setDate(d.getDate() + indice);
+        opt.textContent = `${nomes[opt.value] || opt.value} · ${d.getDate()}`;
+      });
     }
 
     function openDrawer(preset = {}) {
@@ -844,6 +949,7 @@
       drawer.setAttribute('aria-hidden', 'false');
       clearFeedback();
 
+      atualizarRotulosDias();
       popularSalas();
 
       if (preset.day) fieldDay.value = preset.day;
@@ -851,7 +957,7 @@
       if (preset.room) fieldRoom.value = preset.room;
       if (preset.discipline) fieldDiscipline.value = preset.discipline;
 
-      popularSalas();
+      atualizarSalasOcupadas();
 
       if (preset.conflict) {
         setFeedback(
@@ -932,8 +1038,6 @@
         d.setDate(d.getDate() + mapa[day]);
         dataISO = d.toISOString().slice(0, 10);
       }
-      const key = `${dataISO || day}-${time}`;
-
       let error = null;
 
       if (ruleState.clp && discipline === 'CLP' && !['Lab 03', 'Lab 05'].includes(room)) {
@@ -954,15 +1058,23 @@
         return;
       }
 
-      lessonsToday += 1;
-      $('#lessonsToday').textContent = lessonsToday;
-      $('#allocationCount').textContent = `${lessonsToday} aulas alocadas`;
+      const conflito = aulaNoHorario();
+      if (conflito) {
+        const detalhe = conflito.instrutor ? ` com ${conflito.instrutor}` : '';
+        setFeedback(
+          'error',
+          'Horário já ocupado',
+          `${room} já possui aula${detalhe} neste dia e horário. Escolha outro recurso ou outro horário.`
+        );
+        showToast('warning', 'Horário já ocupado', `${room} está indisponível neste horário.`);
+        atualizarAvisoConflito();
+        return;
+      }
 
       const emptySlot = dataISO
         ? document.querySelector(`.empty-slot[data-date="${dataISO}"][data-time="${time}"]`)
         : document.querySelector(`.empty-slot[data-day="${day}"][data-time="${time}"]`);
       if (emptySlot) {
-        const cell = emptySlot.parentElement;
         emptySlot.remove();
         // Re-renderização será feita pela API; aqui apenas feedback.
       }
@@ -1011,18 +1123,41 @@
 
     function applyFilters() {
       const query = normalize($('#globalSearch')?.value || '');
+      const buscaAtiva = query.length > 0;
+      let visiveis = 0;
 
       $$('.schedule-block').forEach((block) => {
-        const matchesType = activeFilter === 'all' || block.dataset.type === activeFilter;
-        const matchesQuery = !query || normalize(block.dataset.search).includes(query);
-        block.classList.toggle('is-dimmed', !(matchesType && matchesQuery));
+        const tipo = block.dataset.type;
+        const conflito = block.dataset.conflict === '1';
+
+        let matchesType = true;
+        if (activeFilter === 'lab') matchesType = tipo === 'lab';
+        else if (activeFilter === 'sala') matchesType = tipo === 'sala';
+        else if (activeFilter === 'conflict') matchesType = conflito;
+
+        const alvo = block.dataset.search || block.textContent || '';
+        const matchesQuery = !buscaAtiva || normalize(alvo).includes(query);
+        const mostrar = matchesType && matchesQuery;
+
+        block.classList.toggle('hidden', !mostrar);
+        if (mostrar) visiveis += 1;
       });
+
+      const filtrando = activeFilter !== 'all' || buscaAtiva;
+      $$('.empty-slot').forEach((slot) => slot.classList.toggle('hidden', filtrando));
+      $('#gradeEmptyState')?.classList.toggle('hidden', !filtrando || visiveis > 0);
     }
+
+    window.applyGradeFilters = applyFilters;
 
     $$('[data-filter]').forEach((button) => {
       button.addEventListener('click', () => {
-        $$('[data-filter]').forEach((other) => other.classList.remove('is-active'));
+        $$('[data-filter]').forEach((other) => {
+          other.classList.remove('is-active');
+          other.setAttribute('aria-pressed', 'false');
+        });
         button.classList.add('is-active');
+        button.setAttribute('aria-pressed', 'true');
         activeFilter = button.dataset.filter;
         applyFilters();
       });
@@ -1043,6 +1178,7 @@
       if (event.key === 'Escape') {
         closeDrawer();
         closeSidebar();
+        closePopovers();
         if ($('#globalSearch')?.value) {
           $('#globalSearch').value = '';
           applyFilters();
@@ -1051,21 +1187,75 @@
     });
 
     $('#todayButton')?.addEventListener('click', () => {
-      $('#todayColumn')?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-      showToast('info', 'Você está aqui', 'A quarta-feira, 13 de maio, está destacada na grade.');
+      const hoje = new Date();
+      const rotulo = hoje.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+      showToast('info', 'Você está aqui', `${rotulo.charAt(0).toUpperCase() + rotulo.slice(1)} está destacado na grade.`);
     });
 
-    $('#bellButton')?.addEventListener('click', () => {
-      $('#headerBellDot')?.classList.add('hidden');
-      const resumo = window.GestorPainel?.resumo;
-      if (resumo && resumo.conflitos > 0) {
+    /* ---------- Notificações e menu do perfil ---------- */
+    const bellButton = $('#bellButton');
+    const bellPopover = $('#bellPopover');
+    const profileButton = $('#profileButton');
+    const profileMenu = $('#profileMenu');
+
+    function closePopovers() {
+      [bellPopover, profileMenu].forEach((painel) => painel?.classList.add('hidden'));
+      bellButton?.setAttribute('aria-expanded', 'false');
+      profileButton?.setAttribute('aria-expanded', 'false');
+    }
+
+    function togglePopover(painel, botao) {
+      if (!painel) return;
+      const abrir = painel.classList.contains('hidden');
+      closePopovers();
+      if (!abrir) return;
+      painel.classList.remove('hidden');
+      botao?.setAttribute('aria-expanded', 'true');
+    }
+
+    bellButton?.addEventListener('click', () => {
+      const abriu = bellPopover?.classList.contains('hidden');
+      togglePopover(bellPopover, bellButton);
+      if (abriu) $('#headerBellDot')?.classList.add('hidden');
+    });
+
+    $('#bellClose')?.addEventListener('click', closePopovers);
+
+    $('#bellSeeAll')?.addEventListener('click', () => {
+      closePopovers();
+      $('#avisos')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    profileButton?.addEventListener('click', () => {
+      togglePopover(profileMenu, profileButton);
+    });
+
+    $$('[data-profile-action]').forEach((item) => {
+      item.addEventListener('click', () => {
+        const acao = item.dataset.profileAction;
+        closePopovers();
+
+        if (acao === 'sair') {
+          if (window.GestorAPI?.sair) window.GestorAPI.sair();
+          return;
+        }
+
         showToast(
-          'warning',
-          `${resumo.conflitos} conflito${resumo.conflitos === 1 ? '' : 's'} pendente${resumo.conflitos === 1 ? '' : 's'}`,
-          'Abra a lista de conflitos para revisar a grade da semana.'
+          'info',
+          acao === 'perfil' ? 'Meu Perfil' : 'Configurações',
+          'Esta área será liberada em uma próxima atualização.'
         );
-      } else {
-        showToast('info', 'Nenhum conflito pendente', 'A grade está consistente neste momento.');
+      });
+    });
+
+    document.addEventListener('click', (evento) => {
+      if (bellPopover && !bellPopover.contains(evento.target) && !bellButton?.contains(evento.target)) {
+        bellPopover.classList.add('hidden');
+        bellButton?.setAttribute('aria-expanded', 'false');
+      }
+      if (profileMenu && !profileMenu.contains(evento.target) && !profileButton?.contains(evento.target)) {
+        profileMenu.classList.add('hidden');
+        profileButton?.setAttribute('aria-expanded', 'false');
       }
     });
 
@@ -1085,14 +1275,14 @@
   </script>
 
   <script>
-    /* Identidade visual — confirma no console de onde cada arte oficial foi carregada. */
+    /* Identidade visual - confirma no console de onde cada arte oficial foi carregada. */
     document.querySelectorAll('img[data-brand]').forEach((imagem) => {
       const relatar = () => {
         const caminho = imagem.currentSrc || imagem.src;
         const ok = imagem.complete && imagem.naturalWidth > 0;
         console[ok ? 'info' : 'error'](
           `[Gestor SENAI] Marca "${imagem.dataset.brand}" → ${caminho}` +
-          (ok ? ` (${imagem.naturalWidth}×${imagem.naturalHeight}px)` : ' — não carregou')
+          (ok ? ` (${imagem.naturalWidth}×${imagem.naturalHeight}px)` : ' - não carregou')
         );
       };
       if (imagem.complete) relatar();
